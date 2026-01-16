@@ -1,0 +1,4 @@
+<template>
+  <ColorModeButton />
+  <slot />
+</template>

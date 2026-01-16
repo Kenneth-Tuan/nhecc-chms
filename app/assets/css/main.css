@@ -1,0 +1,65 @@
+@import "primeicons/primeicons.css";
+
+/* 1. 基礎重置 */
+html {
+  font-size: 16px; /* 定義 rem 基準 */
+  font-family: "Inter", system-ui, sans-serif;
+  scroll-behavior: smooth;
+}
+
+/* 2. 全域 Body 設定 (核心關鍵) */
+body {
+  margin: 0;
+  padding: 0;
+
+  /* 字體設定：綁定 Preset 定義的 'Inter var' */
+  font-family: var(--p-font-family);
+
+  /* --- 自動色彩切換機制 --- */
+
+  /* 背景色 */
+  /* Light: #ffffff (surface.0) */
+  /* Dark:  #0f172a (surface.900) */
+  background-color: var(--p-content-background);
+
+  /* 文字基本顏色 */
+  /* Light: #334155 (surface.700) - 這是深灰藍色，閱讀舒適 */
+  /* Dark:  #ffffff (surface.0)   - 這是純白，對比度高 */
+  color: var(--p-text-color);
+
+  /* 字體平滑優化 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 3. 頁面轉場動畫 (Nuxt Page Transition) */
+.page-enter-active,
+.page-leave-active {
+  transition: all 0.3s ease-in-out;
+}
+
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+  filter: blur(1rem);
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+/* 4. (可選) 針對 Dark Mode 的額外微調 */
+/* 如果您覺得 Dark Mode 下的某些原生捲軸太亮，可以加上這段 */
+.dark body {
+  color-scheme: dark; /* 告訴瀏覽器這是暗色模式，它會自動把捲軸變黑 */
+}
