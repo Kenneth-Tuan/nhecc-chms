@@ -30,8 +30,20 @@ export default defineConfig({
     colors: {
       // 這樣你就可以用 text-primary, bg-primary, border-primary
       // 它會自動對應到 PrimeVue 當前的主題色
-      primary: "var(--p-primary-color)",
-      "primary-contrast": "var(--p-primary-contrast-color)",
+      primary: {
+        DEFAULT: "var(--p-primary-color)",
+        50: "var(--p-primary-50)",
+        100: "var(--p-primary-100)",
+        200: "var(--p-primary-200)",
+        300: "var(--p-primary-300)",
+        400: "var(--p-primary-400)",
+        500: "var(--p-primary-500)",
+        600: "var(--p-primary-600)",
+        700: "var(--p-primary-700)",
+        800: "var(--p-primary-800)",
+        900: "var(--p-primary-900)",
+        950: "var(--p-primary-950)",
+      },
 
       // 也可以對應 Surface (背景色系)
       surface: {
@@ -39,8 +51,18 @@ export default defineConfig({
         50: "var(--p-surface-50)",
         100: "var(--p-surface-100)",
         200: "var(--p-surface-200)",
-        // ...以此類推
+        300: "var(--p-surface-300)",
+        400: "var(--p-surface-400)",
+        500: "var(--p-surface-500)",
+        600: "var(--p-surface-600)",
+        700: "var(--p-surface-700)",
+        800: "var(--p-surface-800)",
+        900: "var(--p-surface-900)",
+        950: "var(--p-surface-950)",
       },
+
+      // 也可以對應 Text (文字顏色系)
+      text: { muted: "var(--p-text-muted-color)" },
     },
   },
 });

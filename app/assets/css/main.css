@@ -1,5 +1,10 @@
 @import "primeicons/primeicons.css";
 
+/* 1. 定義圖層順序 (這行非常重要，確立了權力遊戲的規則) */
+/* base (重置) < primevue (元件) < utilities (UnoCSS 工具類) */
+@layer tailwind-base, primevue, tailwind-utilities;
+@import url("@unocss/reset/tailwind-compat.css") layer(tailwind-base);
+
 /* 1. 基礎重置 */
 html {
   font-size: 16px; /* 定義 rem 基準 */

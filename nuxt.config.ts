@@ -249,14 +249,17 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
   modules: [
-    "@primevue/nuxt-module",
     "@unocss/nuxt",
+    "@primevue/nuxt-module",
     "@vueuse/nuxt",
     "@pinia/nuxt",
     "pinia-plugin-persistedstate/nuxt",
   ],
 
-  css: ["@unocss/reset/tailwind-compat.css", "~/assets/css/main.css"],
+  css: [
+    // "@unocss/reset/tailwind-compat.css",
+    "~/assets/css/main.css",
+  ],
 
   primevue: {
     usePrimeVue: true,
