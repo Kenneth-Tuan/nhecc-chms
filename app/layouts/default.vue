@@ -1,6 +1,6 @@
 <template>
   <div class="">
-    <ColorModeButton />
+    <!-- <ColorModeButton /> -->
     <slot />
   </div>
 </template>

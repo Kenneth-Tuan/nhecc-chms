@@ -99,7 +99,7 @@ onUnmounted(() => {
             root: {
               class: [
                 'border-none',
-                'shadow-md overflow-hidden',
+                'shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden',
                 'dark:bg-surface-800',
               ],
             },

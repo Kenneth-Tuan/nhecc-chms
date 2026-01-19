@@ -1,218 +1,123 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
-import { useRouter } from "vue-router";
-import { useAuth } from "@/composables/useAuth";
-import { externalAuth } from "@/plugins/liff.js";
 
-const email = ref("");
-const password = ref("");
-const loading = ref(false);
-const errorMsg = ref("");
+const formData = ref({
+  account: "",
+  password: "",
+});
 
-const router = useRouter();
-const { loginWithEmail, loginWithGoogle } = useAuth();
-const googleLoading = ref(false);
-
-// Firebase error code translations
-const getErrorMessage = (errorCode) => {
-  const errorMessages = {
-    "auth/invalid-email": "Email 格式不正確",
-    "auth/user-disabled": "此帳號已被停用",
-    "auth/user-not-found": "找不到此帳號",
-    "auth/wrong-password": "密碼錯誤",
-    "auth/invalid-credential": "帳號或密碼錯誤",
-    "auth/too-many-requests": "登入嘗試次數過多，請稍後再試",
-    "auth/popup-closed-by-user": "登入視窗已關閉",
-    "auth/popup-blocked": "彈出視窗被封鎖，請允許彈出視窗",
-    "auth/cancelled-popup-request": "登入已取消",
-    "auth/account-exists-with-different-credential":
-      "此 Email 已使用其他方式註冊",
-  };
-  return errorMessages[errorCode] || "登入失敗，請稍後再試";
+const handleLogin = () => {
+  // Handle login logic
+  console.log("Login attempt", formData.value);
 };
-
-async function onLogin() {
-  if (!email.value || !password.value) {
-    errorMsg.value = "請輸入帳號與密碼";
-    return;
-  }
-
-  loading.value = true;
-  errorMsg.value = "";
-
-  try {
-    await loginWithEmail(email.value, password.value);
-    router.push("/");
-  } catch (err) {
-    errorMsg.value = getErrorMessage(err.code);
-  } finally {
-    loading.value = false;
-  }
-}
-
-function onLineLogin() {
-  console.log("LINE Login triggered");
-  externalAuth();
-}
-
-async function onGoogleLogin() {
-  googleLoading.value = true;
-  errorMsg.value = "";
-
-  try {
-    await loginWithGoogle();
-    router.push("/");
-  } catch (err) {
-    errorMsg.value = getErrorMessage(err.code);
-  } finally {
-    googleLoading.value = false;
-  }
-}
-
-function goToRegister() {
-  router.push("/register");
-}
 </script>
 
 <template>
   <div
-    class="u-flex u-items-center u-justify-center u-min-h-screen u-bg-surface-100 dark:u-bg-nhecc-dark-900! u-transition-colors u-duration-300"
+    class="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-900 transition-colors duration-300"
   >
     <div
-      class="u-w-full u-max-w-400px u-p-8 u-flex u-flex-col u-items-center u-justify-center"
+      class="w-full max-w-[420px] bg-white dark:bg-surface-900 shadow-2xl rounded-3xl overflow-hidden flex flex-col min-h-[750px]"
     >
-      <!-- Main Login Card -->
-      <Card
-        class="u-w-full u-rd-24px u-border-none u-shadow-xl dark:u-bg-#2a1f1a! u-overflow-hidden"
-      >
-        <template #content>
-          <div class="u-text-center u-mb-6">
-            <h2 class="u-text-1.5rem u-font-700 u-mb-1">Welcome Back</h2>
-            <p
-              class="u-text-surface-500 dark:u-text-surface-400 u-text-0.875rem"
-            >
-              Please sign in to continue
-            </p>
+      <main class="flex-1 p-8 flex flex-col">
+        <!-- Header -->
+        <div class="text-center mt-6 mb-10">
+          <div class="w-16 h-16 mx-auto">
+            <img src="@/assets/icons/NHECC_ICON-01.png" alt="Logo" />
           </div>
+          <h1 class="text-2xl font-bold text-slate-800 dark:text-white">
+            歡迎回來
+          </h1>
+        </div>
 
-          <form @submit.prevent="onLogin" class="u-flex u-flex-col u-gap-6">
-            <!-- Email Field -->
-            <div class="u-flex u-flex-col u-gap-2">
-              <label
-                for="email"
-                class="u-text-0.875rem u-font-600 u-text-surface-700 dark:u-text-surface-300"
-                >Email or Username</label
-              >
-              <IconField>
-                <InputIcon class="pi pi-user" />
-                <InputText
-                  id="email"
-                  v-model="email"
-                  placeholder="Enter your email"
-                  class="u-w-full custom-input"
-                  :disabled="loading"
-                />
-              </IconField>
-            </div>
+        <!-- Form -->
+        <form class="space-y-4" @submit.prevent="handleLogin">
+          <FloatLabel variant="in">
+            <InputText v-model="formData.account" fluid />
+            <label for="on_label">Email 或 手機號碼</label>
+          </FloatLabel>
 
-            <!-- Password Field -->
-            <div class="u-flex u-flex-col u-gap-2">
-              <label
-                for="password"
-                class="u-text-0.875rem u-font-600 u-text-surface-700 dark:u-text-surface-300"
-                >Password</label
-              >
-              <IconField>
-                <InputIcon class="pi pi-lock" />
-                <Password
-                  id="password"
-                  v-model="password"
-                  placeholder="Enter your password"
-                  :feedback="false"
-                  toggleMask
-                  class="u-w-full"
-                  inputClass="u-w-full custom-input"
-                  :disabled="loading"
-                />
-              </IconField>
-            </div>
+          <FloatLabel variant="in">
+            <InputText v-model="formData.password" fluid />
+            <label for="on_label">密碼</label>
+          </FloatLabel>
 
-            <!-- Forgot Password -->
-            <div class="u-text-right">
-              <a
-                href="#"
-                class="u-text-primary u-text-0.8125rem u-font-600 u-no-underline hover:u-underline"
-                >Forgot Password?</a
-              >
-            </div>
+          <Button
+            label="登入 (Login)"
+            type="submit"
+            class="!w-full !text-lg !font-bold shadow-sm shadow-primary-500/20"
+          />
+        </form>
 
-            <!-- Error Message -->
-            <Message
-              v-if="errorMsg"
-              severity="error"
-              size="small"
-              variant="simple"
+        <!-- Links -->
+        <div class="flex items-center justify-between mt-6 px-1">
+          <NuxtLink
+            to="/register"
+            class="text-primary-500 hover:underline text-sm font-medium"
+            >註冊新帳號</NuxtLink
+          >
+          <NuxtLink
+            to="#"
+            class="text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 text-sm font-medium"
+            >忘記密碼</NuxtLink
+          >
+        </div>
+
+        <!-- Divider -->
+        <div class="relative my-8">
+          <Divider align="center" type="solid">
+            <span
+              class="text-xs uppercase text-slate-400 font-medium tracking-wider px-2"
+              >或是透過以下方式繼續</span
             >
-              {{ errorMsg }}
-            </Message>
+          </Divider>
+        </div>
 
-            <!-- Submit Button -->
-            <Button
-              type="submit"
-              label="Log In"
-              icon="pi pi-sign-in"
-              iconPos="right"
-              class="u-w-full u-rd-12px u-p-3 u-font-700"
-              :loading="loading"
-            />
-
-            <!-- Divider -->
-            <Divider align="center" class="u-my-2">
-              <span class="u-text-0.75rem u-text-surface-400 u-font-700"
-                >OR</span
-              >
-            </Divider>
-
-            <!-- Third Party Login -->
-            <Button
-              type="button"
-              label="Google Login"
-              icon="pi pi-google"
-              class="u-w-full u-rd-12px u-font-600"
-              severity="danger"
-              outlined
-              :loading="googleLoading"
-              @click="onGoogleLogin"
-            />
-
-            <Button
-              type="button"
-              label="LINE Login"
-              icon="pi pi-comment"
-              class="u-w-full u-rd-12px u-font-600 u-mt-2"
-              severity="success"
-              outlined
-              @click="onLineLogin"
-            />
-
-            <!-- Register Link -->
-            <div class="u-text-center u-mt-4">
-              <span
-                class="u-text-0.875rem u-text-surface-600 dark:u-text-surface-400"
-                >New here?
-              </span>
-              <a
-                href="#"
-                @click.prevent="goToRegister"
-                class="u-text-primary u-text-0.875rem u-font-700 u-no-underline hover:u-underline"
-                >Register Account</a
-              >
+        <!-- Social Login -->
+        <div class="space-y-3">
+          <Button
+            outlined
+            severity="secondary"
+            class="!w-full !py-3 !rounded-lg !border-slate-200 dark:!border-slate-700 !text-slate-700 dark:!text-slate-200 transition-all"
+          >
+            <div class="!w-6 !h-6">
+              <img src="@/assets/icons/google.svg" alt="Google" />
             </div>
-          </form>
-        </template>
-      </Card>
+            使用 Google 繼續
+          </Button>
+
+          <Button
+            outlined
+            severity="secondary"
+            class="!w-full !py-3 !rounded-lg !border-slate-200 dark:!border-slate-700 !text-slate-700 dark:!text-slate-200 transition-all"
+          >
+            <div class="!w-6 !h-6">
+              <img src="@/assets/icons/line.svg" alt="Line" />
+            </div>
+            使用 LINE 繼續
+          </Button>
+        </div>
+
+        <!-- Footer Text -->
+        <div class="mt-auto pb-6 pt-10 text-center">
+          <p
+            class="text-[11px] text-slate-400 dark:text-slate-500 tracking-tight"
+          >
+            登入即代表您同意
+            <NuxtLink
+              to="#"
+              class="underline hover:text-slate-600 dark:hover:text-slate-300"
+              >服務條款</NuxtLink
+            >
+            與
+            <NuxtLink
+              to="#"
+              class="underline hover:text-slate-600 dark:hover:text-slate-300"
+              >隱私政策</NuxtLink
+            >
+          </p>
+        </div>
+      </main>
     </div>
   </div>
 </template>
-
-<style scoped></style>

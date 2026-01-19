@@ -5,21 +5,21 @@ const AppPreset = definePreset(Aura, {
   semantic: {
     // 1. 全域基礎設定
     primary: {
-      // 基於您提供的 #e57f4f 生成的完整色階
-      50: "#fdf6f3",
-      100: "#fae8e0",
-      200: "#f5d1c2",
-      300: "#efb099",
-      400: "#e99272",
-      500: "#e57f4f", // 您指定的主色
-      600: "#d96236",
-      700: "#b44d28",
-      800: "#913e24",
-      900: "#763621",
-      950: "#411a0e",
+      // 🔵 改用藍色系 (Based on Tailwind Blue / Royal Blue)
+      50: "#eff6ff", // 極淺藍 (適合背景)
+      100: "#dbeafe", // 淺藍 (適合 Hover 背景)
+      200: "#bfdbfe", // 輔助色 (您圖片中的淺藍色，適合裝飾)
+      300: "#93c5fd",
+      400: "#60a5fa",
+      500: "#2563eb", // 🌟 主色 (Royal Blue): 用於按鈕，高對比，長輩友善
+      600: "#1d4ed8", // Hover 狀態 (更深一點)
+      700: "#1e40af", // Active 狀態
+      800: "#1e3a8a",
+      900: "#172554",
+      950: "#0b1120",
     },
     focusRing: {
-      width: "1px",
+      width: "2px", // 建議：對長輩來說，1px 可能太細，2px 較清楚
       style: "solid",
       color: "{primary.color}",
       offset: "2px",
@@ -53,7 +53,7 @@ const AppPreset = definePreset(Aura, {
         fontSize: "1.125rem",
       },
 
-      // 表單聚焦時無外圈光暈
+      // 表單聚焦時無外圈光暈 (依照您原本設定)
       focusRing: {
         width: "0",
         style: "none",
@@ -149,6 +149,8 @@ const AppPreset = definePreset(Aura, {
         },
       },
       dark: {
+        // ⚠️ 修正：這裡定義深色模式的 Surface 色階 (Slate/Gray)
+        // 確保 0 是最深，900 依然是深色，但在 Content Mapping 時會反轉使用
         surface: {
           0: "#ffffff",
           50: "#f8fafc",
@@ -164,21 +166,20 @@ const AppPreset = definePreset(Aura, {
           950: "#020617",
         },
         // 在 Dark Mode 中，Primary 通常會自動選用較亮的色階 (如 400)
-        // 這裡保留您原始截圖的設定邏輯
         primary: {
-          color: "{primary.400}",
+          color: "{primary.400}", // 深色模式下用亮藍色 (#60a5fa) 確保可視性
           contrastColor: "{surface.900}",
           hoverColor: "{primary.300}",
           activeColor: "{primary.200}",
         },
         text: {
-          color: "{surface.0}",
+          color: "{surface.0}", // 白字
           hoverColor: "{surface.0}",
           mutedColor: "{surface.400}",
           hoverMutedColor: "{surface.300}",
         },
         content: {
-          background: "{surface.900}",
+          background: "{surface.900}", // 深色背景
           hoverBackground: "{surface.800}",
           borderColor: "{surface.700}",
           color: "{text.color}",
@@ -190,7 +191,7 @@ const AppPreset = definePreset(Aura, {
           filledBackground: "{surface.800}",
           filledHoverBackground: "{surface.800}",
           filledFocusBackground: "{surface.800}",
-          borderColor: "{surface.600}",
+          borderColor: "{surface.700}", // 修正邊框顏色，讓它在深色模式更明顯
           hoverBorderColor: "{surface.500}",
           focusBorderColor: "{primary.color}",
           invalidBorderColor: "{red.300}",
