@@ -64,5 +64,14 @@ export default defineConfig({
       // 也可以對應 Text (文字顏色系)
       text: { muted: "var(--p-text-muted-color)" },
     },
+    extend: {
+      padding: {
+        "safe-top": "env(safe-area-inset-top)",
+        "safe-bottom": "env(safe-area-inset-bottom)",
+      },
+      height: {
+        "safe-top": "env(safe-area-inset-top)",
+      },
+    },
   },
 });

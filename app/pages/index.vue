@@ -58,7 +58,7 @@ onUnmounted(() => {
 
 <template>
   <div class="flex flex-col gap-6">
-    <section class="px-4">
+    <section>
       <div class="relative w-full overflow-hidden rounded-md shadow-xl group">
         <div
           class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10"
@@ -86,7 +86,7 @@ onUnmounted(() => {
     </section>
 
     <!-- Announcements -->
-    <section class="px-4">
+    <section>
       <div class="flex items-center justify-between mb-5 px-1">
         <h2 class="text-2xl font-bold tracking-tight">Announcements</h2>
         <Button label="View All" variant="text" un-font="bold" />
@@ -149,7 +149,7 @@ onUnmounted(() => {
     </section>
 
     <!-- Church News -->
-    <section class="px-4">
+    <section>
       <div class="flex items-center justify-between mb-5 px-1">
         <h2 class="text-2xl font-bold tracking-tight">Church News</h2>
         <Button
