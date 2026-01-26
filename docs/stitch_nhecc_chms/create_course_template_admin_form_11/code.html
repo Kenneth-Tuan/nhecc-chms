@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-Hant"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>小組長儀表板 - 教會小組系統</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;family=Noto+Sans+TC:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#2563eb", secondary: "#f4a261", "background-light": "#f6f6f8", surface: "#ffffff", "background-dark": "#111621"}, fontFamily: {display: "Lexend", sans: ["Lexend", "Noto Sans TC", "sans-serif"]}, boxShadow: {soft: "0 4px 20px -2px rgba(229, 127, 79, 0.1)", card: "0 2px 8px rgba(0, 0, 0, 0.04)"}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}}}};</script>
+<style>.hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }.hide-scrollbar {
+        -ms-overflow-style: none;scrollbar-width: none;}
+</style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex justify-center items-start pt-0 md:pt-10 pb-0 md:pb-10">
+<div class="w-full max-w-[430px] bg-background-light md:rounded-[2.5rem] shadow-2xl overflow-hidden min-h-screen md:min-h-[850px] md:h-[90vh] flex flex-col relative border border-white/50 ring-1 ring-black/5">
+<header class="px-6 pt-10 pb-4 bg-white/80 backdrop-blur-sm sticky top-0 z-20 border-b border-orange-50/50">
+<div class="flex justify-between items-start">
+<div>
+<h1 class="text-2xl font-bold text-slate-900 tracking-tight">平安，大衛小組長</h1>
+<div class="flex items-center gap-1 mt-1 text-slate-500">
+<span class="material-symbols-outlined text-base text-primary">location_on</span>
+<span class="text-xs font-medium">所屬牧區：張牧區</span>
+</div>
+</div>
+<div class="size-10 rounded-full bg-slate-100 border border-slate-200 bg-cover bg-center shadow-sm" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC5e71vqBgbW38C8M9UjgMZp7eoj_3KLH-pxxfNphPiaGWsveV8qP2RKrHjAyWrg_SCm8dCO_FRxsv40xO3S9aPWIiagn40G2Wg3KoE9PeA9B4s2bMLP6IT8NAfUeb5W_O4MNAPWuj_v48lq5wsImk6VhPH7VjqcQ8ykZH7heAt6f25rIw5sroN8HTdpVF-GbNOax3PB5Q_TT1ADE1FiKLrdKVjRFSj4d1weSnikj9AhqiVoXAkfANBn-FHk_3XMUwxK2l_Z4mLQ4w");'></div>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto overflow-x-hidden hide-scrollbar pb-24 scroll-smooth">
+<div class="px-6 py-6">
+<div class="bg-white rounded-2xl p-5 shadow-soft border border-orange-100/50 flex justify-between items-center divide-x divide-orange-100">
+<div class="flex-1 text-center px-1">
+<span class="block text-2xl font-bold text-slate-800">12</span>
+<span class="text-xs text-slate-400 font-medium mt-0.5 block">組員 <span class="hidden sm:inline"> (人)</span></span>
+</div>
+<div class="flex-1 text-center px-1">
+<span class="block text-2xl font-bold text-primary">10</span>
+<span class="text-xs text-primary/80 font-medium mt-0.5 block">本週出席</span>
+</div>
+<div class="flex-1 text-center px-1">
+<span class="block text-2xl font-bold text-slate-800">2</span>
+<span class="text-xs text-slate-400 font-medium mt-0.5 block">慕道友</span>
+</div>
+</div>
+</div>
+<div class="px-6 mb-8">
+<button class="w-full group relative overflow-hidden rounded-2xl border-2 border-primary/30 hover:border-primary border-dashed bg-white hover:bg-orange-50/30 transition-all duration-300 p-5 flex flex-col items-center justify-center text-center">
+<div class="size-10 rounded-full bg-orange-100/50 text-primary flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-2xl">person_add</span>
+</div>
+<span class="text-base font-bold text-primary group-hover:text-primary-dark transition-colors">+ 新增 / 邀請新組員</span>
+<span class="text-xs text-slate-400 mt-1">搜尋系統名單或產生邀請連結</span>
+</button>
+</div>
+<div class="mb-8">
+<div class="px-6 flex justify-between items-end mb-4">
+<h2 class="text-lg font-bold text-slate-800">需優先關懷</h2>
+<button class="text-xs text-primary font-medium hover:underline">查看全部</button>
+</div>
+<div class="flex overflow-x-auto gap-4 px-6 pb-4 snap-x hide-scrollbar">
+<div class="snap-center shrink-0 w-[240px] bg-white rounded-xl p-4 shadow-card border-l-4 border-red-500 flex flex-col justify-between h-32 relative group hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-500 font-bold text-sm border border-slate-100">陳</div>
+<div>
+<h3 class="font-bold text-slate-800">陳小明</h3>
+<p class="text-[10px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded inline-block mt-1">上次出席: 3週前</p>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between mt-3">
+<span class="inline-flex items-center px-2 py-1 rounded bg-red-50 text-red-600 text-xs font-medium border border-red-100">
+                            S101 缺席 2 堂
+                        </span>
+<button class="size-8 rounded-full bg-[#06C755]/10 text-[#06C755] hover:bg-[#06C755] hover:text-white flex items-center justify-center transition-colors shadow-sm">
+<span class="material-symbols-outlined text-lg">chat_bubble</span>
+</button>
+</div>
+</div>
+<div class="snap-center shrink-0 w-[240px] bg-white rounded-xl p-4 shadow-card border-l-4 border-orange-400 flex flex-col justify-between h-32 relative group hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-500 font-bold text-sm border border-slate-100">王</div>
+<div>
+<h3 class="font-bold text-slate-800">王心怡</h3>
+<p class="text-[10px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded inline-block mt-1">剛加入小組</p>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between mt-3">
+<span class="inline-flex items-center px-2 py-1 rounded bg-orange-50 text-orange-600 text-xs font-medium border border-orange-100">
+                            需安排受洗談話
+                        </span>
+<button class="size-8 rounded-full bg-[#06C755]/10 text-[#06C755] hover:bg-[#06C755] hover:text-white flex items-center justify-center transition-colors shadow-sm">
+<span class="material-symbols-outlined text-lg">chat_bubble</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="px-6 mb-4">
+<div class="flex justify-between items-end mb-4">
+<h2 class="text-lg font-bold text-slate-800">組員修課狀況</h2>
+</div>
+<div class="flex flex-col gap-3">
+<div class="bg-white p-4 rounded-xl shadow-card flex items-center justify-between group cursor-pointer hover:shadow-md transition-shadow">
+<div class="flex items-center gap-4">
+<div class="size-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm">林</div>
+<div>
+<h3 class="font-bold text-slate-800 text-sm">林雅婷</h3>
+<p class="text-xs text-slate-500 mt-0.5">M200 門徒班</p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-green-50 text-green-600 text-xs font-medium border border-green-100">
+                        出席正常
+                    </span>
+</div>
+<div class="bg-white p-4 rounded-xl shadow-card flex items-center justify-between group cursor-pointer hover:shadow-md transition-shadow">
+<div class="flex items-center gap-4">
+<div class="size-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm">張</div>
+<div>
+<h3 class="font-bold text-slate-800 text-sm">張建國</h3>
+<p class="text-xs text-slate-500 mt-0.5">S101 成長班</p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-orange-50 text-orange-600 text-xs font-medium border border-orange-100">
+                        作業遲交
+                    </span>
+</div>
+<div class="bg-white p-4 rounded-xl shadow-card flex items-center justify-between group cursor-pointer hover:shadow-md transition-shadow border border-transparent hover:border-primary/20">
+<div class="flex items-center gap-4 opacity-60">
+<div class="size-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center font-bold text-sm">李</div>
+<div>
+<h3 class="font-bold text-slate-800 text-sm">李淑芬</h3>
+<p class="text-xs text-slate-500 mt-0.5">本季未修課</p>
+</div>
+</div>
+<div class="flex items-center gap-1 text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100 hover:bg-slate-100 hover:text-slate-600 transition-colors">
+<span class="text-xs">點擊推薦課程</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<nav class="absolute bottom-0 left-0 w-full bg-white border-t border-slate-100 px-6 py-3 flex justify-between items-center z-30 pb-6 md:pb-5">
+<a class="flex flex-col items-center gap-1 min-w-[3.5rem] group" href="#">
+<div class="bg-primary/10 rounded-full px-4 py-1 group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-primary text-2xl group-hover:scale-105 transition-transform">dashboard</span>
+</div>
+<span class="text-[10px] font-bold text-primary">儀表板</span>
+</a>
+<a class="flex flex-col items-center gap-1 min-w-[3.5rem] group" href="#">
+<div class="px-4 py-1">
+<span class="material-symbols-outlined text-slate-400 text-2xl group-hover:text-slate-600 transition-colors">groups</span>
+</div>
+<span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-600">我的小組</span>
+</a>
+<a class="flex flex-col items-center gap-1 min-w-[3.5rem] group" href="#">
+<div class="px-4 py-1">
+<span class="material-symbols-outlined text-slate-400 text-2xl group-hover:text-slate-600 transition-colors">edit_note</span>
+</div>
+<span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-600">牧養筆記</span>
+</a>
+<a class="flex flex-col items-center gap-1 min-w-[3.5rem] group" href="#">
+<div class="px-4 py-1">
+<span class="material-symbols-outlined text-slate-400 text-2xl group-hover:text-slate-600 transition-colors">settings</span>
+</div>
+<span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-600">設定</span>
+</a>
+</nav>
+</div>
+</body></html>

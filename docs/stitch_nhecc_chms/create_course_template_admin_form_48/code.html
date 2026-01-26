@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-Hant"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>我的裝備旅程 - Spiritual Journey Roadmap</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;family=Noto+Sans+TC:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#2563eb", stage1: "#10b981", stage2: "#3b82f6", stage3: "#94a3b8", "background-light": "#f6f6f8", "background-dark": "#111621"}, fontFamily: {display: "Lexend", sans: ["Lexend", "Noto Sans TC", "sans-serif"]}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}}}};</script>
+<style type="text/tailwindcss">
+        .roadmap-line {
+            @apply absolute left-[27px] w-1 h-full -z-10;
+        }
+        .roadmap-line-solid {
+            @apply bg-slate-200;
+        }
+        .roadmap-line-dotted {
+            background-image: linear-gradient(to bottom, #cbd5e1 50%, transparent 50%);
+            background-size: 4px 10px;
+            background-repeat: repeat-y;
+        }
+        .node-container {
+            @apply relative pl-16 pb-12 last:pb-0;
+        }
+        .node-icon {
+            @apply absolute left-0 top-0 w-14 h-14 rounded-full flex items-center justify-center border-4 border-white shadow-md z-10;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-black text-slate-900 dark:text-slate-100 font-sans antialiased min-h-screen">
+<div class="w-full max-w-xl mx-auto bg-white dark:bg-slate-900 min-h-screen shadow-2xl relative flex flex-col">
+<header class="pt-10 pb-6 px-6 sticky top-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md z-30">
+<div class="flex items-center justify-between mb-2">
+<h1 class="text-2xl font-bold text-slate-900 dark:text-white">我的裝備旅程</h1>
+<button class="material-symbols-outlined text-slate-400">info</button>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-3 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-full text-sm font-semibold border border-blue-100 dark:border-blue-800">
+                目前等級: 門徒 (Level 2)
+            </span>
+</div>
+</header>
+<main class="flex-1 px-8 pt-4 pb-40 overflow-y-auto">
+<div class="mb-10 relative">
+<div class="flex items-center gap-2 mb-6">
+<span class="bg-stage1 text-white text-[10px] font-bold px-2 py-0.5 rounded">STAGE 1</span>
+<h2 class="text-lg font-bold text-stage1">根基建造</h2>
+<div class="h-px flex-1 bg-stage1/20"></div>
+</div>
+<div class="node-container">
+<div class="roadmap-line roadmap-line-solid bg-stage1/30"></div>
+<div class="node-icon bg-stage1 text-white">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+<div class="pt-2">
+<h3 class="font-bold text-slate-800 dark:text-slate-100">E1 生命更新營</h3>
+<p class="text-xs text-slate-500 mt-1">已完修 • 2023/12/15</p>
+</div>
+</div>
+<div class="node-container">
+<div class="roadmap-line roadmap-line-solid bg-stage1/30"></div>
+<div class="node-icon bg-stage1 text-white">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+<div class="pt-2">
+<h3 class="font-bold text-slate-800 dark:text-slate-100">S101 成長班</h3>
+<p class="text-xs text-slate-500 mt-1">已完修 • 2024/03/20</p>
+</div>
+</div>
+</div>
+<div class="mb-10 relative">
+<div class="flex items-center gap-2 mb-6">
+<span class="bg-stage2 text-white text-[10px] font-bold px-2 py-0.5 rounded">STAGE 2</span>
+<h2 class="text-lg font-bold text-stage2">門徒訓練</h2>
+<div class="h-px flex-1 bg-stage2/20"></div>
+</div>
+<div class="node-container">
+<div class="roadmap-line roadmap-line-dotted"></div>
+<div class="node-icon bg-white border-stage2 text-stage2 shadow-lg shadow-blue-100 dark:shadow-none ring-4 ring-blue-50 dark:ring-blue-900/20">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+</div>
+<div class="pt-2">
+<div class="flex items-center gap-2 mb-1">
+<h3 class="font-bold text-slate-800 dark:text-slate-100 text-lg">M200 門徒訓練</h3>
+<span class="text-[10px] px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded font-bold">修課中</span>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 mb-1.5 mt-3">
+<div class="bg-stage2 h-2 rounded-full w-[60%] shadow-sm"></div>
+</div>
+<div class="flex justify-between text-[11px] font-medium text-slate-400">
+<span>進度 60%</span>
+<span>剩餘 4 堂課</span>
+</div>
+</div>
+</div>
+</div>
+<div class="relative">
+<div class="flex items-center gap-2 mb-6 opacity-60">
+<span class="bg-stage3 text-white text-[10px] font-bold px-2 py-0.5 rounded">STAGE 3</span>
+<h2 class="text-lg font-bold text-stage3">領袖裝備</h2>
+<div class="h-px flex-1 bg-stage3/20"></div>
+</div>
+<div class="node-container">
+<div class="node-icon bg-slate-100 dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700">
+<span class="material-symbols-outlined text-xl">lock</span>
+</div>
+<div class="pt-2 opacity-60">
+<h3 class="font-bold text-slate-500">L300 小組長訓練</h3>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-xs">info</span>
+<p class="text-xs text-slate-400">需完成 M200</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<div class="fixed bottom-24 left-1/2 -translate-x-1/2 w-full max-w-[calc(100%-40px)] px-5 z-40 pointer-events-none">
+<button class="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold py-4 rounded-2xl shadow-xl shadow-slate-200 dark:shadow-none flex items-center justify-center gap-2 pointer-events-auto active:scale-95 transition-transform">
+<span class="material-symbols-outlined">assignment</span>
+            查看詳細成績單
+        </button>
+</div>
+<nav class="fixed bottom-0 z-50 w-full max-w-xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 pb-safe">
+<div class="grid grid-cols-4 h-16">
+<button class="flex flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500 hover:text-slate-600 transition-colors">
+<span class="material-symbols-outlined text-[24px]">home</span>
+<span class="text-[10px] font-medium">首頁</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500 hover:text-slate-600 transition-colors">
+<span class="material-symbols-outlined text-[24px]">explore</span>
+<span class="text-[10px] font-medium">探索</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">local_library</span>
+<span class="text-[10px] font-bold">我的學習</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500 hover:text-slate-600 transition-colors">
+<span class="material-symbols-outlined text-[24px]">person</span>
+<span class="text-[10px] font-medium">個人</span>
+</button>
+</div>
+</nav>
+</div>
+</body></html>

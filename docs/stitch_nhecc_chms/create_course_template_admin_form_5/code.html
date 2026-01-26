@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-Hant"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Small Group Meeting Log List</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;family=Noto+Sans+TC:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#2563eb", "brand-warm": "#fdf8f6", "background-light": "#f6f6f8", "background-dark": "#111621", success: "#10b981"}, fontFamily: {display: "Lexend", sans: ["Lexend", "Noto Sans TC", "sans-serif"]}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}}}};</script>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .no-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+            .no-scrollbar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .hero-gradient {
+                background: linear-gradient(135deg, #fdf2f0 0%, #fef9c3 100%);
+            }
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #cbd5e1;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-sans antialiased">
+<div class="w-full md:max-w-[480px] md:mx-auto h-screen bg-white dark:bg-slate-950 shadow-2xl flex flex-col relative overflow-hidden">
+<header class="h-16 flex items-center justify-between px-6 bg-white dark:bg-slate-950 z-20 flex-shrink-0">
+<div class="flex items-center gap-4">
+<button class="w-8 h-8 flex items-center justify-center -ml-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+<span class="material-symbols-outlined">arrow_back_ios_new</span>
+</button>
+<h1 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">我的小組</h1>
+</div>
+<button class="p-2 text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</header>
+<div class="bg-white dark:bg-slate-950 px-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between sticky top-0 z-10">
+<button class="flex-1 pb-3 pt-1 text-sm font-medium text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors text-center relative">
+            概況
+        </button>
+<button class="flex-1 pb-3 pt-1 text-sm font-medium text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors text-center relative">
+            成員名單
+        </button>
+<button class="flex-1 pb-3 pt-1 text-sm font-bold text-primary transition-colors text-center relative">
+            聚會紀錄
+            <span class="absolute bottom-0 left-0 right-0 mx-auto w-8 h-0.5 bg-primary rounded-t-full"></span>
+</button>
+</div>
+<main class="flex-1 overflow-y-auto pb-24 scroll-smooth no-scrollbar bg-background-light dark:bg-slate-900">
+<div class="px-6 py-6 sticky top-0 z-0 backdrop-blur-sm bg-background-light/90 dark:bg-slate-900/90 transition-all">
+<button class="w-full bg-primary hover:bg-[#d66e3e] active:scale-[0.98] transition-all text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-orange-200/50 dark:shadow-none flex items-center justify-center gap-2 group">
+<span class="material-symbols-outlined group-hover:rotate-90 transition-transform duration-300">add</span>
+                新增紀錄
+            </button>
+</div>
+<div class="px-6 flex flex-col gap-4 pb-8">
+<div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-slate-700/50 relative overflow-hidden transition-transform active:scale-[0.99]">
+<div class="flex justify-between items-start mb-2.5">
+<div class="flex items-center gap-1.5 text-xs font-medium text-slate-400">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span>
+                        2026/01/10 (五)
+                    </div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-success text-[10px] font-bold border border-emerald-100 dark:border-emerald-500/20">
+<span class="material-symbols-outlined text-[12px] fill-1">check_circle</span>
+                        已提交
+                    </span>
+</div>
+<h3 class="text-base font-bold text-slate-800 dark:text-slate-100 mb-3 leading-snug">S101 成長班 - 第 3 課</h3>
+<div class="pt-3 border-t border-slate-50 dark:border-slate-700/50 flex items-center flex-wrap gap-y-2 text-xs text-slate-500 dark:text-slate-400">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-slate-300 dark:text-slate-500">group</span>
+<span class="font-medium">出席: <span class="text-slate-700 dark:text-slate-300">10人</span></span>
+</div>
+<span class="mx-2 text-slate-200 dark:text-slate-700">|</span>
+<div class="flex items-center gap-1">
+<span class="font-medium">新人: <span class="text-slate-700 dark:text-slate-300">0</span></span>
+</div>
+<span class="mx-2 text-slate-200 dark:text-slate-700">|</span>
+<div class="flex items-center gap-1">
+<span class="font-medium">奉獻: <span class="text-slate-700 dark:text-slate-300">$500</span></span>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-slate-700/50 relative overflow-hidden transition-transform active:scale-[0.99]">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-orange-300 rounded-l-2xl"></div>
+<div class="flex justify-between items-start mb-2.5 pl-2">
+<div class="flex items-center gap-1.5 text-xs font-medium text-slate-400">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span>
+                        2026/01/03 (五)
+                    </div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-50 dark:bg-orange-500/10 text-orange-500 text-[10px] font-bold border border-orange-100 dark:border-orange-500/20">
+<span class="material-symbols-outlined text-[12px]">edit_note</span>
+                        草稿 (Draft)
+                    </span>
+</div>
+<h3 class="pl-2 text-base font-medium text-slate-400 dark:text-slate-500 italic mb-3 leading-snug">未填寫主題...</h3>
+<div class="pl-2 pt-3 border-t border-slate-50 dark:border-slate-700/50 flex items-center justify-end">
+<a class="inline-flex items-center gap-1 text-sm font-bold text-blue-500 hover:text-blue-600 transition-colors" href="#">
+                        繼續填寫
+                        <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-slate-700/50 relative overflow-hidden transition-transform active:scale-[0.99] opacity-90">
+<div class="flex justify-between items-start mb-2.5">
+<div class="flex items-center gap-1.5 text-xs font-medium text-slate-400">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span>
+                        2025/12/27 (五)
+                    </div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-50 dark:bg-red-500/10 text-red-500 text-[10px] font-bold border border-red-100 dark:border-red-500/20">
+<span class="material-symbols-outlined text-[12px]">error</span>
+                        未繳交
+                    </span>
+</div>
+<h3 class="text-base font-bold text-slate-800 dark:text-slate-100 mb-1 leading-snug">聖誕聚會</h3>
+<p class="text-xs text-red-400/80 mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">info</span>
+                    請記得補交報告
+                </p>
+</div>
+</div>
+</main>
+<nav class="bg-white/80 dark:bg-slate-950/80 backdrop-blur-lg border-t border-slate-100 dark:border-slate-800 px-6 py-2 flex justify-between items-center z-20 absolute bottom-0 w-full pb-safe">
+<a class="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-medium">首頁</span>
+</a>
+<a class="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">explore</span>
+<span class="text-[10px] font-medium">探索</span>
+</a>
+<a class="flex flex-col items-center gap-1 py-1 px-3 text-primary" href="#">
+<span class="material-symbols-outlined fill-1">school</span>
+<span class="text-[10px] font-bold">我的學習</span>
+</a>
+<a class="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-medium">個人</span>
+</a>
+</nav>
+<div class="h-4 bg-white dark:bg-slate-950 w-full"></div>
+</div>
+<div class="hidden md:block fixed inset-0 -z-10 bg-slate-100 opacity-60">
+<div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,#fdf2f0,transparent)]"></div>
+</div>
+</body></html>

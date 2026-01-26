@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-Hant"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>教會事工總覽 - 教會教育系統 Admin</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;family=Noto+Sans+TC:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#2563eb", "background-light": "#f6f6f8", "background-dark": "#111621", "chart-blue": "#3b82f6", "chart-orange": "#e57f4f"}, fontFamily: {display: "Lexend", sans: ["Lexend", "Noto Sans TC", "sans-serif"]}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}}}};</script>
+<style type="text/tailwindcss">
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #334155;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display antialiased overflow-hidden">
+<div class="flex h-screen w-full">
+<aside class="hidden lg:flex flex-col w-72 h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex-shrink-0 z-20">
+<div class="p-6">
+<div class="flex gap-3 items-center mb-8">
+<div class="bg-center bg-no-repeat bg-cover rounded-lg size-10 bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">church</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-slate-900 dark:text-white text-base font-bold leading-normal">教育系統</h1>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-normal leading-normal">管理員後台</p>
+</div>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary transition-colors" href="#">
+<span class="material-symbols-outlined fill-1">analytics</span>
+<span class="text-sm font-medium">事工總覽</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">dashboard</span>
+<span class="text-sm font-medium">工作儀表板</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">school</span>
+<span class="text-sm font-medium">課程管理</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">groups</span>
+<span class="text-sm font-medium">會友管理</span>
+</a>
+<div class="my-2 border-t border-slate-100 dark:border-slate-800"></div>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">settings</span>
+<span class="text-sm font-medium">系統設定</span>
+</a>
+</nav>
+</div>
+<div class="mt-auto p-6 border-t border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 border-2 border-white dark:border-slate-700 shadow-sm" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC5e71vqBgbW38C8M9UjgMZp7eoj_3KLH-pxxfNphPiaGWsveV8qP2RKrHjAyWrg_SCm8dCO_FRxsv40xO3S9aPWIiagn40G2Wg3KoE9PeA9B4s2bMLP6IT8NAfUeb5W_O4MNAPWuj_v48lq5wsImk6VhPH7VjqcQ8ykZH7heAt6f25rIw5sroN8HTdpVF-GbNOax3PB5Q_TT1ADE1FiKLrdKVjRFSj4d1weSnikj9AhqiVoXAkfANBn-FHk_3XMUwxK2l_Z4mLQ4w");'></div>
+<div class="flex flex-col">
+<p class="text-slate-900 dark:text-white text-sm font-medium">王大明</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs">教務主任</p>
+</div>
+</div>
+</div>
+</aside>
+<div class="flex flex-col flex-1 h-full overflow-hidden relative">
+<header class="h-16 flex items-center justify-between px-6 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex-shrink-0 z-10">
+<div class="flex items-center gap-4 lg:hidden">
+<button class="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<span class="text-lg font-bold text-slate-900 dark:text-white">教育系統</span>
+</div>
+<div class="flex flex-1 justify-end items-center gap-6">
+<div class="hidden md:flex relative max-w-xs w-full">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-[20px]">search</span>
+<input class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-lg py-2 pl-10 pr-4 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50" placeholder="搜尋報表、數據..." type="text"/>
+</div>
+<button class="text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+<button class="text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">download</span>
+</button>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth">
+<div class="max-w-6xl mx-auto space-y-8">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div class="flex flex-col gap-1">
+<h1 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">教會事工總覽 <span class="text-slate-400 font-normal text-lg ml-2">(Ministry Overview)</span></h1>
+<p class="text-slate-500 dark:text-slate-400">數據驅動決策，洞察事工成長與會友分佈。</p>
+</div>
+<div class="flex items-center gap-2 text-sm font-medium text-slate-500 bg-white dark:bg-slate-900 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm">
+<span class="material-symbols-outlined text-base">calendar_month</span>
+<span>2025 Q4 - 統計數據</span>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">本季活躍會友數</p>
+<div class="flex items-end justify-between">
+<div>
+<span class="text-3xl font-bold text-slate-900 dark:text-white">1,250</span>
+<span class="ml-1 text-slate-500 dark:text-slate-400 text-sm">人</span>
+</div>
+<span class="flex items-center text-emerald-600 text-sm font-bold bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 rounded">
+<span class="material-symbols-outlined text-sm mr-1">trending_up</span> 15%
+                            </span>
+</div>
+<p class="mt-2 text-[10px] text-slate-400">YoY Compared to 2024 Q4</p>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">本週主日出席</p>
+<div class="flex items-end justify-between">
+<div>
+<span class="text-3xl font-bold text-slate-900 dark:text-white">850</span>
+<span class="ml-1 text-slate-500 dark:text-slate-400 text-sm">人</span>
+</div>
+<span class="flex items-center text-rose-600 text-sm font-bold bg-rose-50 dark:bg-rose-900/20 px-2 py-0.5 rounded">
+<span class="material-symbols-outlined text-sm mr-1">trending_down</span> 2%
+                            </span>
+</div>
+<p class="mt-2 text-[10px] text-slate-400">WoW Compared to Last Sunday</p>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">本月受洗人數</p>
+<div class="flex items-end justify-between">
+<div>
+<span class="text-3xl font-bold text-slate-900 dark:text-white">12</span>
+<span class="ml-1 text-slate-500 dark:text-slate-400 text-sm">人</span>
+</div>
+<span class="text-slate-400 text-sm font-medium">target 20</span>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full mt-3">
+<div class="bg-primary h-1.5 rounded-full" style="width: 60%"></div>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">本季總開課數</p>
+<div class="flex items-end justify-between">
+<div>
+<span class="text-3xl font-bold text-slate-900 dark:text-white">45</span>
+<span class="ml-1 text-slate-500 dark:text-slate-400 text-sm">堂</span>
+</div>
+<span class="flex items-center text-primary text-sm font-bold">
+<span class="material-symbols-outlined text-sm mr-1">add_circle</span> 5 堂
+                            </span>
+</div>
+<p class="mt-2 text-[10px] text-slate-400">Compared to Last Quarter</p>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center justify-between mb-8">
+<div>
+<h2 class="text-lg font-bold text-slate-900 dark:text-white">近六個月成長趨勢</h2>
+<p class="text-sm text-slate-500">2025年7月 - 12月數據統計</p>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="size-3 rounded-full bg-chart-blue"></span>
+<span class="text-xs text-slate-600 dark:text-slate-400">主日出席</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="size-3 rounded-full bg-chart-orange"></span>
+<span class="text-xs text-slate-600 dark:text-slate-400">課程參與</span>
+</div>
+</div>
+</div>
+<div class="h-64 w-full relative">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 1000 100">
+<line class="text-slate-100 dark:text-slate-800" stroke="currentColor" stroke-width="1" x1="0" x2="1000" y1="0" y2="0"></line>
+<line class="text-slate-100 dark:text-slate-800" stroke="currentColor" stroke-width="1" x1="0" x2="1000" y1="25" y2="25"></line>
+<line class="text-slate-100 dark:text-slate-800" stroke="currentColor" stroke-width="1" x1="0" x2="1000" y1="50" y2="50"></line>
+<line class="text-slate-100 dark:text-slate-800" stroke="currentColor" stroke-width="1" x1="0" x2="1000" y1="75" y2="75"></line>
+<line class="text-slate-100 dark:text-slate-800" stroke="currentColor" stroke-width="1" x1="0" x2="1000" y1="100" y2="100"></line>
+<path d="M0,80 Q100,70 200,75 T400,60 T600,40 T800,45 T1000,30" fill="none" stroke="#3b82f6" stroke-linecap="round" stroke-width="3"></path>
+<path d="M0,90 Q100,85 200,80 T400,85 T600,70 T800,60 T1000,55" fill="none" stroke="#e57f4f" stroke-linecap="round" stroke-width="3"></path>
+</svg>
+<div class="flex justify-between mt-4 px-2 text-xs text-slate-400 font-medium">
+<span>July</span>
+<span>Aug</span>
+<span>Sept</span>
+<span>Oct</span>
+<span>Nov</span>
+<span>Dec</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-bold text-slate-900 dark:text-white">牧區人數分佈</h3>
+<button class="text-slate-400 hover:text-primary">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="flex flex-col md:flex-row items-center gap-8">
+<div class="relative size-40 shrink-0">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
+<circle cx="18" cy="18" fill="transparent" r="15.915" stroke="#e2e8f0" stroke-width="4"></circle>
+<circle cx="18" cy="18" fill="transparent" r="15.915" stroke="#e57f4f" stroke-dasharray="40 60" stroke-dashoffset="0" stroke-width="4"></circle>
+<circle cx="18" cy="18" fill="transparent" r="15.915" stroke="#3b82f6" stroke-dasharray="30 70" stroke-dashoffset="-40" stroke-width="4"></circle>
+<circle cx="18" cy="18" fill="transparent" r="15.915" stroke="#10b981" stroke-dasharray="20 80" stroke-dashoffset="-70" stroke-width="4"></circle>
+<circle cx="18" cy="18" fill="transparent" r="15.915" stroke="#f59e0b" stroke-dasharray="10 90" stroke-dashoffset="-90" stroke-width="4"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-2xl font-bold text-slate-900 dark:text-white">1,250</span>
+<span class="text-[10px] text-slate-500 uppercase">Total</span>
+</div>
+</div>
+<div class="flex-1 w-full space-y-3">
+<div class="flex items-center justify-between text-sm">
+<div class="flex items-center gap-2">
+<span class="size-2.5 rounded-full bg-primary"></span>
+<span class="text-slate-600 dark:text-slate-400">青壯牧區</span>
+</div>
+<span class="font-bold text-slate-700 dark:text-slate-300">40%</span>
+</div>
+<div class="flex items-center justify-between text-sm">
+<div class="flex items-center gap-2">
+<span class="size-2.5 rounded-full bg-blue-500"></span>
+<span class="text-slate-600 dark:text-slate-400">社青牧區</span>
+</div>
+<span class="font-bold text-slate-700 dark:text-slate-300">30%</span>
+</div>
+<div class="flex items-center justify-between text-sm">
+<div class="flex items-center gap-2">
+<span class="size-2.5 rounded-full bg-emerald-500"></span>
+<span class="text-slate-600 dark:text-slate-400">學園牧區</span>
+</div>
+<span class="font-bold text-slate-700 dark:text-slate-300">20%</span>
+</div>
+<div class="flex items-center justify-between text-sm">
+<div class="flex items-center gap-2">
+<span class="size-2.5 rounded-full bg-amber-500"></span>
+<span class="text-slate-600 dark:text-slate-400">成人牧區</span>
+</div>
+<span class="font-bold text-slate-700 dark:text-slate-300">10%</span>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-bold text-slate-900 dark:text-white">熱門課程類別</h3>
+<button class="text-sm text-primary hover:underline">詳情</button>
+</div>
+<div class="space-y-6">
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-medium">
+<span class="text-slate-700 dark:text-slate-300">聖經研讀 (Theology)</span>
+<span class="text-slate-500">42 堂</span>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full" style="width: 85%"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-medium">
+<span class="text-slate-700 dark:text-slate-300">門徒培育 (Discipleship)</span>
+<span class="text-slate-500">35 堂</span>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+<div class="bg-primary/80 h-full" style="width: 70%"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-medium">
+<span class="text-slate-700 dark:text-slate-300">職場事工 (Marketplace)</span>
+<span class="text-slate-500">28 堂</span>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+<div class="bg-primary/60 h-full" style="width: 55%"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-medium">
+<span class="text-slate-700 dark:text-slate-300">家庭輔導 (Counseling)</span>
+<span class="text-slate-500">18 堂</span>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+<div class="bg-primary/40 h-full" style="width: 35%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

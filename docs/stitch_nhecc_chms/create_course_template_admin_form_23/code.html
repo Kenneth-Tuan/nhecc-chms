@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-Hant"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>編輯個人資料 - Edit Profile Settings</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;family=Noto+Sans+TC:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#2563eb", admin: "#3b82f6", "background-light": "#f6f6f8", "background-dark": "#111621"}, fontFamily: {display: "Lexend", sans: ["Lexend", "Noto Sans TC", "sans-serif"]}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}}}};</script>
+<style type="text/tailwindcss">
+        @layer components {
+            .form-section {
+                @apply bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-slate-800 mb-6;
+            }
+            .input-label {
+                @apply block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1.5;
+            }
+            .text-input {
+                @apply w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 focus:ring-primary focus:border-primary text-[15px] py-2.5 px-4 transition-all;
+            }
+            .segmented-control-item {
+                @apply flex-1 py-2 text-sm font-medium text-center transition-all;
+            }
+            .segmented-control-active {
+                @apply bg-white dark:bg-slate-700 text-primary shadow-sm rounded-lg;
+            }
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-black text-slate-900 dark:text-slate-100 font-sans antialiased min-h-screen">
+<div class="w-full max-w-xl mx-auto bg-slate-50 dark:bg-slate-950 min-h-screen shadow-2xl relative flex flex-col pb-20">
+<header class="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-4 h-16 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-300">arrow_back</span>
+</button>
+<h1 class="text-lg font-bold">編輯個人資料</h1>
+<button class="text-primary font-bold px-3 py-1 hover:opacity-80 transition-opacity">
+                儲存
+            </button>
+</header>
+<main class="flex-1 px-5 pt-8">
+<div class="flex flex-col items-center mb-10">
+<div class="relative group">
+<div class="w-28 h-28 rounded-full overflow-hidden border-4 border-white dark:border-slate-800 shadow-lg">
+<img alt="提摩太弟兄" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3f22BVW5zagl5D50kaCh68d6j9-FcSNyH_4f5oE_en3_TwU62uYkK4k5hcA-Z8wmZdeaGuDNJckhwSgYzQwuH8Ws2eTBeYYI_wpYhdRiYABzHgyJm5vkavBYtD-Hp-TjgXGiR21XD9LlGtIDWrNab9ycOEy3-OrYro856ltBvzI-fGNZXDJzhTsomX4C3cSLW5WL-7l8kUQz3wo3a6z1s1hxd8xTIvojMZEvG1ltvQ98bcQdKn4JLwrL_RR396N-36BnrzVn8Kwk"/>
+</div>
+<button class="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full shadow-md hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[20px]">photo_camera</span>
+</button>
+</div>
+</div>
+<div class="form-section">
+<h3 class="text-base font-bold text-slate-800 dark:text-slate-100 mb-5 flex items-center gap-2">
+<span class="w-1 h-4 bg-primary rounded-full"></span>
+                    基本資訊
+                </h3>
+<div class="space-y-4">
+<div>
+<label class="input-label">姓名</label>
+<input class="text-input" placeholder="請輸入姓名" type="text" value="提摩太弟兄"/>
+</div>
+<div>
+<label class="input-label">性別</label>
+<div class="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex">
+<button class="segmented-control-item segmented-control-active">弟兄</button>
+<button class="segmented-control-item">姊妹</button>
+</div>
+</div>
+<div>
+<label class="input-label">生日</label>
+<input class="text-input" type="date" value="1995-06-15"/>
+</div>
+<div>
+<label class="input-label">婚姻狀態</label>
+<select class="text-input appearance-none">
+<option>未婚</option>
+<option>已婚</option>
+<option>其他</option>
+</select>
+</div>
+</div>
+</div>
+<div class="form-section">
+<h3 class="text-base font-bold text-slate-800 dark:text-slate-100 mb-5 flex items-center gap-2">
+<span class="w-1 h-4 bg-primary rounded-full"></span>
+                    聯絡方式
+                </h3>
+<div class="space-y-4">
+<div>
+<label class="input-label">手機</label>
+<input class="text-input" placeholder="09xx-xxx-xxx" type="tel" value="0912-345-678"/>
+</div>
+<div>
+<label class="input-label">Line ID</label>
+<input class="text-input" placeholder="請輸入 Line ID" type="text" value="timothy_church"/>
+</div>
+<div>
+<label class="input-label flex items-center justify-between">
+                            Email (帳號)
+                            <span class="material-symbols-outlined text-[14px]">lock</span>
+</label>
+<input class="text-input bg-slate-50 dark:bg-slate-800/50 text-slate-400 border-slate-100" readonly="" type="email" value="timothy@church.org"/>
+</div>
+<div>
+<label class="input-label">地址</label>
+<input class="text-input" placeholder="請輸入聯絡地址" type="text" value="台北市中正區忠孝西路一段"/>
+</div>
+<div class="pt-2">
+<label class="input-label text-xs uppercase tracking-wider text-slate-400">緊急聯絡人</label>
+<div class="grid grid-cols-2 gap-3 mt-2">
+<input class="text-input" placeholder="姓名" type="text" value="約翰弟兄"/>
+<input class="text-input" placeholder="電話" type="tel" value="0988-777-666"/>
+</div>
+</div>
+</div>
+</div>
+<div class="form-section">
+<h3 class="text-base font-bold text-slate-800 dark:text-slate-100 mb-5 flex items-center gap-2">
+<span class="w-1 h-4 bg-primary rounded-full"></span>
+                    教會生活
+                </h3>
+<div class="space-y-5">
+<div class="flex items-center justify-between">
+<div>
+<label class="input-label mb-0">受洗狀態</label>
+<span class="text-xs text-slate-400">已於 2018 年受洗</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</label>
+</div>
+<div>
+<label class="input-label">受洗日期</label>
+<input class="text-input" type="date" value="2018-05-20"/>
+</div>
+<div>
+<label class="input-label">歸屬小組</label>
+<input class="text-input" placeholder="請輸入小組名稱" type="text" value="提摩太小組"/>
+</div>
+<div>
+<label class="input-label">過往經歷</label>
+<div class="flex flex-wrap gap-2 mb-3">
+<span class="inline-flex items-center gap-1 px-3 py-1 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 rounded-lg text-sm border border-orange-100 dark:border-orange-800">
+                                敬拜團同工 <button class="material-symbols-outlined text-[14px]">close</button>
+</span>
+<span class="inline-flex items-center gap-1 px-3 py-1 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 rounded-lg text-sm border border-orange-100 dark:border-orange-800">
+                                主日學助教 <button class="material-symbols-outlined text-[14px]">close</button>
+</span>
+<button class="inline-flex items-center gap-1 px-3 py-1 bg-slate-50 dark:bg-slate-800 text-slate-400 rounded-lg text-sm border border-dashed border-slate-300 dark:border-slate-700">
+<span class="material-symbols-outlined text-[16px]">add</span> 新增
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 mb-12 text-center">
+<button class="text-red-500 hover:text-red-600 text-sm font-medium transition-colors underline underline-offset-4 decoration-red-300">
+                    刪除帳號
+                </button>
+<p class="text-slate-400 text-[10px] mt-4">一旦刪除帳號，您的所有課程紀錄與資料將無法找回。</p>
+</div>
+</main>
+</div>
+</body></html>

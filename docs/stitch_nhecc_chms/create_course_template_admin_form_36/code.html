@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-Hant"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>儀表板 - 教會教育系統 Admin</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;family=Noto+Sans+TC:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#2563eb", "background-light": "#f6f6f8", "background-dark": "#111621"}, fontFamily: {display: "Lexend", sans: ["Lexend", "Noto Sans TC", "sans-serif"]}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}}}};</script>
+<style>
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #334155;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display antialiased overflow-hidden">
+<div class="flex h-screen w-full">
+<aside class="hidden lg:flex flex-col w-72 h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex-shrink-0 z-20">
+<div class="p-6">
+<div class="flex gap-3 items-center mb-8">
+<div class="bg-center bg-no-repeat bg-cover rounded-lg size-10 bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">church</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-slate-900 dark:text-white text-base font-bold leading-normal">教育系統</h1>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-normal leading-normal">管理員後台</p>
+</div>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary transition-colors" href="#">
+<span class="material-symbols-outlined fill-1">dashboard</span>
+<span class="text-sm font-medium">儀表板</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">school</span>
+<span class="text-sm font-medium">課程管理</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">groups</span>
+<span class="text-sm font-medium">學生名單</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">person_pin</span>
+<span class="text-sm font-medium">講師管理</span>
+</a>
+<div class="my-2 border-t border-slate-100 dark:border-slate-800"></div>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">settings</span>
+<span class="text-sm font-medium">系統設定</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">analytics</span>
+<span class="text-sm font-medium">報表中心</span>
+</a>
+</nav>
+</div>
+<div class="mt-auto p-6 border-t border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 border-2 border-white dark:border-slate-700 shadow-sm" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC5e71vqBgbW38C8M9UjgMZp7eoj_3KLH-pxxfNphPiaGWsveV8qP2RKrHjAyWrg_SCm8dCO_FRxsv40xO3S9aPWIiagn40G2Wg3KoE9PeA9B4s2bMLP6IT8NAfUeb5W_O4MNAPWuj_v48lq5wsImk6VhPH7VjqcQ8ykZH7heAt6f25rIw5sroN8HTdpVF-GbNOax3PB5Q_TT1ADE1FiKLrdKVjRFSj4d1weSnikj9AhqiVoXAkfANBn-FHk_3XMUwxK2l_Z4mLQ4w");'></div>
+<div class="flex flex-col">
+<p class="text-slate-900 dark:text-white text-sm font-medium">王大明</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs">教務主任</p>
+</div>
+</div>
+</div>
+</aside>
+<div class="flex flex-col flex-1 h-full overflow-hidden relative">
+<header class="h-20 flex items-center justify-between px-6 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex-shrink-0 z-10">
+<div class="flex flex-col">
+<h1 class="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">早安，王大明幹事。</h1>
+<p class="text-sm text-slate-500 dark:text-slate-400 font-medium">2026年1月14日</p>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-3 mr-4">
+<button class="flex flex-col items-center gap-1 group">
+<div class="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-all">
+<span class="material-symbols-outlined text-[22px]">search</span>
+</div>
+<span class="text-[10px] font-medium text-slate-500 group-hover:text-primary">快速查詢</span>
+</button>
+<button class="flex flex-col items-center gap-1 group">
+<div class="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-all">
+<span class="material-symbols-outlined text-[22px]">person_add</span>
+</div>
+<span class="text-[10px] font-medium text-slate-500 group-hover:text-primary">新增會友</span>
+</button>
+<button class="flex flex-col items-center gap-1 group">
+<div class="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-all">
+<span class="material-symbols-outlined text-[22px]">add_circle</span>
+</div>
+<span class="text-[10px] font-medium text-slate-500 group-hover:text-primary">開課</span>
+</button>
+<button class="flex flex-col items-center gap-1 group">
+<div class="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-all">
+<span class="material-symbols-outlined text-[22px]">assessment</span>
+</div>
+<span class="text-[10px] font-medium text-slate-500 group-hover:text-primary">看報表</span>
+</button>
+</div>
+<div class="h-10 w-px bg-slate-200 dark:bg-slate-800 mx-2 hidden md:block"></div>
+<button class="relative text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 size-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
+</button>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth">
+<div class="max-w-6xl mx-auto space-y-8">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-5 hover:shadow-md transition-shadow">
+<div class="size-14 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600">
+<span class="material-symbols-outlined text-3xl">play_circle</span>
+</div>
+<div>
+<p class="text-sm text-slate-500 dark:text-slate-400 font-medium mb-1">進行中課程</p>
+<p class="text-3xl font-bold text-slate-900 dark:text-white">12 <span class="text-sm font-normal text-slate-400 ml-1">堂</span></p>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-5 hover:shadow-md transition-shadow">
+<div class="size-14 rounded-full bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">group</span>
+</div>
+<div>
+<p class="text-sm text-slate-500 dark:text-slate-400 font-medium mb-1">本週新會友</p>
+<p class="text-3xl font-bold text-slate-900 dark:text-white">15 <span class="text-sm font-normal text-slate-400 ml-1">人</span></p>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-5 hover:shadow-md transition-shadow">
+<div class="size-14 rounded-full bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-600">
+<span class="material-symbols-outlined text-3xl">assignment_late</span>
+</div>
+<div>
+<p class="text-sm text-slate-500 dark:text-slate-400 font-medium mb-1">待處理事項</p>
+<p class="text-3xl font-bold text-slate-900 dark:text-white">3 <span class="text-sm font-normal text-slate-400 ml-1">件</span></p>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+<div class="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+<h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">person_add</span>
+                                最近加入的會友
+                            </h2>
+</div>
+<div class="flex-1 p-5 space-y-5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+<img alt="avatar" class="size-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBG4EQLvvkDGT00auNijfi1_SEKI028e_seheeYFyDl6rH5dPGEcC8WgPudt-7SWa_dto9CN6JF8ZderDJTfRlvrLBba3s4I-_-NS0SgGZAkcnQtuBjxWkD0YZ4_8aPlf5JidpPNeO6Wdv3O_tT0CLOQTmkhuqFdMmdC39Dc0DchAFOlVwUrZNNbxqsZXSvuFIz54tY2n3RzlC_ciNQlfF09BvjbNmipfdCUsODlVqLI6aXTavKm9FypzKusmULifHCHg2yiqTTlro"/>
+</div>
+<div>
+<p class="text-sm font-semibold text-slate-900 dark:text-white">林小美</p>
+<p class="text-xs text-slate-500">渴慕神小組</p>
+</div>
+</div>
+<span class="text-xs text-slate-400">2 小時前</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+<img alt="avatar" class="size-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDN1V9JlrlxZcbRU7VmJ8eurDFSvb0or_4zOF4bfLsUu7O22WJuOqQE1AAs7rWauJHTZMjLd6zHD3HH8CjhasjZEi90YkZI48slJdH67fyN3Li-mRlwoNabTRDoluawGjO2p-wX_2TtTecTXp_D6Fta3uc1TM7aEXq4JbCdexPyy64ziqxzboL4uOsFk60pZmvSZXpL7NZH_l65jBTf92LBCpbb9072TUvIEMN6kHP-8_mhtPqtT82OOAdH3givQJdMDIQPWhITog8"/>
+</div>
+<div>
+<p class="text-sm font-semibold text-slate-900 dark:text-white">張志誠</p>
+<p class="text-xs text-slate-500">葡萄樹小組</p>
+</div>
+</div>
+<span class="text-xs text-slate-400">5 小時前</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+<img alt="avatar" class="size-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDS7QAO0EOG_m1DGAWLGsqHnrdwbipdGOHAb5EpXQPYHf8rpdN7qRxo4FHu1z3LtO9tZzUSPXSCcVFSXebsX5CcYa_sXnwsuyh4ceIw4bTHPMmGNKzfddfBHK2WKGn_bRNAD9sjgDggXYsUDpcCHoDXW75HRT-HtPFSIFWyPyIMeh7ajpJMmrAiq8TEYUyHO3cL6hM-9F--jHtLGSW0h_fgO55-UongZx8K5owgeohRv8ToTDujn3xWe2MdcKjYCweGkU9FyXUjId4"/>
+</div>
+<div>
+<p class="text-sm font-semibold text-slate-900 dark:text-white">李國榮</p>
+<p class="text-xs text-slate-500">和平小組</p>
+</div>
+</div>
+<span class="text-xs text-slate-400">昨天</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+<img alt="avatar" class="size-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMfOuKl4LU2vA5B5c1ORpEWgq3prpcCrzd1rlXj_LrB_kzbHK3Z9WSOaotFBOt2PL91bOxdA-RsqvbY_E_IdoqwcY0u9NsV4SEgJfTOedKmK4gMgkWpZzibcRPQB2EEn2TGhw8NC16WZWIelG9vBVM9muHxCCWemsn485tVOov1s8jg1EtLKwAjtnTthIxbSOxNRMe26AoM8EtemAjRsxIZk0GJYFuFdllp2J-VIdIo8_HvtJwOGODN4Zg9u5zrCsUJYS2WNEHiP0"/>
+</div>
+<div>
+<p class="text-sm font-semibold text-slate-900 dark:text-white">陳雨柔</p>
+<p class="text-xs text-slate-500">喜樂小組</p>
+</div>
+</div>
+<span class="text-xs text-slate-400">昨天</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+<img alt="avatar" class="size-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCoKfODar3LZAkKpBiXq67i8EsW_CEnhh-qVt24L2b9vlOD0dg-u8WHDC01nD-RjiQY4Jk8-XnMbOseuyf-9dqAOuAKcex4fLD0cxG1JdgbbXc9HEk0FG5GLkbzIkRsuncVp8SscqJvRDsBBJvo7GluvbPIiMOE7qme-Fa3_M2T8Ou3Ri75pH0kC7HACLMZll8H1B9wQO1N_nUJxlvB5GUkaOkwmybbxlYU2bnPk1yZ1Cf2rrg2id1NmUb_cv6zdXZqZdowwxF5Is"/>
+</div>
+<div>
+<p class="text-sm font-semibold text-slate-900 dark:text-white">王建國</p>
+<p class="text-xs text-slate-500">仁愛小組</p>
+</div>
+</div>
+<span class="text-xs text-slate-400">2 天前</span>
+</div>
+</div>
+<a class="p-3 border-t border-slate-100 dark:border-slate-800 text-center text-sm font-medium text-slate-500 hover:text-primary transition-colors" href="#">
+                            View all
+                        </a>
+</div>
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+<div class="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+<h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">schedule</span>
+                                即將開始的課程
+                            </h2>
+<span class="text-xs font-medium text-slate-400">Next 24 Hours</span>
+</div>
+<div class="flex-1 p-5 space-y-6">
+<div class="flex gap-4">
+<div class="flex flex-col items-center min-w-[48px]">
+<p class="text-sm font-bold text-primary">19:30</p>
+<div class="w-px flex-1 bg-slate-100 dark:bg-slate-800 my-1"></div>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold text-slate-900 dark:text-white">成人主日學：馬可福音研讀</p>
+<div class="flex items-center gap-3 mt-1">
+<span class="text-xs text-slate-500 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span>
+                                            302 教室
+                                        </span>
+<span class="text-xs text-slate-500 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">person</span>
+                                            陳信宏 牧師
+                                        </span>
+</div>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="flex flex-col items-center min-w-[48px]">
+<p class="text-sm font-bold text-slate-400">20:00</p>
+<div class="w-px flex-1 bg-slate-100 dark:bg-slate-800 my-1"></div>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold text-slate-900 dark:text-white">小組長培訓班 (L305)</p>
+<div class="flex items-center gap-3 mt-1">
+<span class="text-xs text-slate-500 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span>
+                                            201 多功能室
+                                        </span>
+<span class="text-xs text-slate-500 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">person</span>
+                                            林雅惠 傳道
+                                        </span>
+</div>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="flex flex-col items-center min-w-[48px]">
+<p class="text-sm font-bold text-slate-400">07:00</p>
+<div class="w-px flex-1 bg-slate-100 dark:bg-slate-800 my-1"></div>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold text-slate-900 dark:text-white">明日晨禱會</p>
+<div class="flex items-center gap-3 mt-1">
+<span class="text-xs text-slate-500 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span>
+                                            主會堂
+                                        </span>
+<span class="text-xs text-slate-500 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">person</span>
+                                            李慕真 長老
+                                        </span>
+</div>
+</div>
+</div>
+</div>
+<a class="p-3 border-t border-slate-100 dark:border-slate-800 text-center text-sm font-medium text-slate-500 hover:text-primary transition-colors" href="#">
+                            View all
+                        </a>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

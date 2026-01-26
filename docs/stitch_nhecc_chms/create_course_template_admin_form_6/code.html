@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-Hant"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>待分班清單 - 教會教育系統 Admin</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;family=Noto+Sans+TC:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#2563eb", "background-light": "#f6f6f8", "background-dark": "#111621"}, fontFamily: {display: "Lexend", sans: ["Lexend", "Noto Sans TC", "sans-serif"]}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}}}};</script>
+<style>::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #334155;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display antialiased overflow-hidden">
+<div class="flex h-screen w-full">
+<aside class="hidden lg:flex flex-col w-72 h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex-shrink-0 z-20">
+<div class="p-6">
+<div class="flex gap-3 items-center mb-8">
+<div class="bg-center bg-no-repeat bg-cover rounded-lg size-10 bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">church</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-slate-900 dark:text-white text-base font-bold leading-normal">教育系統</h1>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-normal leading-normal">管理員後台</p>
+</div>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">dashboard</span>
+<span class="text-sm font-medium">儀表板</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary transition-colors" href="#">
+<span class="material-symbols-outlined fill-1">school</span>
+<span class="text-sm font-medium">課程管理</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">groups</span>
+<span class="text-sm font-medium">學生名單</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">person_pin</span>
+<span class="text-sm font-medium">講師管理</span>
+</a>
+<div class="my-2 border-t border-slate-100 dark:border-slate-800"></div>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">settings</span>
+<span class="text-sm font-medium">系統設定</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">analytics</span>
+<span class="text-sm font-medium">報表中心</span>
+</a>
+</nav>
+</div>
+<div class="mt-auto p-6 border-t border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 border-2 border-white dark:border-slate-700 shadow-sm" data-alt="User profile picture showing a smiling man" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC5e71vqBgbW38C8M9UjgMZp7eoj_3KLH-pxxfNphPiaGWsveV8qP2RKrHjAyWrg_SCm8dCO_FRxsv40xO3S9aPWIiagn40G2Wg3KoE9PeA9B4s2bMLP6IT8NAfUeb5W_O4MNAPWuj_v48lq5wsImk6VhPH7VjqcQ8ykZH7heAt6f25rIw5sroN8HTdpVF-GbNOax3PB5Q_TT1ADE1FiKLrdKVjRFSj4d1weSnikj9AhqiVoXAkfANBn-FHk_3XMUwxK2l_Z4mLQ4w");'></div>
+<div class="flex flex-col">
+<p class="text-slate-900 dark:text-white text-sm font-medium">王大明</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs">教務主任</p>
+</div>
+</div>
+</div>
+</aside>
+<div class="flex flex-col flex-1 h-full overflow-hidden relative">
+<header class="h-16 flex items-center justify-between px-6 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex-shrink-0 z-10">
+<div class="flex items-center gap-4 lg:hidden">
+<button class="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<span class="text-lg font-bold text-slate-900 dark:text-white">教育系統</span>
+</div>
+<div class="flex flex-1 justify-end items-center gap-6">
+<div class="hidden md:flex relative max-w-xs w-full">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-[20px]">search</span>
+<input class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-lg py-2 pl-10 pr-4 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50" placeholder="搜尋待辦事項、學生..." type="text"/>
+</div>
+<button class="relative text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 size-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
+</button>
+<button class="text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth bg-gray-50 dark:bg-[#1a1614]">
+<div class="max-w-[1440px] mx-auto space-y-6 pb-20">
+<nav class="flex items-center text-sm text-slate-500 dark:text-slate-400">
+<a class="hover:text-primary transition-colors" href="#">首頁</a>
+<span class="material-symbols-outlined text-base mx-2">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">課程管理</a>
+<span class="material-symbols-outlined text-base mx-2">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">S101 成長班</a>
+<span class="material-symbols-outlined text-base mx-2">chevron_right</span>
+<span class="text-slate-900 dark:text-white font-medium">待分班清單</span>
+</nav>
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div class="flex flex-col gap-1">
+<h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">待分班清單: S101 成長班</h1>
+<div class="flex items-center gap-2">
+<span class="flex size-2 rounded-full bg-orange-500"></span>
+<p class="text-slate-600 dark:text-slate-400 font-medium">目前積壓: 24 人</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                                篩選條件
+                            </button>
+<button class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                                匯出名單
+                            </button>
+</div>
+</div>
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+<div class="xl:col-span-8 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col h-[calc(100vh-280px)] min-h-[500px]">
+<div class="overflow-x-auto flex-1">
+<table class="w-full text-left text-sm whitespace-nowrap">
+<thead class="bg-slate-50 dark:bg-slate-950/50 text-slate-500 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10">
+<tr>
+<th class="px-6 py-3 w-12 text-center">
+<input class="rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary dark:bg-slate-800 cursor-pointer" id="selectAll" type="checkbox"/>
+</th>
+<th class="px-6 py-3">姓名</th>
+<th class="px-6 py-3">偏好時段</th>
+<th class="px-6 py-3">受洗狀態</th>
+<th class="px-6 py-3">申請日期</th>
+<th class="px-6 py-3">備註</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors bg-orange-50/30 dark:bg-orange-900/10">
+<td class="px-6 py-3 text-center">
+<input checked="" class="rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary dark:bg-slate-800 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-6 py-3 font-medium text-slate-900 dark:text-white">張小美</td>
+<td class="px-6 py-3">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                                                    週五晚
+                                                </span>
+</td>
+<td class="px-6 py-3 text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+                                                已受洗
+                                            </td>
+<td class="px-6 py-3 text-slate-500 dark:text-slate-400">2023/10/12</td>
+<td class="px-6 py-3 text-slate-400 text-xs truncate max-w-[150px]">-</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors bg-orange-50/30 dark:bg-orange-900/10">
+<td class="px-6 py-3 text-center">
+<input checked="" class="rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary dark:bg-slate-800 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-6 py-3 font-medium text-slate-900 dark:text-white">李大明</td>
+<td class="px-6 py-3">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                                                    週五晚
+                                                </span>
+</td>
+<td class="px-6 py-3 text-slate-500 dark:text-slate-400">尚未受洗</td>
+<td class="px-6 py-3 text-slate-500 dark:text-slate-400">2023/10/14</td>
+<td class="px-6 py-3 text-slate-400 text-xs truncate max-w-[150px]">小組長推薦</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="px-6 py-3 text-center">
+<input class="rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary dark:bg-slate-800 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-6 py-3 font-medium text-slate-900 dark:text-white">陳志豪</td>
+<td class="px-6 py-3">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+                                                    週日早
+                                                </span>
+</td>
+<td class="px-6 py-3 text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+                                                已受洗
+                                            </td>
+<td class="px-6 py-3 text-slate-500 dark:text-slate-400">2023/10/15</td>
+<td class="px-6 py-3 text-slate-400 text-xs truncate max-w-[150px]">-</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors bg-orange-50/30 dark:bg-orange-900/10">
+<td class="px-6 py-3 text-center">
+<input checked="" class="rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary dark:bg-slate-800 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-6 py-3 font-medium text-slate-900 dark:text-white">王雅婷</td>
+<td class="px-6 py-3">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                                                    週五晚
+                                                </span>
+</td>
+<td class="px-6 py-3 text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+                                                已受洗
+                                            </td>
+<td class="px-6 py-3 text-slate-500 dark:text-slate-400">2023/10/15</td>
+<td class="px-6 py-3 text-slate-400 text-xs truncate max-w-[150px]">-</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors bg-orange-50/30 dark:bg-orange-900/10">
+<td class="px-6 py-3 text-center">
+<input checked="" class="rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary dark:bg-slate-800 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-6 py-3 font-medium text-slate-900 dark:text-white">林建國</td>
+<td class="px-6 py-3">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                                                    週五晚
+                                                </span>
+</td>
+<td class="px-6 py-3 text-slate-500 dark:text-slate-400">尚未受洗</td>
+<td class="px-6 py-3 text-slate-500 dark:text-slate-400">2023/10/16</td>
+<td class="px-6 py-3 text-slate-400 text-xs truncate max-w-[150px]">需安排特別關懷</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="px-6 py-3 text-center">
+<input class="rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary dark:bg-slate-800 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-6 py-3 font-medium text-slate-900 dark:text-white">黃秀英</td>
+<td class="px-6 py-3">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+                                                    週日早
+                                                </span>
+</td>
+<td class="px-6 py-3 text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+                                                已受洗
+                                            </td>
+<td class="px-6 py-3 text-slate-500 dark:text-slate-400">2023/10/18</td>
+<td class="px-6 py-3 text-slate-400 text-xs truncate max-w-[150px]">-</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors bg-orange-50/30 dark:bg-orange-900/10">
+<td class="px-6 py-3 text-center">
+<input checked="" class="rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary dark:bg-slate-800 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-6 py-3 font-medium text-slate-900 dark:text-white">吳宗憲</td>
+<td class="px-6 py-3">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                                                    週五晚
+                                                </span>
+</td>
+<td class="px-6 py-3 text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+                                                已受洗
+                                            </td>
+<td class="px-6 py-3 text-slate-500 dark:text-slate-400">2023/10/19</td>
+<td class="px-6 py-3 text-slate-400 text-xs truncate max-w-[150px]">-</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors bg-orange-50/30 dark:bg-orange-900/10">
+<td class="px-6 py-3 text-center">
+<input checked="" class="rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary dark:bg-slate-800 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-6 py-3 font-medium text-slate-900 dark:text-white">劉淑芬</td>
+<td class="px-6 py-3">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                                                    週五晚
+                                                </span>
+</td>
+<td class="px-6 py-3 text-slate-500 dark:text-slate-400">尚未受洗</td>
+<td class="px-6 py-3 text-slate-500 dark:text-slate-400">2023/10/20</td>
+<td class="px-6 py-3 text-slate-400 text-xs truncate max-w-[150px]">-</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors bg-orange-50/30 dark:bg-orange-900/10">
+<td class="px-6 py-3 text-center">
+<input checked="" class="rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary dark:bg-slate-800 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-6 py-3 font-medium text-slate-900 dark:text-white">郭富城</td>
+<td class="px-6 py-3">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                                                    週五晚
+                                                </span>
+</td>
+<td class="px-6 py-3 text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+                                                已受洗
+                                            </td>
+<td class="px-6 py-3 text-slate-500 dark:text-slate-400">2023/10/21</td>
+<td class="px-6 py-3 text-slate-400 text-xs truncate max-w-[150px]">-</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="border-t border-slate-200 dark:border-slate-800 p-4 bg-white dark:bg-slate-900 flex items-center justify-between">
+<p class="text-sm text-slate-500 dark:text-slate-400">
+                                    顯示 1 到 9 筆，共 24 筆資料
+                                </p>
+<div class="flex items-center gap-2">
+<button class="p-1 rounded-md text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="p-1 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<div class="xl:col-span-4 sticky top-6">
+<div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col">
+<div class="p-6 border-b border-slate-100 dark:border-slate-800">
+<div class="flex items-center gap-2 text-primary mb-2">
+<span class="material-symbols-outlined text-2xl">add_business</span>
+<h2 class="text-lg font-bold">建立實體班級</h2>
+</div>
+<p class="text-sm text-slate-500 dark:text-slate-400">將已勾選的學生分配至新班級。</p>
+</div>
+<div class="p-6 space-y-6">
+<div class="bg-orange-50 dark:bg-primary/10 border border-orange-100 dark:border-primary/20 rounded-lg p-4 flex gap-3 items-start">
+<span class="material-symbols-outlined text-primary mt-0.5">group_add</span>
+<div>
+<p class="text-sm font-bold text-slate-800 dark:text-white mb-0.5">已選擇學生: 12 位</p>
+<p class="text-xs text-slate-600 dark:text-slate-400">皆偏好 <span class="font-medium text-blue-600 dark:text-blue-400">週五晚</span></p>
+</div>
+</div>
+<div class="space-y-4">
+<div>
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5" for="className">班級名稱</label>
+<input class="w-full rounded-lg border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:border-primary focus:ring-primary shadow-sm h-10" id="className" type="text" value="S101-A班"/>
+</div>
+<div>
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5" for="teacher">指派老師</label>
+<div class="relative">
+<select class="w-full rounded-lg border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:border-primary focus:ring-primary shadow-sm h-10 appearance-none pr-10" id="teacher">
+<option value="">請選擇老師...</option>
+<option selected="" value="t1">陳牧師</option>
+<option value="t2">王長老</option>
+<option value="t3">李傳道</option>
+</select>
+<span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 material-symbols-outlined text-[20px]">expand_more</span>
+</div>
+</div>
+<div>
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5" for="location">上課地點/時間</label>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-[18px]">schedule</span>
+<input class="w-full rounded-lg border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:border-primary focus:ring-primary shadow-sm h-10 pl-9" id="location" placeholder="例如: 102 教室, 每週五 19:30" type="text"/>
+</div>
+</div>
+</div>
+</div>
+<div class="p-6 pt-0 mt-auto">
+<button class="w-full py-3 px-4 bg-primary hover:bg-orange-600 text-white font-semibold rounded-lg shadow-md shadow-orange-500/20 transition-all flex items-center justify-center gap-2 group" type="button">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">send</span>
+                                        確認分班並發送通知
+                                    </button>
+<p class="text-xs text-center text-slate-400 mt-3">系統將自動發送 Email 與 Line 通知給學生。</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

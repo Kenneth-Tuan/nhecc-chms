@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-Hant"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>組織架構管理 - 伯大尼牧區</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;family=Noto+Sans+TC:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#2563eb", "background-light": "#f6f6f8", "background-dark": "#111621", success: "#22c55e", "success-light": "#f0fdf4"}, fontFamily: {display: "Lexend", sans: ["Lexend", "Noto Sans TC", "sans-serif"]}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}, boxShadow: {drag: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)"}}}};</script>
+<style type="text/tailwindcss">
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .tree-line {
+            position: relative;
+        }
+        .tree-line::before {
+            content: '';
+            position: absolute;
+            left: -19px;
+            top: -14px;
+            bottom: 18px;
+            border-left: 1.5px solid #e2e8f0;
+        }
+        .tree-item {
+            position: relative;
+        }
+        .tree-item::before {
+            content: '';
+            position: absolute;
+            left: -19px;
+            top: 24px;
+            width: 16px;
+            border-top: 1.5px solid #e2e8f0;
+        }.cursor-grabbing-custom {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display antialiased overflow-hidden selection:bg-primary/20">
+<div class="flex h-screen w-full">
+<aside class="hidden lg:flex flex-col w-64 h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex-shrink-0 z-20">
+<div class="p-6">
+<div class="flex gap-3 items-center mb-8">
+<div class="rounded-lg size-10 bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">church</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-slate-900 dark:text-white text-base font-bold leading-normal">教會管理系統</h1>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-normal leading-normal">伯大尼牧區</p>
+</div>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary">dashboard</span>
+<span class="text-sm font-medium">儀表板</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px] fill-1">account_tree</span>
+<span class="text-sm font-medium">組織架構</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary">group</span>
+<span class="text-sm font-medium">會友名單</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary">event_note</span>
+<span class="text-sm font-medium">聚會管理</span>
+</a>
+<div class="my-4 border-t border-slate-100 dark:border-slate-800"></div>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary">settings</span>
+<span class="text-sm font-medium">系統設定</span>
+</a>
+</nav>
+</div>
+<div class="mt-auto p-4 border-t border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<div class="size-9 rounded-full bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDTQri15CicKS8Or7phDEczda0OYgeR6isFSee61TUDtoxgKcGdXMr22Sd68a6PBIHmB0znE0kXtop6_8uPITSyJ-WjtEGc8IzVQUm7cgKnLMYbxSf4EAglfrg-85gUdQZGOkix6hbSsf9ckUCn20wstq0Hl6T08AaiCOoNLQI948TGZwSj686QWX8lGc8_O0s3dn8WB3zQZOOin4jzKLVJog3XkgZCXvTTy-6i0twFtNdNuWxYx4r6y1fPfWYNty3u9STdp11hdn8");'></div>
+<div class="flex flex-col min-w-0">
+<p class="text-slate-900 dark:text-white text-sm font-medium truncate">王大明</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs truncate">牧區長</p>
+</div>
+</div>
+</div>
+</aside>
+<div class="flex flex-col flex-1 h-full overflow-hidden relative">
+<header class="h-16 flex items-center justify-between px-6 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex-shrink-0 z-10">
+<div class="flex flex-col justify-center">
+<nav class="flex text-xs text-slate-500 mb-0.5">
+<span>首頁</span>
+<span class="mx-2">/</span>
+<span>牧區管理</span>
+<span class="mx-2">/</span>
+<span class="text-primary font-medium">組織架構</span>
+</nav>
+<h2 class="text-lg font-bold text-slate-900 dark:text-white">組織架構管理</h2>
+</div>
+<div class="flex items-center gap-3">
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-[18px]">search</span>
+<input class="bg-slate-100 dark:bg-slate-800 border-none rounded-full py-1.5 pl-9 pr-4 text-sm w-64 focus:ring-2 focus:ring-primary/50 outline-none placeholder:text-slate-400" placeholder="搜尋小組或會友..." type="text"/>
+</div>
+<button class="flex items-center justify-center size-9 text-slate-500 hover:bg-slate-50 rounded-full border border-slate-200 transition-colors">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-orange-600 rounded-lg shadow-sm shadow-orange-500/20 transition-all">
+<span class="material-symbols-outlined text-[20px]">save</span>
+                        儲存變更
+                    </button>
+</div>
+</header>
+<main class="flex-1 bg-slate-50 dark:bg-slate-950 p-6 overflow-hidden">
+<div class="grid grid-cols-12 gap-6 h-full">
+<div class="col-span-4 flex flex-col bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+<div class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50">
+<h3 class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-500">account_tree</span>
+                                組織架構樹 (Structure Tree)
+                            </h3>
+<button class="p-1 hover:bg-slate-200 rounded text-slate-500"><span class="material-symbols-outlined text-[18px]">unfold_less</span></button>
+</div>
+<div class="flex-1 overflow-y-auto p-5">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-amber-500 text-2xl">folder_open</span>
+<div class="flex flex-col">
+<span class="font-bold text-slate-800 dark:text-white text-base">伯大尼牧區</span>
+<span class="text-xs text-slate-500">總人數: 68 人</span>
+</div>
+</div>
+<div class="ml-2 pl-4 border-l border-slate-200 dark:border-slate-700 space-y-4">
+<div class="tree-item relative">
+<div class="p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-primary/30 transition-all group cursor-pointer">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">groups</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-primary">大衛小組</h4>
+<p class="text-xs text-slate-500">12 人</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-300 text-[18px]">more_vert</span>
+</div>
+</div>
+</div>
+<div class="tree-item relative">
+<div class="p-3 rounded-lg border-2 border-[#22c55e] bg-[#f0fdf4] dark:bg-green-900/20 dark:border-green-500 shadow-md transition-all cursor-pointer relative overflow-hidden">
+<div class="absolute inset-0 bg-green-400/5 pointer-events-none animate-pulse"></div>
+<div class="flex items-center justify-between relative z-10">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px] fill-1">groups</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-green-800 dark:text-green-300">約書亞小組</h4>
+<p class="text-xs text-green-600 dark:text-green-400 font-medium">15 人</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-green-600 dark:text-green-400 text-[20px]">file_download</span>
+</div>
+</div>
+</div>
+<div class="tree-item relative">
+<div class="p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-primary/30 transition-all group cursor-pointer">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">groups</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-primary">以斯帖小組</h4>
+<p class="text-xs text-slate-500">10 人</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-300 text-[18px]">more_vert</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="col-span-8 flex flex-col gap-6 h-full relative z-0">
+<div class="flex-shrink-0 bg-amber-50/60 dark:bg-amber-900/10 rounded-xl border-2 border-dashed border-amber-200 dark:border-amber-800/50 p-6 relative">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-amber-600">inbox</span>
+                                    待分發區 (Pending Pool)
+                                    <span class="text-xs font-normal text-slate-500 bg-white px-2 py-0.5 rounded-full border border-slate-200">共 3 人</span>
+</h3>
+<div class="text-xs text-slate-400 italic">拖曳卡片以分配小組</div>
+</div>
+<div class="flex flex-wrap gap-4 relative">
+<div class="w-48 bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm hover:border-primary/50 cursor-grab flex items-center gap-3 select-none">
+<div class="size-10 rounded-full bg-cover bg-center flex-shrink-0" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAVJqZk1mVc016Ead9M8R1ddhyHL9g-h-Gcf7S8brwAztwejWJFsUliel-e_5SN0lrIghmCR9j3k4g7nov9JpFfsst6M4t2HhkpOETfwA9HKLii7Gav4nRAKq_TENaPIRAfQHMkNnWwEwK36h8h_xjKjt_lU3iQJ7pJvuBmHQdWRn_iRbVu34ByPgvSbp1mYqcBRObWxCyerHa6c6kR9h6aJrx3B_j6u7aYxTA4eLxT80wUP9FA5NX301RGTtF0w5ZIiRig4w-m-Lw');"></div>
+<div class="min-w-0">
+<p class="font-bold text-sm text-slate-800 dark:text-slate-200">陳新一</p>
+<p class="text-[10px] text-slate-400 truncate">加入: 2023/10/01</p>
+</div>
+<span class="material-symbols-outlined text-slate-300 ml-auto">drag_indicator</span>
+</div>
+<div class="w-48 bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm hover:border-primary/50 cursor-grab flex items-center gap-3 select-none">
+<div class="size-10 rounded-full bg-cover bg-center flex-shrink-0" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBXl9NLZ1iQKwEyXW-en87grT9ijyTR8m5omlT3iLAsfgNMP0YAU3mbSFvZmizKt7RYAR44v62_ZSBfYKBaX6CaqUVwcVaGvgGQfSXrp9iG1t_jd-ne2ghawIsmdVuSkUAwhAiBhsIetDDtJKGMJr7Oeu-GVhzGG64bxwLsS9F3I2YmQMk2iWy7T1kPRGoNycs9nQeGOlz8TrKJhruEpGnWSpIwzeSiJqeU_NmVX9a4n27A61Y2uMY5DFijcqsbnHi1xEM3h5ZXwJQ');"></div>
+<div class="min-w-0">
+<p class="font-bold text-sm text-slate-800 dark:text-slate-200">張友友</p>
+<p class="text-[10px] text-slate-400 truncate">加入: 2023/10/05</p>
+</div>
+<span class="material-symbols-outlined text-slate-300 ml-auto">drag_indicator</span>
+</div>
+<div class="w-48 h-[66px] rounded-lg border-2 border-dashed border-slate-200 bg-slate-50/50"></div>
+</div>
+</div>
+<div class="flex-1 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden">
+<div class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+<h3 class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400">list_alt</span>
+                                    大衛小組成員列表
+                                </h3>
+<div class="flex gap-2">
+<button class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-colors">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+</button>
+<button class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-colors">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
+</div>
+</div>
+<div class="flex-1 overflow-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-slate-50 dark:bg-slate-800/50 sticky top-0 z-10">
+<tr>
+<th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">姓名</th>
+<th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">職分</th>
+<th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">聯絡電話</th>
+<th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">加入日期</th>
+<th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">狀態</th>
+<th class="px-6 py-3"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="px-6 py-3">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-cover" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBXl9NLZ1iQKwEyXW-en87grT9ijyTR8m5omlT3iLAsfgNMP0YAU3mbSFvZmizKt7RYAR44v62_ZSBfYKBaX6CaqUVwcVaGvgGQfSXrp9iG1t_jd-ne2ghawIsmdVuSkUAwhAiBhsIetDDtJKGMJr7Oeu-GVhzGG64bxwLsS9F3I2YmQMk2iWy7T1kPRGoNycs9nQeGOlz8TrKJhruEpGnWSpIwzeSiJqeU_NmVX9a4n27A61Y2uMY5DFijcqsbnHi1xEM3h5ZXwJQ');"></div>
+<span class="text-sm font-medium text-slate-900 dark:text-slate-200">王小美</span>
+</div>
+</td>
+<td class="px-6 py-3 text-sm text-slate-600">小組長</td>
+<td class="px-6 py-3 text-sm text-slate-600">0912-345-678</td>
+<td class="px-6 py-3 text-sm text-slate-600">2022/01/15</td>
+<td class="px-6 py-3"><span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">活躍</span></td>
+<td class="px-6 py-3 text-right"><span class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-primary text-[18px]">more_vert</span></td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="px-6 py-3">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold">L</div>
+<span class="text-sm font-medium text-slate-900 dark:text-slate-200">李建國</span>
+</div>
+</td>
+<td class="px-6 py-3 text-sm text-slate-600">會友</td>
+<td class="px-6 py-3 text-sm text-slate-600">0922-444-555</td>
+<td class="px-6 py-3 text-sm text-slate-600">2022/03/10</td>
+<td class="px-6 py-3"><span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">活躍</span></td>
+<td class="px-6 py-3 text-right"><span class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-primary text-[18px]">more_vert</span></td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="px-6 py-3">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-cover" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDaFrf_ihXN-n4VUZpqwEAAD34ejwD0P94qY43pegnhv0kglHY5nM4GcS5OpKxABytSG1GWBmK60DpcEJ1hkSxiMB3tZDaLABJG69VTKIlc-2nysbJ3ihKp5PhL3u0EmrGnYjQJ5-vMus0OSOapE9NGOOJBSgSTjVezlKxmIdeWsSvTRxUYir2EAtglWmzyJYHUZuCrhx4kZ8VcL3MDrd8ynGANNu1VutKiqjD00h8KhtQRTkwziavGRthNE0GLPBHByVeZx5BnsUo');"></div>
+<span class="text-sm font-medium text-slate-900 dark:text-slate-200">林雅婷</span>
+</div>
+</td>
+<td class="px-6 py-3 text-sm text-slate-600">會友</td>
+<td class="px-6 py-3 text-sm text-slate-600">0933-888-999</td>
+<td class="px-6 py-3 text-sm text-slate-600">2022/05/20</td>
+<td class="px-6 py-3"><span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">請假中</span></td>
+<td class="px-6 py-3 text-right"><span class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-primary text-[18px]">more_vert</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="fixed top-[320px] left-[380px] z-[100] pointer-events-none">
+<div class="w-48 bg-white dark:bg-slate-800 p-3 rounded-lg border-2 border-primary/50 shadow-drag transform -rotate-3 scale-105 flex items-center gap-3">
+<div class="size-10 rounded-full bg-cover bg-center flex-shrink-0" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDaFrf_ihXN-n4VUZpqwEAAD34ejwD0P94qY43pegnhv0kglHY5nM4GcS5OpKxABytSG1GWBmK60DpcEJ1hkSxiMB3tZDaLABJG69VTKIlc-2nysbJ3ihKp5PhL3u0EmrGnYjQJ5-vMus0OSOapE9NGOOJBSgSTjVezlKxmIdeWsSvTRxUYir2EAtglWmzyJYHUZuCrhx4kZ8VcL3MDrd8ynGANNu1VutKiqjD00h8KhtQRTkwziavGRthNE0GLPBHByVeZx5BnsUo');"></div>
+<div class="min-w-0">
+<p class="font-bold text-sm text-slate-800 dark:text-slate-200">林慕道</p>
+<p class="text-[10px] text-slate-400 truncate">加入: 2023/10/03</p>
+</div>
+<span class="material-symbols-outlined text-primary ml-auto animate-pulse">drag_indicator</span>
+</div>
+<div class="absolute -bottom-6 -right-6">
+<svg class="drop-shadow-lg" fill="none" height="48" viewbox="0 0 32 32" width="48" xmlns="http://www.w3.org/2000/svg">
+<path d="M10 24L22 24C23.1046 24 24 23.1046 24 22L24 14.5C24 14.2239 24.2239 14 24.5 14C24.7761 14 25 14.2239 25 14.5L25 22C25 24.7614 22.7614 27 20 27L12 27" stroke="black" stroke-linecap="round" stroke-width="2"></path>
+<path clip-rule="evenodd" d="M16.5 2C14.0147 2 12 4.01472 12 6.5V17.5C12 17.7761 11.7761 18 11.5 18C11.2239 18 11 17.7761 11 17.5V13.5C11 12.6716 10.3284 12 9.5 12C8.67157 12 8 12.6716 8 13.5V17.5C8 19.9853 10.0147 22 12.5 22H19.5C21.9853 22 24 19.9853 24 17.5V10.5C24 9.67157 23.3284 9 22.5 9C21.6716 9 21 9.67157 21 10.5V11.5C21 11.7761 20.7761 12 20.5 12C20.2239 12 20 11.7761 20 11.5V6.5C20 5.67157 19.3284 5 18.5 5C17.6716 5 17 5.67157 17 6.5V11.5C17 11.7761 16.7761 12 16.5 12C16.2239 12 16 11.7761 16 11.5V6.5C16 4.01472 18.0147 2 20.5 2H16.5Z" fill="white" fill-rule="evenodd" stroke="black" stroke-width="1.5"></path>
+</svg>
+</div>
+<div class="absolute -right-24 bottom-6 bg-slate-800 text-white text-xs px-3 py-1.5 rounded shadow-lg whitespace-nowrap z-50 animate-bounce">
+                        放開以加入約書亞小組
+                        <div class="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-slate-800 transform rotate-45"></div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

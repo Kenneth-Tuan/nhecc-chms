@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-Hant"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>編輯角色 - 教會教育系統 Admin</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;family=Noto+Sans+TC:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#2563eb", "background-light": "#f6f6f8", "background-dark": "#111621"}, fontFamily: {display: "Lexend", sans: ["Lexend", "Noto Sans TC", "sans-serif"]}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}}}};</script>
+<style type="text/tailwindcss">
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #334155;
+        }
+        .tree-line::before {
+            content: '';
+            position: absolute;
+            left: -1.25rem;
+            top: 0.75rem;
+            width: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        .tree-line::after {
+            content: '';
+            position: absolute;
+            left: -1.25rem;
+            top: -0.5rem;
+            bottom: 0.75rem;
+            border-left: 1px solid #e2e8f0;
+        }
+        .tree-line:last-child::after {
+            bottom: auto;
+            height: 1.25rem;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display antialiased overflow-hidden">
+<div class="flex h-screen w-full">
+<aside class="hidden lg:flex flex-col w-72 h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex-shrink-0 z-20">
+<div class="p-6">
+<div class="flex gap-3 items-center mb-8">
+<div class="bg-center bg-no-repeat bg-cover rounded-lg size-10 bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">church</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-slate-900 dark:text-white text-base font-bold leading-normal">ChurchLearn</h1>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-normal leading-normal">管理員後台</p>
+</div>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">dashboard</span>
+<span class="text-sm font-medium">儀表板</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">school</span>
+<span class="text-sm font-medium">課程管理</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">group</span>
+<span class="text-sm font-medium">會友名單管理</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">person_pin</span>
+<span class="text-sm font-medium">講師管理</span>
+</a>
+<div class="my-2 border-t border-slate-100 dark:border-slate-800"></div>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary transition-colors" href="#">
+<span class="material-symbols-outlined fill-1">shield_person</span>
+<span class="text-sm font-medium">角色權限設定</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">settings</span>
+<span class="text-sm font-medium">系統設定</span>
+</a>
+</nav>
+</div>
+<div class="mt-auto p-6 border-t border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 border-2 border-white dark:border-slate-700 shadow-sm" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD-8O2Px75xU6R4RS1znozVTQkeH6N4Gm5UC0P6cRtFKoPdAjD7L_DA2xXFyhX6M0UbVkR1TucE-z6QqVPrNB9yWbuHyM-GVjVK2i7mvcRtos1ibo9d6vqBSDP4lb2lSSMS8OUUu08Kfo-ebibFI1jm99qdPHBs0fZnIt9yqGcr0iI_otDQOw8bG1cb8OOcir1vmR4Wbb5zrN-5dmvlpQK2_VSb3f5-0XP4EoZSlZbhVsl_wOytwdbYMi_rDbbnRFAKWWRU-y3P7DE");'></div>
+<div class="flex flex-col">
+<p class="text-slate-900 dark:text-white text-sm font-medium">王大明</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs">系統管理員</p>
+</div>
+</div>
+</div>
+</aside>
+<div class="flex flex-col flex-1 h-full overflow-hidden relative">
+<header class="h-16 flex items-center justify-between px-6 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex-shrink-0 z-10">
+<div class="flex items-center gap-4 lg:hidden">
+<button class="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<span class="text-lg font-bold text-slate-900 dark:text-white">ChurchLearn</span>
+</div>
+<div class="flex flex-1 justify-end items-center gap-6">
+<button class="relative text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 size-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
+</button>
+<button class="text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth">
+<div class="max-w-7xl mx-auto space-y-6">
+<nav class="flex items-center text-sm text-slate-500 dark:text-slate-400">
+<a class="hover:text-primary transition-colors" href="#">角色權限設定</a>
+<span class="material-symbols-outlined text-base mx-2">chevron_right</span>
+<span class="text-slate-900 dark:text-white font-medium">編輯角色</span>
+</nav>
+<div class="flex flex-col gap-1">
+<h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">編輯角色</h1>
+<p class="text-slate-500 dark:text-slate-400">設定角色基本資訊與功能操作權限</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+<div class="lg:col-span-2 space-y-6">
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+<div class="p-6 border-b border-slate-100 dark:border-slate-800">
+<h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">info</span>
+                                    角色資訊
+                                </h2>
+</div>
+<div class="p-6 space-y-5">
+<div class="space-y-2">
+<label class="text-sm font-medium text-slate-700 dark:text-slate-300">角色代碼</label>
+<input class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-lg py-2.5 px-4 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all" placeholder="例如: ADMIN_MGR" type="text" value="TEAM_LEADER"/>
+</div>
+<div class="space-y-2">
+<label class="text-sm font-medium text-slate-700 dark:text-slate-300">角色名稱</label>
+<input class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-lg py-2.5 px-4 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all" placeholder="例如: 系統管理員" type="text" value="小組長"/>
+</div>
+<div class="space-y-2">
+<label class="text-sm font-medium text-slate-700 dark:text-slate-300">備註說明</label>
+<textarea class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-lg py-2.5 px-4 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all" placeholder="輸入此角色的權限範圍描述..." rows="4">負責管理所屬小組成員、安排培訓計畫與回報進度</textarea>
+</div>
+<div class="space-y-3">
+<label class="text-sm font-medium text-slate-700 dark:text-slate-300 block">角色狀態</label>
+<div class="flex items-center gap-6">
+<label class="flex items-center gap-2 cursor-pointer group">
+<input checked="" class="text-primary focus:ring-primary/50 border-slate-300" name="status" type="radio"/>
+<span class="text-sm text-slate-700 dark:text-slate-300 group-hover:text-primary transition-colors">啟用</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="text-primary focus:ring-primary/50 border-slate-300" name="status" type="radio"/>
+<span class="text-sm text-slate-700 dark:text-slate-300 group-hover:text-primary transition-colors">停用</span>
+</label>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="lg:col-span-3">
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden h-full flex flex-col">
+<div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+<h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">verified_user</span>
+                                    功能權限 (Function Access)
+                                </h2>
+<label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-primary hover:opacity-80 transition-opacity">
+<input class="rounded border-slate-300 text-primary focus:ring-primary/50" type="checkbox"/>
+                                    全選
+                                </label>
+</div>
+<div class="p-8 flex-1 overflow-y-auto space-y-6">
+<div class="space-y-4">
+<div class="flex items-center gap-3">
+<input checked="" class="rounded border-slate-300 text-primary focus:ring-primary/50" type="checkbox"/>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-[20px]">school</span>
+<span class="font-bold text-slate-900 dark:text-white">課程管理</span>
+</div>
+</div>
+<div class="ml-9 space-y-3 relative">
+<div class="flex items-center gap-3 tree-line relative">
+<input checked="" class="rounded border-slate-300 text-primary focus:ring-primary/50" type="checkbox"/>
+<span class="text-sm text-slate-600 dark:text-slate-400">建立課程</span>
+</div>
+<div class="flex items-center gap-3 tree-line relative">
+<input checked="" class="rounded border-slate-300 text-primary focus:ring-primary/50" type="checkbox"/>
+<span class="text-sm text-slate-600 dark:text-slate-400">審核報名</span>
+</div>
+<div class="flex items-center gap-3 tree-line relative">
+<input class="rounded border-slate-300 text-primary focus:ring-primary/50" type="checkbox"/>
+<span class="text-sm text-slate-600 dark:text-slate-400">刪除課程</span>
+</div>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-3">
+<input checked="" class="rounded border-slate-300 text-primary focus:ring-primary/50" type="checkbox"/>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-[20px]">group</span>
+<span class="font-bold text-slate-900 dark:text-white">會友管理</span>
+</div>
+</div>
+<div class="ml-9 space-y-3 relative">
+<div class="flex items-center gap-3 tree-line relative">
+<input checked="" class="rounded border-slate-300 text-primary focus:ring-primary/50" type="checkbox"/>
+<span class="text-sm text-slate-600 dark:text-slate-400">瀏覽名單</span>
+</div>
+<div class="flex items-center gap-3 tree-line relative">
+<input checked="" class="rounded border-slate-300 text-primary focus:ring-primary/50" type="checkbox"/>
+<span class="text-sm text-slate-600 dark:text-slate-400">編輯資料</span>
+</div>
+<div class="flex items-center gap-3 tree-line relative">
+<input class="rounded border-slate-300 text-primary focus:ring-primary/50" type="checkbox"/>
+<span class="text-sm text-slate-600 dark:text-slate-400">匯出報表</span>
+</div>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-3">
+<input class="rounded border-slate-300 text-primary focus:ring-primary/50" type="checkbox"/>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-[20px]">settings</span>
+<span class="font-bold text-slate-900 dark:text-white">系統設定</span>
+</div>
+</div>
+<div class="ml-9 space-y-3 relative">
+<div class="flex items-center gap-3 tree-line relative">
+<input class="rounded border-slate-300 text-primary focus:ring-primary/50" type="checkbox"/>
+<span class="text-sm text-slate-600 dark:text-slate-400">角色設定</span>
+</div>
+<div class="flex items-center gap-3 tree-line relative">
+<input class="rounded border-slate-300 text-primary focus:ring-primary/50" type="checkbox"/>
+<span class="text-sm text-slate-600 dark:text-slate-400">組織架構</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-end gap-3 pt-6 pb-20">
+<button class="px-8 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                        取消
+                    </button>
+<button class="px-8 py-2.5 rounded-lg bg-primary hover:bg-orange-600 text-white font-medium shadow-md shadow-orange-500/20 transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">save</span>
+                        儲存設定
+                    </button>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>
