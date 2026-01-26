@@ -80,6 +80,10 @@ const onFileSelect = (event: any) => {
 const triggerFileUpload = () => {
   fileUploadRef.value.choose();
 };
+
+definePageMeta({
+  layout: "auth",
+});
 </script>
 
 <template>

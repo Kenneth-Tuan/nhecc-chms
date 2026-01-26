@@ -31,6 +31,10 @@ const handleNextStep = async () => {
   // 導向註冊階段二：個人資料完成
   navigateTo("/register/profile");
 };
+
+definePageMeta({
+  layout: "auth",
+});
 </script>
 
 <template>

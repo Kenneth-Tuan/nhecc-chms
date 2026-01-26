@@ -25,6 +25,10 @@ const handleLogin = async () => {
 const handleSocialLogin = (provider: string) => {
   console.log(`Social login with ${provider}`);
 };
+
+definePageMeta({
+  layout: "auth",
+});
 </script>
 
 <template>
