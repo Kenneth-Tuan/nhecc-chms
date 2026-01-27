@@ -57,28 +57,71 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-6">
+  <div
+    :class="[
+      'flex flex-col gap-6', // layout
+    ]"
+  >
     <section>
-      <div class="relative w-full overflow-hidden rounded-md shadow-xl group">
+      <div
+        :class="[
+          'relative overflow-hidden group', // position
+          'w-full', // scaling
+          'rounded-md', // border
+          'shadow-xl', // shadow
+        ]"
+      >
         <div
-          class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10"
+          :class="[
+            'absolute inset-0 z-10', // position
+            'bg-gradient-to-t from-black/90 via-black/40 to-transparent', // colors
+          ]"
         ></div>
         <div
-          class="h-52 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+          :class="[
+            'h-52', // scaling
+            'bg-cover bg-center', // etc
+            'transition-transform duration-700 group-hover:scale-105', // animation
+          ]"
           :style="{ backgroundImage: `url(${dailyVerse.image})` }"
         ></div>
-        <div class="absolute bottom-0 left-0 right-0 p-6 z-20">
-          <div class="flex items-center gap-2 mb-2">
+        <div
+          :class="[
+            'absolute bottom-0 left-0 right-0 z-20', // position
+            'p-6', // spacing
+          ]"
+        >
+          <div
+            :class="[
+              'flex items-center gap-2', // layout
+              'mb-2', // spacing
+            ]"
+          >
             <i class="pi pi-comment" un-text="primary" un-font="bold" />
             <span
-              class="text-white/90 text-xs font-bold uppercase tracking-widest"
+              :class="[
+                'text-xs font-bold uppercase tracking-widest', // font
+                'text-white/90', // colors
+              ]"
               >Daily Verse</span
             >
           </div>
-          <p class="text-white text-2xl font-bold leading-snug mb-1">
+          <p
+            :class="[
+              'text-2xl font-bold leading-snug', // font
+              'mb-1', // spacing
+              'text-white', // colors
+            ]"
+          >
             {{ dailyVerse.fullText }}
           </p>
-          <p class="text-primary text-base font-semibold mt-2">
+          <p
+            :class="[
+              'text-base font-semibold', // font
+              'mt-2', // spacing
+              'text-primary', // colors
+            ]"
+          >
             {{ dailyVerse.reference }}
           </p>
         </div>
@@ -87,20 +130,37 @@ onUnmounted(() => {
 
     <!-- Announcements -->
     <section>
-      <div class="flex items-center justify-between mb-5 px-1">
-        <h2 class="text-2xl font-bold tracking-tight">Announcements</h2>
+      <div
+        :class="[
+          'flex items-center justify-between', // layout
+          'mb-5 px-1', // spacing
+        ]"
+      >
+        <h2
+          :class="[
+            'text-2xl font-bold tracking-tight', // font
+          ]"
+        >
+          Announcements
+        </h2>
         <Button label="View All" variant="text" un-font="bold" />
       </div>
-      <div class="flex flex-col gap-6">
+      <div
+        :class="[
+          'flex flex-col gap-6', // layout
+        ]"
+      >
         <Panel
           v-for="ann in announcements"
           :key="ann.id"
           :pt="{
             root: {
               class: [
-                'border-none',
-                'shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden',
-                'dark:bg-surface-800',
+                'overflow-hidden', // position
+                'transition-shadow duration-300', // animation
+                'border-none', // border
+                'shadow-md hover:shadow-lg', // shadow
+                'dark:bg-surface-800', // etc
               ],
             },
             header: {
@@ -117,31 +177,66 @@ onUnmounted(() => {
           }"
         >
           <template #header>
-            <div class="flex flex-row justify-between items-center flex-gap-2">
+            <div
+              :class="[
+                'flex flex-row justify-between items-center flex-gap-2', // layout
+              ]"
+            >
               <i
                 v-if="ann.isPinned"
-                class="pi pi-thumbtack text-primary dark:text-primary-300 font-bold"
+                :class="[
+                  'pi pi-thumbtack', // etc
+                  'font-bold', // font
+                  'text-primary dark:text-primary-300', // colors
+                ]"
               ></i>
 
-              <div class="text-lg font-bold leading-tight">
+              <div
+                :class="[
+                  'text-lg font-bold leading-tight', // font
+                ]"
+              >
                 {{ ann.title }}
               </div>
             </div>
           </template>
           <template #footer>
-            <div class="flex flex-row justify-between items-center">
-              <div class="flex items-center gap-2">
-                <i class="pi pi-clock text-xs text-surface-400"></i>
-                <span class="text-xs font-medium text-surface-400">{{
-                  ann.date
-                }}</span>
+            <div
+              :class="[
+                'flex flex-row justify-between items-center', // layout
+              ]"
+            >
+              <div
+                :class="[
+                  'flex items-center gap-2', // layout
+                ]"
+              >
+                <i
+                  :class="[
+                    'pi pi-clock', // etc
+                    'text-xs', // font
+                    'text-surface-400', // colors
+                  ]"
+                ></i>
+                <span
+                  :class="[
+                    'text-xs font-medium', // font
+                    'text-surface-400', // colors
+                  ]"
+                  >{{ ann.date }}</span
+                >
               </div>
 
               <Button label="More" rounded text size="small" />
             </div>
           </template>
           <template #icons> </template>
-          <p class="m-0 leading-relaxed line-clamp-2 text-surface-500">
+          <p
+            :class="[
+              'text-surface-500', // font/color
+              'm-0 leading-relaxed line-clamp-2', // spacing/etc
+            ]"
+          >
             {{ ann.content }}
           </p>
         </Panel>
@@ -150,8 +245,19 @@ onUnmounted(() => {
 
     <!-- Church News -->
     <section>
-      <div class="flex items-center justify-between mb-5 px-1">
-        <h2 class="text-2xl font-bold tracking-tight">Church News</h2>
+      <div
+        :class="[
+          'flex items-center justify-between', // layout
+          'mb-5 px-1', // spacing
+        ]"
+      >
+        <h2
+          :class="[
+            'text-2xl font-bold tracking-tight', // font
+          ]"
+        >
+          Church News
+        </h2>
         <Button
           label="See All"
           variant="text"
@@ -159,12 +265,24 @@ onUnmounted(() => {
           @click="seeAllNews"
         />
       </div>
-      <div class="relative group">
+      <div
+        :class="[
+          'relative group', // position
+        ]"
+      >
         <Button
           icon="pi pi-chevron-left"
           rounded
           outlined
-          class="!absolute left--2 top-1/2 -translate-y-1/2 z-20 bg-surface-0/90 dark:bg-surface-800/90 backdrop-blur-sm !w-10 !h-10 !p-0 shadow-lg border-surface-200 dark:border-surface-700 text-primary"
+          :class="[
+            '!absolute left--2 top-1/2 -translate-y-1/2 z-20', // position
+            '!p-0', // spacing
+            '!w-10 !h-10', // scaling
+            'bg-surface-0/90 dark:bg-surface-800/90 backdrop-blur-sm', // colors
+            'border-surface-200 dark:border-surface-700', // border
+            'shadow-lg', // shadow
+            'text-primary', // etc
+          ]"
           :disabled="!canScrollLeft"
           @click="scroll('left')"
           aria-label="Scroll Left"
@@ -172,25 +290,50 @@ onUnmounted(() => {
 
         <div
           ref="churchNewsContainer"
-          class="flex overflow-x-auto mb-6 pb-4 gap-4 no-scrollbar snap-x snap-mandatory scroll-smooth px-2 md:px-12"
+          :class="[
+            'flex overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth', // layout
+            'mb-6 pb-4 px-2 md:px-12 gap-4', // spacing
+          ]"
           @scroll="checkScroll"
         >
           <div
             v-for="news in churchNews"
             :key="news.id"
-            class="snap-start shrink-0 w-72 rounded-xl bg-surface-0 dark:bg-surface-800 shadow-md overflow-hidden flex flex-col relative border-none"
+            :class="[
+              'flex flex-col snap-start shrink-0 relative overflow-hidden', // layout/position
+              'w-72', // scaling
+              'bg-surface-0 dark:bg-surface-800', // colors
+              'rounded-xl border-none', // border
+              'shadow-md', // shadow
+            ]"
           >
             <div
-              class="h-32 bg-cover bg-center"
+              :class="[
+                'h-32', // scaling
+                'bg-cover bg-center', // etc
+              ]"
               :style="{ backgroundImage: `url(${news.image})` }"
             ></div>
-            <div class="p-4 flex-1 flex flex-col justify-center">
+            <div
+              :class="[
+                'flex-1 flex flex-col justify-center', // layout
+                'p-4', // spacing
+              ]"
+            >
               <p
-                class="text-xs text-primary font-bold uppercase mb-1 tracking-wider"
+                :class="[
+                  'text-xs font-bold uppercase tracking-wider', // font
+                  'mb-1', // spacing
+                  'text-primary', // colors
+                ]"
               >
                 {{ news.category }}
               </p>
-              <h3 class="font-bold text-lg">
+              <h3
+                :class="[
+                  'font-bold text-lg', // font
+                ]"
+              >
                 {{ news.title }}
               </h3>
             </div>
@@ -201,7 +344,15 @@ onUnmounted(() => {
           icon="pi pi-chevron-right"
           rounded
           outlined
-          class="!absolute right--2 top-1/2 -translate-y-1/2 z-20 bg-surface-0/90 dark:bg-surface-800/90 backdrop-blur-sm !w-10 !h-10 !p-0 shadow-lg border-surface-200 dark:border-surface-700 text-primary"
+          :class="[
+            '!absolute right--2 top-1/2 -translate-y-1/2 z-20', // position
+            '!p-0', // spacing
+            '!w-10 !h-10', // scaling
+            'bg-surface-0/90 dark:bg-surface-800/90 backdrop-blur-sm', // colors
+            'border-surface-200 dark:border-surface-700', // border
+            'shadow-lg', // shadow
+            'text-primary', // etc
+          ]"
           :disabled="!canScrollRight"
           @click="scroll('right')"
           aria-label="Scroll Right"
