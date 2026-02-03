@@ -1,116 +1,42 @@
 <script setup lang="ts">
+import { zodResolver } from "@primevue/forms/resolvers/zod";
+import {
+  step1Schema,
+  step2Schema,
+  type RegisterFormValues,
+  userFieldDefs,
+} from "~/utils/user/formDef";
+import { FORM_DEFS_KEY } from "~/types/form";
+import SmartField from "@/components/form/SmartField.vue";
 import { pastoralZones } from "~/data/pastoral-zones.data";
-import SchemaForm from "@/components/common/SchemaForm.vue";
-import FirstStepPanel from "./_components/firstStepPanel.vue";
-import SecondStepPanel from "./_components/secondStepPanel.vue";
 
-/**
- * 註冊頁面 - 整合版
- * 使用 Stepper 分步進行：建立帳號 -> 完成個人資料
- */
+// Provide Form Definitions
+provide(FORM_DEFS_KEY, userFieldDefs);
 
-const activeStep = ref(1); // Use number for easier comparison
+const activeStep = ref(1);
 const loading = ref(false);
 
-// 整合後的表單數據
-const formData = ref({
-  // Step 1: Account
-  fullName: "",
-  phone: "",
-  email: "",
-  password: "",
-  confirmPassword: "",
-
-  // Step 2: Profile
-  avatar: null as string | null,
+const formData = ref<Partial<RegisterFormValues>>({
+  // Initial Values
   gender: "MALE",
-  birthDate: null,
-  maritalStatus: null,
-  lineId: "",
-  address: "",
-  emergencyContactName: "",
-  emergencyContactPhone: "",
   isBaptized: true,
-  baptismDate: null,
-  pastoralZone: null,
-  homeGroup: null,
   previousCourses: [],
 });
 
-// --- Step 1 Configuration ---
-const formFields = [
-  {
-    name: "fullName",
-    label: "真實姓名",
-    icon: "pi pi-user",
-    placeholder: "請輸入姓名",
-    required: true,
-  },
-  {
-    name: "phone",
-    label: "手機號碼",
-    icon: "pi pi-phone",
-    placeholder: "0912-345-678",
-    required: true,
-    type: "tel",
-  },
-  {
-    name: "email",
-    label: "電子信箱",
-    icon: "pi pi-envelope",
-    placeholder: "example@email.com",
-    required: true,
-    type: "email",
-  },
-  {
-    name: "password-hint",
-    type: "slot",
-    slotName: "password-hint",
-  },
-  {
-    name: "password",
-    label: "設定密碼",
-    icon: "pi pi-lock",
-    placeholder: "請輸入密碼",
-    required: true,
-    component: "Password",
-  },
-  {
-    name: "confirmPassword",
-    label: "確認密碼",
-    icon: "pi pi-lock",
-    placeholder: "請再次輸入密碼",
-    required: true,
-    component: "Password",
-  },
-];
-
-// --- Step 2 Configuration ---
-const maritalOptions = [
-  { label: "單身", value: "SINGLE" },
-  { label: "已婚", value: "MARRIED" },
-  { label: "其他", value: "OTHER" },
-];
-
-const courseOptions = [
-  { label: "啟發課程", value: "ALPHA" },
-  { label: "幸福小組", value: "HAPPINESS_GROUP" },
-  { label: "經歷神營會", value: "ENCOUNTER_GOD" },
-  { label: "從懷疑到相信", value: "DOUBT_TO_FAITH" },
-  { label: "其他", value: "OTHER" },
-];
-
+// Dynamic Options for Step 2
 const availableGroups = computed(() => {
   if (!formData.value.pastoralZone) return [];
   const zone = pastoralZones.find((z) => z.id === formData.value.pastoralZone);
   return zone ? zone.groups : [];
 });
 
+/** File Upload Logic **/
 const fileUploadRef = ref();
 const onFileSelect = (event: any) => {
   const file = event.files[0];
   const reader = new FileReader();
   reader.onload = (e) => {
+    // @ts-ignore
     formData.value.avatar = e.target?.result as string;
   };
   reader.readAsDataURL(file);
@@ -119,31 +45,32 @@ const triggerFileUpload = () => {
   fileUploadRef.value.choose();
 };
 
-// --- Logic ---
+/** Form Handlers **/
+const onStep1Submit = async (e: any) => {
+  if (!e.valid) return;
 
-// Step 1 Submit -> Validate & Next
-const handleNextStep = async (nextCallback: () => void) => {
-  if (formData.value.password !== formData.value.confirmPassword) {
-    console.warn("密碼與確認密碼不符");
-    return;
-  }
+  // Merge Step 1 data
+  formData.value = { ...formData.value, ...e.values };
 
   loading.value = true;
   // Simulate API check
   await new Promise((resolve) => setTimeout(resolve, 500));
   loading.value = false;
 
-  // Navigate to Step 2
-  // We can manually set activeStep or use the callback if provided by Stepper
   activeStep.value = 2;
 };
 
-// Step 2 Submit -> Complete
-const handleComplete = async () => {
+const onStep2Submit = async (e: any) => {
+  if (!e.valid) return;
+
+  // Merge Step 2 data
+  formData.value = { ...formData.value, ...e.values };
+
   loading.value = true;
   await new Promise((resolve) => setTimeout(resolve, 1000));
   console.log("Registration Complete:", formData.value);
   loading.value = false;
+
   navigateTo("/");
 };
 
@@ -169,7 +96,7 @@ definePageMeta({
     ]"
   >
     <Stepper v-model:value="activeStep" class="flex flex-col h-full">
-      <!-- Header / Stepper List -->
+      <!-- Header Area -->
       <header :class="['shrink-0 text-center', 'pt-10 px-6 sm:px-8 pb-4']">
         <StepList
           class="!flex !justify-center !gap-2 !mb-6 !bg-transparent !p-0 !border-0 !shadow-none"
@@ -179,28 +106,26 @@ definePageMeta({
               <div
                 :class="[
                   'h-1.5 w-12 rounded-full transition-all',
-                  value <= activeStep
+                  Number(value) <= activeStep
                     ? 'bg-primary'
                     : 'bg-slate-200 dark:bg-slate-800',
                 ]"
               ></div>
             </div>
           </Step>
-
           <Step v-slot="{ activateCallback, value }" asChild :value="2">
             <div
-              @click="
-                (payload) =>
-                  value <= activeStep ? activateCallback(payload) : null
-              "
+              @click="Number(value) <= activeStep ? activateCallback() : null"
               :class="[
-                value <= activeStep ? 'cursor-pointer' : 'cursor-default',
+                Number(value) <= activeStep
+                  ? 'cursor-pointer'
+                  : 'cursor-default',
               ]"
             >
               <div
                 :class="[
                   'h-1.5 w-12 rounded-full transition-all',
-                  value <= activeStep
+                  Number(value) <= activeStep
                     ? 'bg-primary'
                     : 'bg-slate-200 dark:bg-slate-800',
                 ]"
@@ -222,56 +147,48 @@ definePageMeta({
       </header>
 
       <StepPanels>
-        <StepPanel v-slot="{ activateCallback }" :value="1">
-          <FirstStepPanel :activateCallback="activateCallback" />
-        </StepPanel>
-        <StepPanel v-slot="{ activateCallback }" :value="2">
-          <SecondStepPanel :activateCallback="activateCallback" />
-        </StepPanel>
-      </StepPanels>
-
-      <StepPanels>
+        <!-- STEP 1: Account Info -->
         <StepPanel
           v-slot="{ activateCallback }"
           :value="1"
-          class="!flex-1 !flex !flex-col !p-6 sm:!p-8 !pt-2"
+          class="p-6 sm:p-8 pt-2"
         >
-          <SchemaForm
-            v-model="formData"
-            :fields="formFields"
-            :loading="loading"
-            submit-label="下一步 (Next)"
-            :show-submit="false"
-            @submit="handleNextStep(activateCallback)"
-            class="flex-1 flex flex-col"
+          <Form
+            :initial-values="formData"
+            :resolver="zodResolver(step1Schema)"
+            @submit="onStep1Submit"
+            class="flex-1 flex flex-col space-y-5"
           >
-            <template #footer>
-              <div class="mt-auto pt-6">
-                <Button
-                  label="下一步 (Next)"
-                  type="submit"
-                  :loading="loading"
-                  :class="[
-                    'font-bold !text-lg',
-                    '!w-full !rounded-xl',
-                    'shadow-md shadow-blue-300',
-                  ]"
-                />
-                <p
-                  class="text-[11px] leading-normal text-center mt-4 px-4 text-slate-400"
+            <SmartField name="fullName" />
+            <SmartField name="phone" />
+            <SmartField name="email" />
+
+            <Divider />
+
+            <SmartField name="password" />
+            <SmartField name="confirmPassword" />
+
+            <div class="mt-auto pt-6">
+              <Button
+                label="下一步 (Next)"
+                type="submit"
+                :loading="loading"
+                class="font-bold !text-lg !w-full !rounded-xl shadow-md shadow-blue-300"
+              />
+              <p
+                class="text-[11px] leading-normal text-center mt-4 px-4 text-slate-400"
+              >
+                點擊下一步即代表您同意本平台的
+                <NuxtLink to="#" class="underline hover:text-slate-600"
+                  >服務條款</NuxtLink
                 >
-                  點擊下一步即代表您同意本平台的
-                  <NuxtLink to="#" class="underline hover:text-slate-600"
-                    >服務條款</NuxtLink
-                  >
-                  與
-                  <NuxtLink to="#" class="underline hover:text-slate-600"
-                    >隱私政策</NuxtLink
-                  >
-                </p>
-              </div>
-            </template>
-          </SchemaForm>
+                與
+                <NuxtLink to="#" class="underline hover:text-slate-600"
+                  >隱私政策</NuxtLink
+                >
+              </p>
+            </div>
+          </Form>
 
           <div
             class="pt-8 mt-4 text-center border-t border-slate-50 dark:border-slate-800/50"
@@ -287,13 +204,13 @@ definePageMeta({
           </div>
         </StepPanel>
 
-        <!-- STEP 2 PANEL -->
+        <!-- STEP 2: Profile Info -->
         <StepPanel
           v-slot="{ activateCallback }"
           :value="2"
-          class="!flex-1 !flex !flex-col !p-6 sm:!p-8 !pt-2 !overflow-y-auto"
+          class="p-6 sm:p-8 pt-2"
         >
-          <!-- Avatar Upload -->
+          <!-- Avatar (Outside Form usually, or handled manually) -->
           <div class="flex flex-col items-center mb-8 shrink-0">
             <FileUpload
               ref="fileUploadRef"
@@ -335,8 +252,13 @@ definePageMeta({
             >
           </div>
 
-          <form class="space-y-10" @submit.prevent="handleComplete">
-            <!-- 基本資料 -->
+          <Form
+            :initial-values="formData"
+            :resolver="zodResolver(step2Schema)"
+            @submit="onStep2Submit"
+            class="space-y-10"
+          >
+            <!-- Basic Info -->
             <section class="space-y-4">
               <h2
                 class="text-lg font-bold flex items-center gap-2 mb-6 pl-3 text-slate-800 dark:text-white border-l-4 border-primary"
@@ -344,76 +266,21 @@ definePageMeta({
                 基本資料
               </h2>
               <div class="grid grid-cols-1 gap-5">
-                <div class="space-y-1.5">
-                  <label
-                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300"
-                    >姓名 <span class="text-red-500">*</span></label
-                  >
-                  <InputText
-                    v-model="formData.fullName"
-                    placeholder="請輸入真實姓名"
-                    fluid
-                    class="!rounded-xl !py-3 !px-4"
-                  />
-                </div>
-                <div class="space-y-1.5">
-                  <label
-                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300"
-                    >性別</label
-                  >
-                  <SelectButton
-                    v-model="formData.gender"
-                    :options="[
-                      { label: '男', value: 'MALE' },
-                      { label: '女', value: 'FEMALE' },
-                    ]"
-                    optionLabel="label"
-                    optionValue="value"
-                    class="w-full"
-                    :pt="{
-                      button: ({ context }) => ({
-                        class: [
-                          'flex-1 py-2.5',
-                          context.active
-                            ? 'bg-white dark:bg-slate-700 text-primary font-bold shadow-sm'
-                            : 'bg-slate-50 dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-800',
-                        ],
-                      }),
-                    }"
-                  />
-                </div>
-                <div class="space-y-1.5">
-                  <label
-                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300"
-                    >出生年月日</label
-                  >
-                  <DatePicker
-                    v-model="formData.birthDate"
-                    placeholder="請選擇生日"
-                    fluid
-                    class="w-full"
-                    input-class="!rounded-xl !py-3 !px-4"
-                  />
-                </div>
-                <div class="space-y-1.5">
-                  <label
-                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300"
-                    >婚姻狀態</label
-                  >
-                  <Select
-                    v-model="formData.maritalStatus"
-                    :options="maritalOptions"
-                    optionLabel="label"
-                    optionValue="value"
-                    placeholder="請選擇狀態"
-                    fluid
-                    class="!rounded-xl !py-1 !px-2"
-                  />
-                </div>
+                <SmartField
+                  name="fullName"
+                  :override="{
+                    component: 'InputText',
+                    props: { disabled: true, placeholder: formData.fullName },
+                  }"
+                  label="姓名 (唯讀)"
+                />
+                <SmartField name="gender" />
+                <SmartField name="birthDate" />
+                <SmartField name="maritalStatus" />
               </div>
             </section>
 
-            <!-- 聯絡資訊 -->
+            <!-- Contact -->
             <section class="space-y-4">
               <h2
                 class="text-lg font-bold flex items-center gap-2 mb-6 pl-3 text-slate-800 dark:text-white border-l-4 border-primary"
@@ -421,58 +288,22 @@ definePageMeta({
                 聯絡資訊
               </h2>
               <div class="grid grid-cols-1 gap-5">
-                <div class="space-y-1.5">
-                  <label
-                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300"
-                    >手機號碼 <span class="text-red-500">*</span></label
-                  >
-                  <InputText
-                    v-model="formData.phone"
-                    placeholder="0912-345-678"
-                    fluid
-                    class="!rounded-xl !py-3 !px-4"
-                  />
-                </div>
-                <div class="space-y-1.5">
-                  <label
-                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300"
-                    >Line ID</label
-                  >
-                  <InputText
-                    v-model="formData.lineId"
-                    placeholder="請輸入 Line ID"
-                    fluid
-                    class="!rounded-xl !py-3 !px-4"
-                  />
-                </div>
-                <div class="space-y-1.5">
-                  <label
-                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300"
-                    >Email</label
-                  >
-                  <InputText
-                    v-model="formData.email"
-                    placeholder="example@email.com"
-                    fluid
-                    class="!rounded-xl !py-3 !px-4"
-                  />
-                </div>
-                <div class="space-y-1.5">
-                  <label
-                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300"
-                    >通訊地址</label
-                  >
-                  <InputText
-                    v-model="formData.address"
-                    placeholder="請輸入通訊地址"
-                    fluid
-                    class="!rounded-xl !py-3 !px-4"
-                  />
-                </div>
+                <SmartField
+                  name="phone"
+                  :override="{ props: { disabled: true } }"
+                  label="手機 (唯讀)"
+                />
+                <SmartField name="lineId" />
+                <SmartField
+                  name="email"
+                  :override="{ props: { disabled: true } }"
+                  label="Email (唯讀)"
+                />
+                <SmartField name="address" />
               </div>
             </section>
 
-            <!-- 緊急聯絡人 -->
+            <!-- Emergency -->
             <section class="space-y-4">
               <h2
                 class="text-lg font-bold flex items-center gap-2 mb-6 pl-3 text-slate-800 dark:text-white border-l-4 border-primary"
@@ -480,34 +311,12 @@ definePageMeta({
                 緊急聯絡人
               </h2>
               <div class="grid grid-cols-1 gap-5">
-                <div class="space-y-1.5">
-                  <label
-                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300"
-                    >聯絡人姓名</label
-                  >
-                  <InputText
-                    v-model="formData.emergencyContactName"
-                    placeholder="聯絡人姓名"
-                    fluid
-                    class="!rounded-xl !py-3 !px-4"
-                  />
-                </div>
-                <div class="space-y-1.5">
-                  <label
-                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300"
-                    >聯絡人電話</label
-                  >
-                  <InputText
-                    v-model="formData.emergencyContactPhone"
-                    placeholder="聯絡人電話"
-                    fluid
-                    class="!rounded-xl !py-3 !px-4"
-                  />
-                </div>
+                <SmartField name="emergencyContactName" />
+                <SmartField name="emergencyContactPhone" />
               </div>
             </section>
 
-            <!-- 信仰狀態 -->
+            <!-- Faith -->
             <section class="space-y-4">
               <h2
                 class="text-lg font-bold flex items-center gap-2 mb-6 pl-3 text-slate-800 dark:text-white border-l-4 border-primary"
@@ -522,105 +331,36 @@ definePageMeta({
                     class="text-sm font-bold text-slate-700 dark:text-slate-200"
                     >是否已經受洗？</span
                   >
-                  <ToggleSwitch v-model="formData.isBaptized" />
+                  <SmartField name="isBaptized" :override="{ label: ' ' }" />
                 </div>
 
                 <div
                   v-if="formData.isBaptized"
-                  class="space-y-1.5 animate-fade-in animate-duration-300"
+                  class="animate-fade-in animate-duration-300"
                 >
-                  <label
-                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300"
-                    >受洗日期</label
-                  >
-                  <DatePicker
-                    v-model="formData.baptismDate"
-                    placeholder="請選擇日期"
-                    fluid
-                    input-class="!rounded-xl !py-3 !px-4"
-                  />
+                  <SmartField name="baptismDate" />
                 </div>
 
-                <div class="space-y-1.5">
-                  <label
-                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300"
-                    >歸屬牧區</label
-                  >
-                  <Select
-                    v-model="formData.pastoralZone"
-                    :options="pastoralZones"
-                    optionLabel="name"
-                    optionValue="id"
-                    placeholder="請選擇牧區"
-                    fluid
-                    class="!rounded-xl !py-1 !px-2"
-                  />
-                </div>
-
-                <div class="space-y-1.5">
-                  <label
-                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300"
-                    >歸屬小組</label
-                  >
-                  <Select
-                    v-model="formData.homeGroup"
-                    :options="availableGroups"
-                    optionLabel="name"
-                    optionValue="id"
-                    placeholder="請選擇小組"
-                    :disabled="!formData.pastoralZone"
-                    fluid
-                    class="!rounded-xl !py-1 !px-2"
-                  />
-                </div>
+                <SmartField name="pastoralZone" :options="pastoralZones" />
+                <SmartField
+                  name="homeGroup"
+                  :options="availableGroups"
+                  :override="{ props: { disabled: !formData.pastoralZone } }"
+                />
               </div>
             </section>
 
-            <!-- 過去經歷 -->
+            <!-- Experience -->
             <section class="space-y-4">
               <h2
                 class="text-lg font-bold flex items-center gap-2 mb-6 pl-3 text-slate-800 dark:text-white border-l-4 border-primary"
               >
                 過去經歷
               </h2>
-              <div class="space-y-4">
-                <p class="text-xs leading-normal px-1 text-slate-400">
-                  曾經參與過的福音課程 (可複選，僅供參考)
-                </p>
-                <Listbox
-                  v-model="formData.previousCourses"
-                  :options="courseOptions"
-                  multiple
-                  optionLabel="label"
-                  optionValue="value"
-                  class="w-full"
-                  :pt="{
-                    root: { class: ['!border-0 !p-0 !bg-transparent'] },
-                    listContainer: { class: '!p-0' },
-                    list: { class: ['flex flex-col gap-2', '!p-0'] },
-                    option: ({ context }) => ({
-                      class: [
-                        'flex items-center outline-none cursor-pointer border transition-all mb-2 p-3 rounded-xl',
-                        context.selected
-                          ? '!bg-primary-50 dark:!bg-primary-900/20 !border-primary !text-primary font-bold'
-                          : '!bg-white dark:!bg-slate-800 !border-slate-200 dark:!border-slate-700 !text-slate-600 dark:!text-slate-300 hover:!border-primary/50 hover:!bg-slate-50 dark:hover:!bg-slate-800',
-                      ],
-                    }),
-                  }"
-                >
-                  <template #option="{ option, selected }">
-                    <div class="flex items-center gap-2 w-full">
-                      <i v-if="selected" class="pi pi-check text-sm"></i>
-                      <span :class="{ 'font-bold': selected }">{{
-                        option.label
-                      }}</span>
-                    </div>
-                  </template>
-                </Listbox>
-              </div>
+              <SmartField name="previousCourses" />
             </section>
 
-            <!-- Submit -->
+            <!-- Footer -->
             <footer class="pt-8 pb-4 space-y-4">
               <Button
                 label="完成註冊並開始使用"
@@ -636,7 +376,7 @@ definePageMeta({
                 @click="handleSkip"
               />
             </footer>
-          </form>
+          </Form>
         </StepPanel>
       </StepPanels>
     </Stepper>
