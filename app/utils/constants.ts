@@ -1,3 +1,4 @@
+//@unocss-include
 export const maritalOptions = [
   { label: "單身", value: "SINGLE" },
   { label: "已婚", value: "MARRIED" },
@@ -13,6 +14,6 @@ export const courseOptions = [
 ];
 
 export const genderOptions = [
-  { label: "男", value: "MALE" },
-  { label: "女", value: "FEMALE" },
+  { label: "男", value: "MALE", icon: "pi pi-mars", class: "text-blue-500" },
+  { label: "女", value: "FEMALE", icon: "pi pi-venus", class: "text-pink-500" },
 ];

@@ -16,11 +16,7 @@ export interface FieldSchema {
   icon?: string;
   placeholder?: string;
   required?: boolean;
-  props?: Record<string, any>; // 傳遞給元件的額外 props
+  extraProps?: Record<string, any>; // 傳遞給元件的額外 props
   slotName?: string; // 當 type 為 slot 時使用
+  disabled?: boolean;
 }
-
-import type { InjectionKey } from "vue";
-export const FORM_DEFS_KEY = Symbol("FORM_DEFS") as InjectionKey<
-  Record<string, FieldSchema>
->;

@@ -4,14 +4,10 @@ import {
   step1Schema,
   step2Schema,
   type RegisterFormValues,
-  userFieldDefs,
+  userFieldDefs as F,
 } from "~/utils/user/formDef";
-import { FORM_DEFS_KEY } from "~/types/form";
 import SmartField from "@/components/form/SmartField.vue";
 import { pastoralZones } from "~/data/pastoral-zones.data";
-
-// Provide Form Definitions
-provide(FORM_DEFS_KEY, userFieldDefs);
 
 const activeStep = ref(1);
 const loading = ref(false);
@@ -19,7 +15,7 @@ const loading = ref(false);
 const formData = ref<Partial<RegisterFormValues>>({
   // Initial Values
   gender: "MALE",
-  isBaptized: true,
+  isBaptized: false,
   previousCourses: [],
 });
 
@@ -159,14 +155,14 @@ definePageMeta({
             @submit="onStep1Submit"
             class="flex-1 flex flex-col space-y-5"
           >
-            <SmartField name="fullName" />
-            <SmartField name="phone" />
-            <SmartField name="email" />
+            <SmartField v-bind="F.fullName" />
+            <SmartField v-bind="F.phone" />
+            <SmartField v-bind="F.email" />
 
             <Divider />
 
-            <SmartField name="password" />
-            <SmartField name="confirmPassword" />
+            <SmartField v-bind="F.password" />
+            <SmartField v-bind="F.confirmPassword" />
 
             <div class="mt-auto pt-6">
               <Button
@@ -266,17 +262,9 @@ definePageMeta({
                 基本資料
               </h2>
               <div class="grid grid-cols-1 gap-5">
-                <SmartField
-                  name="fullName"
-                  :override="{
-                    component: 'InputText',
-                    props: { disabled: true, placeholder: formData.fullName },
-                  }"
-                  label="姓名 (唯讀)"
-                />
-                <SmartField name="gender" />
-                <SmartField name="birthDate" />
-                <SmartField name="maritalStatus" />
+                <SmartField v-bind="F.gender" />
+                <SmartField v-bind="F.birthDate" />
+                <SmartField v-bind="F.maritalStatus" />
               </div>
             </section>
 
@@ -288,18 +276,8 @@ definePageMeta({
                 聯絡資訊
               </h2>
               <div class="grid grid-cols-1 gap-5">
-                <SmartField
-                  name="phone"
-                  :override="{ props: { disabled: true } }"
-                  label="手機 (唯讀)"
-                />
-                <SmartField name="lineId" />
-                <SmartField
-                  name="email"
-                  :override="{ props: { disabled: true } }"
-                  label="Email (唯讀)"
-                />
-                <SmartField name="address" />
+                <SmartField v-bind="F.lineId" />
+                <SmartField v-bind="F.address" />
               </div>
             </section>
 
@@ -311,8 +289,8 @@ definePageMeta({
                 緊急聯絡人
               </h2>
               <div class="grid grid-cols-1 gap-5">
-                <SmartField name="emergencyContactName" />
-                <SmartField name="emergencyContactPhone" />
+                <SmartField v-bind="F.emergencyContactName" />
+                <SmartField v-bind="F.emergencyContactPhone" />
               </div>
             </section>
 
@@ -324,28 +302,20 @@ definePageMeta({
                 信仰狀態
               </h2>
               <div class="grid grid-cols-1 gap-5">
-                <div
-                  class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800"
-                >
-                  <span
-                    class="text-sm font-bold text-slate-700 dark:text-slate-200"
-                    >是否已經受洗？</span
-                  >
-                  <SmartField name="isBaptized" :override="{ label: ' ' }" />
-                </div>
+                <SmartField v-bind="F.isBaptized" />
 
                 <div
                   v-if="formData.isBaptized"
                   class="animate-fade-in animate-duration-300"
                 >
-                  <SmartField name="baptismDate" />
+                  <SmartField v-bind="F.baptismDate" />
                 </div>
 
-                <SmartField name="pastoralZone" :options="pastoralZones" />
+                <SmartField v-bind="F.pastoralZone" :options="pastoralZones" />
                 <SmartField
-                  name="homeGroup"
+                  v-bind="F.homeGroup"
                   :options="availableGroups"
-                  :override="{ props: { disabled: !formData.pastoralZone } }"
+                  :disabled="!formData.pastoralZone"
                 />
               </div>
             </section>
@@ -357,7 +327,7 @@ definePageMeta({
               >
                 過去經歷
               </h2>
-              <SmartField name="previousCourses" />
+              <SmartField v-bind="F.previousCourses" />
             </section>
 
             <!-- Footer -->

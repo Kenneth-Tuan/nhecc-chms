@@ -1,26 +1,6 @@
 import { z } from "zod";
 import type { FieldSchema } from "~/types/form";
 
-// Options Data
-export const genderOptions = [
-  { label: "男", value: "MALE" },
-  { label: "女", value: "FEMALE" },
-];
-
-export const maritalOptions = [
-  { label: "單身", value: "SINGLE" },
-  { label: "已婚", value: "MARRIED" },
-  { label: "單親", value: "SINGLE_PARENT" },
-  { label: "喪偶", value: "WIDOWED" },
-  { label: "其他", value: "OTHER" },
-];
-
-export const courseOptions = [
-  { label: "受洗", value: "BAPTISM" },
-  { label: "成長班", value: "GROWTH_CLASS" },
-  { label: "門徒班", value: "DISCIPLE_CLASS" },
-];
-
 // 1. Zod Schemas
 export const baseUserSchema = z.object({
   fullName: z.string().min(2, "請輸入真實姓名"),
@@ -84,7 +64,8 @@ export type RegisterFormValues = z.infer<typeof registerSchema>;
 export type UserProfileValues = z.infer<typeof baseUserSchema>;
 
 // Field Dictionary (Single Source of Truth for UI)
-export const userFieldDefs: Record<string, FieldSchema> = {
+// 使用 as const 確保類型安全，不會有 undefined
+export const userFieldDefs = {
   fullName: {
     name: "fullName",
     label: "真實姓名",
@@ -118,7 +99,7 @@ export const userFieldDefs: Record<string, FieldSchema> = {
     placeholder: "請輸入密碼",
     required: true,
     component: "Password",
-    props: { toggleMask: true, feedback: true },
+    extraProps: { toggleMask: true, feedback: true },
   },
   confirmPassword: {
     name: "confirmPassword",
@@ -127,15 +108,15 @@ export const userFieldDefs: Record<string, FieldSchema> = {
     placeholder: "請再次輸入密碼",
     required: true,
     component: "Password",
-    props: { toggleMask: true, feedback: false },
+    extraProps: { toggleMask: true, feedback: false },
   },
   gender: {
     name: "gender",
     label: "性別",
+    icon: "pi pi-user",
     required: true,
     component: "SelectButton",
     options: genderOptions,
-    props: { optionLabel: "label", optionValue: "value" },
   },
   birthDate: {
     name: "birthDate",
@@ -143,7 +124,6 @@ export const userFieldDefs: Record<string, FieldSchema> = {
     icon: "pi pi-calendar",
     required: true,
     component: "DatePicker",
-    props: { showIcon: true },
   },
   maritalStatus: {
     name: "maritalStatus",
@@ -151,7 +131,6 @@ export const userFieldDefs: Record<string, FieldSchema> = {
     component: "Select",
     options: maritalOptions,
     placeholder: "請選擇狀態",
-    props: { optionLabel: "label", optionValue: "value" },
   },
   lineId: {
     name: "lineId",
@@ -180,7 +159,11 @@ export const userFieldDefs: Record<string, FieldSchema> = {
   isBaptized: {
     name: "isBaptized",
     label: "是否已經受洗？",
-    component: "ToggleSwitch",
+    component: "SelectButton",
+    options: [
+      { label: "是", value: true },
+      { label: "否", value: false },
+    ],
   },
   baptismDate: {
     name: "baptismDate",
@@ -193,20 +176,20 @@ export const userFieldDefs: Record<string, FieldSchema> = {
     label: "歸屬牧區",
     component: "Select",
     placeholder: "請選擇牧區",
-    props: { optionLabel: "name", optionValue: "id" }, // Expecting options passed dynamically
+    extraProps: { optionLabel: "name", optionValue: "id" },
   },
   homeGroup: {
     name: "homeGroup",
     label: "歸屬小組",
     component: "Select",
     placeholder: "請選擇小組",
-    props: { optionLabel: "name", optionValue: "id" },
+    extraProps: { optionLabel: "name", optionValue: "id" },
   },
   previousCourses: {
     name: "previousCourses",
     label: "曾經參與過的福音課程 (可複選，僅供參考)",
     component: "Listbox",
     options: courseOptions,
-    props: { multiple: true, optionLabel: "label", optionValue: "value" },
+    extraProps: { multiple: true },
   },
-};
+} as const satisfies Record<string, FieldSchema>;
