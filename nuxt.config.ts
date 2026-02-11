@@ -100,6 +100,7 @@ export default defineNuxtConfig({
     public: {
       liffId: "",
       VERSION: "0.1.0",
+      appMode: "DEV", // DEV or PROD
     },
   },
 

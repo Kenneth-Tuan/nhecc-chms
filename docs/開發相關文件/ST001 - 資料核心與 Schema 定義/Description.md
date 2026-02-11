@@ -30,6 +30,10 @@
       - `group_id` (FK, Nullable): 所屬小組 ID (需與 zone_id 連動，若 zone_id 為空則此欄必為空)。
       - `past_courses` (String Array / JSON, 選填): 已上過的福音課程 (多選)。
 
+    - **權限與角色 (RBAC - ST-002)**：
+      - `role_ids` (String Array, 預設 []): 該會員擁有的角色 ID 列表 (支援多重角色)。
+      - `functional_group_ids` (String Array, 預設 []): 該會員參與的功能性群組 ID (如課程 ID、事工 ID)，用於矩陣式組織管理。
+
 2.  **建立與編輯 (Create & Edit)**：
     - 提供表單介面輸入上述資料。
     - **牧區與小組連動邏輯**：
