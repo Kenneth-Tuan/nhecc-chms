@@ -2,10 +2,10 @@
 /**
  * Role Management List Page (ST002)
  */
-import type { Role } from '~/types/role';
+import type { Role } from "~/types/role";
 
 definePageMeta({
-  layout: 'dashboard',
+  layout: "dashboard",
 });
 
 const auth = useAuth();
@@ -19,11 +19,19 @@ const totalItems = ref(0);
 async function fetchRoles(): Promise<void> {
   isLoading.value = true;
   try {
-    const response = await $fetch<{ data: Role[]; pagination: { totalItems: number } }>('/api/roles');
+    const response = await $fetch<{
+      data: Role[];
+      pagination: { totalItems: number };
+    }>("/api/roles");
     roles.value = response.data;
     totalItems.value = response.pagination.totalItems;
   } catch {
-    toast.add({ severity: 'error', summary: '錯誤', detail: '載入角色列表失敗', life: 3000 });
+    toast.add({
+      severity: "error",
+      summary: "錯誤",
+      detail: "載入角色列表失敗",
+      life: 3000,
+    });
   } finally {
     isLoading.value = false;
   }
@@ -31,32 +39,48 @@ async function fetchRoles(): Promise<void> {
 
 async function deleteRole(role: Role): Promise<void> {
   if (role.isSystem) {
-    toast.add({ severity: 'warn', summary: '無法刪除', detail: '系統角色不可刪除', life: 3000 });
+    toast.add({
+      severity: "warn",
+      summary: "無法刪除",
+      detail: "系統角色不可刪除",
+      life: 3000,
+    });
     return;
   }
 
   try {
-    await $fetch(`/api/roles/${role.id}`, { method: 'DELETE' });
-    toast.add({ severity: 'success', summary: '成功', detail: '角色已刪除', life: 3000 });
+    await $fetch(`/api/roles/${role.id}`, { method: "DELETE" });
+    toast.add({
+      severity: "success",
+      summary: "成功",
+      detail: "角色已刪除",
+      life: 3000,
+    });
     await fetchRoles();
   } catch (err: unknown) {
-    const message = (err as { data?: { message?: string } })?.data?.message || '刪除失敗';
-    toast.add({ severity: 'error', summary: '錯誤', detail: message, life: 3000 });
+    const message =
+      (err as { data?: { message?: string } })?.data?.message || "刪除失敗";
+    toast.add({
+      severity: "error",
+      summary: "錯誤",
+      detail: message,
+      life: 3000,
+    });
   }
 }
 
 const scopeLabel: Record<string, string> = {
-  Global: '全域',
-  Zone: '牧區',
-  Group: '小組',
-  Self: '個人',
+  Global: "全教會",
+  Zone: "牧區",
+  Group: "小組",
+  Self: "個人",
 };
 
 const scopeSeverity: Record<string, string> = {
-  Global: 'danger',
-  Zone: 'warn',
-  Group: 'info',
-  Self: 'secondary',
+  Global: "danger",
+  Zone: "warn",
+  Group: "info",
+  Self: "secondary",
 };
 
 onMounted(() => {
@@ -81,7 +105,9 @@ onMounted(() => {
     </div>
 
     <!-- Table -->
-    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+    <div
+      class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800"
+    >
       <DataTable
         :value="roles"
         :loading="isLoading"
@@ -92,14 +118,21 @@ onMounted(() => {
           <template #body="{ data }">
             <div class="flex items-center gap-2">
               <span class="font-semibold">{{ data.name }}</span>
-              <Tag v-if="data.isSystem" value="系統" severity="secondary" class="!text-xs" />
+              <Tag
+                v-if="data.isSystem"
+                value="系統"
+                severity="secondary"
+                class="!text-xs"
+              />
             </div>
           </template>
         </Column>
 
         <Column field="description" header="描述" class="!text-slate-500">
           <template #body="{ data }">
-            <span class="text-sm text-slate-500 dark:text-slate-400">{{ data.description }}</span>
+            <span class="text-sm text-slate-500 dark:text-slate-400">{{
+              data.description
+            }}</span>
           </template>
         </Column>
 

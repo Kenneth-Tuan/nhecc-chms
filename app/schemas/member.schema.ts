@@ -90,7 +90,23 @@ export const memberFiltersSchema = z.object({
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
 });
 
+/** Deletion reason enum */
+const deletionReasonSchema = z.enum([
+  'left_church',
+  'transferred',
+  'duplicate',
+  'data_error',
+  'other',
+]);
+
+/** Soft delete request schema */
+export const softDeleteSchema = z.object({
+  reason: deletionReasonSchema,
+  notes: z.string().max(500, '備註不可超過 500 字').optional(),
+});
+
 /** Type inference */
 export type CreateMemberInput = z.infer<typeof createMemberSchema>;
 export type UpdateMemberInput = z.infer<typeof updateMemberSchema>;
 export type MemberFiltersInput = z.infer<typeof memberFiltersSchema>;
+export type SoftDeleteInput = z.infer<typeof softDeleteSchema>;

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Member List Page (ST003)
+ * Member List Page (ST003 + ST004 Integration)
  */
 import type { MemberListItem, MemberDetail } from '~/types/member';
 
@@ -9,6 +9,7 @@ definePageMeta({
 });
 
 const auth = useAuth();
+const router = useRouter();
 const toast = useToast();
 const {
   members,
@@ -53,7 +54,7 @@ function closeQuickView(): void {
   selectedMember.value = null;
 }
 
-// Delete confirmation
+// Delete confirmation (ST004)
 const showDeleteDialog = ref(false);
 const memberToDelete = ref<MemberListItem | null>(null);
 
@@ -62,21 +63,14 @@ function confirmDelete(member: MemberListItem): void {
   showDeleteDialog.value = true;
 }
 
-async function executeDelete(): Promise<void> {
-  if (!memberToDelete.value) return;
+function onMemberDeleted(): void {
+  memberToDelete.value = null;
+  fetchMembers();
+}
 
-  try {
-    await $fetch(`/api/members/${memberToDelete.value.uuid}`, {
-      method: 'DELETE',
-    });
-    toast.add({ severity: 'success', summary: '成功', detail: '會友已停用', life: 3000 });
-    showDeleteDialog.value = false;
-    memberToDelete.value = null;
-    await fetchMembers();
-  } catch (err: unknown) {
-    const message = (err as { data?: { message?: string } })?.data?.message || '刪除失敗';
-    toast.add({ severity: 'error', summary: '錯誤', detail: message, life: 3000 });
-  }
+// Edit navigation (ST004)
+function editMember(member: MemberListItem): void {
+  router.push(`/dashboard/members/${member.uuid}/edit`);
 }
 
 // Page size options
@@ -102,8 +96,7 @@ onMounted(() => {
         v-if="auth.hasPermission('member:create')"
         label="新增會友"
         icon="pi pi-plus"
-        disabled
-        v-tooltip.left="'ST004 實作'"
+        @click="router.push('/dashboard/members/create')"
       />
     </div>
 
@@ -139,7 +132,7 @@ onMounted(() => {
       :sort-by="sortBy"
       :sort-order="sortOrder"
       @row-click="openQuickView"
-      @edit="(m) => toast.add({ severity: 'info', summary: '提示', detail: 'ST004 - 編輯功能', life: 2000 })"
+      @edit="editMember"
       @delete="confirmDelete"
       @sort="changeSort"
     />
@@ -180,25 +173,13 @@ onMounted(() => {
       @close="closeQuickView"
     />
 
-    <!-- Delete Confirmation Dialog -->
-    <Dialog
+    <!-- Delete Confirmation Dialog (ST004) -->
+    <MemberDeleteDialog
+      v-if="memberToDelete"
       v-model:visible="showDeleteDialog"
-      header="確認停用"
-      :modal="true"
-      :style="{ width: '400px' }"
-    >
-      <div class="flex items-center gap-3">
-        <i class="pi pi-exclamation-triangle text-amber-500 text-3xl" />
-        <p>
-          確定要停用會友「<strong>{{ memberToDelete?.fullName }}</strong>」嗎？
-          <br />
-          <span class="text-sm text-slate-500">此操作會將狀態改為「停用」。</span>
-        </p>
-      </div>
-      <template #footer>
-        <Button label="取消" severity="secondary" outlined @click="showDeleteDialog = false" />
-        <Button label="確認停用" severity="danger" @click="executeDelete" />
-      </template>
-    </Dialog>
+      :member-name="memberToDelete.fullName"
+      :member-uuid="memberToDelete.uuid"
+      @deleted="onMemberDeleted"
+    />
   </div>
 </template>

@@ -2,7 +2,7 @@
  * Member Repository
  * Abstracts data source: DEV uses mock data, PROD uses Firebase.
  */
-import type { Member, MemberFilters, CreateMemberPayload, UpdateMemberPayload } from '~/types/member';
+import type { Member, MemberFilters, CreateMemberPayload, UpdateMemberPayload, DeletionReason } from '~/types/member';
 import { mockMembers } from '../mockData';
 import { generateId } from '../utils/helpers';
 
@@ -103,6 +103,18 @@ export class MemberRepository {
   }
 
   /**
+   * Check if an email already exists (excluding given uuid).
+   */
+  async isEmailExists(
+    email: string,
+    excludeUuid?: string,
+  ): Promise<boolean> {
+    return devMembers.some(
+      (m) => m.email === email && m.uuid !== excludeUuid,
+    );
+  }
+
+  /**
    * Create a new member.
    */
   async create(payload: CreateMemberPayload): Promise<Member> {
@@ -160,9 +172,12 @@ export class MemberRepository {
   }
 
   /**
-   * Soft delete a member (set status to Inactive).
+   * Soft delete a member (set status to Inactive) with optional deletion metadata.
    */
-  async softDelete(uuid: string): Promise<boolean> {
+  async softDelete(
+    uuid: string,
+    deletion?: { reason: string; notes?: string },
+  ): Promise<boolean> {
     const index = devMembers.findIndex((m) => m.uuid === uuid);
     if (index === -1) return false;
 
@@ -170,6 +185,8 @@ export class MemberRepository {
       ...devMembers[index],
       status: 'Inactive',
       updatedAt: new Date().toISOString(),
+      ...(deletion?.reason && { deletionReason: deletion.reason as DeletionReason }),
+      ...(deletion?.notes && { deletionNotes: deletion.notes }),
     };
     return true;
   }

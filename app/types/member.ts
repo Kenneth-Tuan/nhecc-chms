@@ -19,6 +19,14 @@ export interface MemberCourseRecord {
   status: CourseCompletionStatus;
 }
 
+/** Deletion reason codes for soft delete */
+export type DeletionReason =
+  | 'left_church'
+  | 'transferred'
+  | 'duplicate'
+  | 'data_error'
+  | 'other';
+
 /** Full Member entity (stored in database) */
 export interface Member {
   // System fields
@@ -58,6 +66,10 @@ export interface Member {
 
   // Avatar
   avatar?: string;
+
+  // Soft delete metadata (ST004)
+  deletionReason?: DeletionReason;
+  deletionNotes?: string;
 }
 
 /** Sensitive field metadata attached to API responses */
@@ -114,6 +126,12 @@ export interface MemberFilters {
   unassigned?: boolean; // members without group
 }
 
+/** Soft delete payload */
+export interface SoftDeletePayload {
+  reason: DeletionReason;
+  notes?: string;
+}
+
 /** Create member payload */
 export interface CreateMemberPayload {
   fullName: string;
@@ -137,5 +155,8 @@ export interface CreateMemberPayload {
   avatar?: string;
 }
 
-/** Update member payload (all fields optional) */
-export type UpdateMemberPayload = Partial<CreateMemberPayload>;
+/** Update member payload (all fields optional, includes deletion metadata) */
+export type UpdateMemberPayload = Partial<CreateMemberPayload> & {
+  deletionReason?: DeletionReason;
+  deletionNotes?: string;
+};

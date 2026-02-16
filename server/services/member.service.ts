@@ -282,12 +282,20 @@ export class MemberService {
   }
 
   /**
-   * Soft delete a member.
+   * Soft delete a member with deletion reason.
    */
-  async softDelete(uuid: string): Promise<void> {
-    const success = await memberRepo.softDelete(uuid);
-    if (!success) {
+  async softDelete(
+    uuid: string,
+    deletion?: { reason: string; notes?: string },
+  ): Promise<void> {
+    const member = await memberRepo.findById(uuid);
+    if (!member) {
       throw createError({ statusCode: 404, message: '找不到該會友' });
+    }
+
+    const success = await memberRepo.softDelete(uuid, deletion);
+    if (!success) {
+      throw createError({ statusCode: 500, message: '刪除失敗' });
     }
   }
 
