@@ -4,7 +4,7 @@
  * Two tabs: Basic Info + Course Records
  * Responsive: Modal on desktop, bottom sheet on mobile.
  */
-import type { MemberDetail } from '~/types/member';
+import type { MemberDetail } from "~/types/member";
 
 const props = defineProps<{
   visible: boolean;
@@ -16,12 +16,17 @@ const emit = defineEmits<{
   close: [];
 }>();
 
+const { cleanup } = useRevealSensitiveData();
 const activeTab = ref(0);
 
-// Reset tab when opening
-watch(() => props.visible, (val) => {
-  if (val) activeTab.value = 0;
-});
+// Reset state when opening/closing
+watch(
+  () => props.visible,
+  (val) => {
+    if (val) activeTab.value = 0;
+    cleanup(); // Clear any previous reveal state
+  },
+);
 </script>
 
 <template>
@@ -40,7 +45,7 @@ watch(() => props.visible, (val) => {
       <div class="flex items-center gap-2">
         <i class="pi pi-user text-primary" />
         <span class="font-semibold">
-          {{ member?.fullName || '載入中...' }}
+          {{ member?.fullName || "載入中..." }}
         </span>
       </div>
     </template>
@@ -52,14 +57,20 @@ watch(() => props.visible, (val) => {
 
     <!-- Content -->
     <div v-else-if="member" class="min-h-[400px]">
-      <TabView v-model:activeIndex="activeTab">
-        <TabPanel header="基本資料">
-          <MemberBasicInfo :member="member" />
-        </TabPanel>
-        <TabPanel header="修課紀錄">
-          <MemberCourseRecords :course-records="member.courseRecords" />
-        </TabPanel>
-      </TabView>
+      <Tabs v-model:value="activeTab">
+        <TabList>
+          <Tab :value="0">基本資料</Tab>
+          <Tab :value="1">修課紀錄</Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel :value="0">
+            <MemberBasicInfo :member="member" />
+          </TabPanel>
+          <TabPanel :value="1">
+            <MemberCourseRecords :course-records="member.courseRecords" />
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
     </div>
 
     <!-- Error / No Data -->

@@ -2,7 +2,7 @@
  * Auth composable
  * Provides access to auth store with automatic initialization.
  */
-import { useAuthStore } from '~/stores/auth.store';
+import { useAuthStore } from "~/stores/auth.store";
 
 export function useAuth() {
   const store = useAuthStore();
@@ -16,6 +16,7 @@ export function useAuth() {
     userContext: computed(() => store.userContext),
     currentUserName: computed(() => store.currentUserName),
     currentScope: computed(() => store.currentScope),
+    currentScopeLabel: computed(() => store.currentScopeLabel),
     availableTestUsers: computed(() => store.availableTestUsers),
     isLoading: computed(() => store.isLoading),
     isInitialized: computed(() => store.isInitialized),

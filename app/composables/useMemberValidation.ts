@@ -19,7 +19,8 @@ export function useMemberValidation() {
     mobile: string,
     excludeUuid?: string,
   ): Promise<boolean> {
-    if (!mobile || !/^09\d{8}$/.test(mobile)) {
+    const rawMobile = mobile.replace(/\D/g, "");
+    if (!rawMobile || !/^09\d{8}$/.test(rawMobile)) {
       mobileError.value = null;
       return true;
     }
@@ -28,20 +29,20 @@ export function useMemberValidation() {
     mobileError.value = null;
     try {
       const response = await $fetch<UniqueCheckResponse>(
-        '/api/members/check-unique',
+        "/api/members/check-unique",
         {
-          method: 'POST',
-          body: { field: 'mobile', value: mobile, excludeUuid },
+          method: "POST",
+          body: { field: "mobile", value: rawMobile, excludeUuid },
         },
       );
 
       if (!response.isUnique) {
-        mobileError.value = '此手機號碼已被使用';
+        mobileError.value = "此手機號碼已被使用";
         return false;
       }
       return true;
     } catch (error) {
-      console.error('Mobile uniqueness check failed:', error);
+      console.error("Mobile uniqueness check failed:", error);
       return true;
     } finally {
       isCheckingMobile.value = false;
@@ -62,18 +63,18 @@ export function useMemberValidation() {
     emailWarning.value = null;
     try {
       const response = await $fetch<UniqueCheckResponse>(
-        '/api/members/check-unique',
+        "/api/members/check-unique",
         {
-          method: 'POST',
-          body: { field: 'email', value: email, excludeUuid },
+          method: "POST",
+          body: { field: "email", value: email, excludeUuid },
         },
       );
 
       if (!response.isUnique) {
-        emailWarning.value = '此 Email 已被使用，請確認是否為不同會友';
+        emailWarning.value = "此 Email 已被使用，請確認是否為不同會友";
       }
     } catch (error) {
-      console.error('Email uniqueness check failed:', error);
+      console.error("Email uniqueness check failed:", error);
     } finally {
       isCheckingEmail.value = false;
     }
