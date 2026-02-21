@@ -59,31 +59,28 @@ function onNodeSelect(node: TreeNode): void {
   }
 }
 
-/**
- * Handle drag-drop between pending pool tree and structure tree.
- * PrimeVue fires @node-drop on the receiving tree with the dropped node(s).
- */
-async function onPendingNodeDrop(event: {
-  dragNode: TreeNode;
-  dropNode: TreeNode;
-  dropIndex: number;
-}): Promise<void> {
+async function onNodeDrop(event: any): Promise<void> {
   const { dragNode, dropNode } = event;
 
-  // Only allow dropping onto group nodes
-  if (dropNode?.data?.type !== "group") {
+  if (!dragNode || !dropNode) return;
+
+  // Only allow pending members to be dropped onto groups
+  if (
+    dragNode.data?.type !== "pending-member" ||
+    dropNode.data?.type !== "group"
+  ) {
     toast.add({
       severity: "error",
       summary: "無法分配",
-      detail: "請將會友拖曳至小組節點",
+      detail: "請將待分配會友拖曳至小組",
       life: 3000,
     });
-    // Reload to revert tree state
-    await initialize();
+    // Revert invalid tree drop
+    initialize();
     return;
   }
 
-  if (dragNode?.data?.type === "pending-member") {
+  try {
     const result = await assignMember(dragNode.data.id, dropNode.data.id);
     toast.add({
       severity: result.success ? "success" : "error",
@@ -91,6 +88,15 @@ async function onPendingNodeDrop(event: {
       detail: result.message,
       life: 3000,
     });
+
+    if (!result.success) {
+      // Revert if assignment failed
+      initialize();
+    }
+  } catch (error) {
+    console.error("Assignment error", error);
+    // Revert on error
+    initialize();
   }
 }
 
@@ -209,11 +215,12 @@ onMounted(() => {
             v-model:expandedKeys="expandedKeys"
             :value="treeNodes"
             selectionMode="single"
-            droppableNodes
-            :droppableScope="['pending']"
+            dragdropScope="member-assign"
+            :draggableNodes="true"
+            :droppableNodes="true"
             class="!border-0 !bg-transparent org-tree"
             @nodeSelect="onNodeSelect"
-            @nodeDrop="onPendingNodeDrop"
+            @nodeDrop="onNodeDrop"
           >
             <!-- Zone Node Template -->
             <template #zone="slotProps">
@@ -241,7 +248,7 @@ onMounted(() => {
             <!-- Group Node Template -->
             <template #group="slotProps">
               <div
-                class="flex items-center gap-3 py-1 cursor-pointer"
+                class="flex items-center gap-3 py-1 cursor-pointer transition-colors"
                 @click.stop="onNodeSelect(slotProps.node)"
               >
                 <div
@@ -299,16 +306,17 @@ onMounted(() => {
           </div>
 
           <div v-else>
-            <!-- Draggable pending pool as Tree for PrimeVue drag-drop -->
             <Tree
-              v-model:value="pendingTreeNodes"
-              draggableNodes
-              draggableScope="pending"
-              class="!border-0 !bg-transparent pending-tree"
+              :value="pendingTreeNodes"
+              dragdropScope="member-assign"
+              :draggableNodes="true"
+              :droppableNodes="true"
+              class="pending-tree !p-0 !bg-transparent !border-0"
+              @nodeDrop="onNodeDrop"
             >
-              <template #default="slotProps">
+              <template #pending-member="slotProps">
                 <div
-                  class="inline-flex items-center gap-3 px-3 py-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm hover:border-primary/50 cursor-grab select-none transition-all"
+                  class="inline-flex items-center gap-3 px-3 py-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm hover:border-primary/50 cursor-grab select-none transition-all active:cursor-grabbing w-full"
                 >
                   <Avatar
                     :label="slotProps.node.data.fullName?.charAt(0)"
@@ -320,7 +328,7 @@ onMounted(() => {
                         : '!bg-pink-100 !text-pink-600'
                     "
                   />
-                  <div class="min-w-0">
+                  <div class="min-w-0 flex-1">
                     <p
                       class="font-bold text-sm text-slate-800 dark:text-slate-200"
                     >
@@ -337,12 +345,7 @@ onMounted(() => {
                     size="small"
                     class="!ml-1"
                     v-tooltip.top="'點擊分配'"
-                    @click.stop="
-                      openAssignDialog({
-                        uuid: slotProps.node.data.id,
-                        fullName: slotProps.node.data.fullName,
-                      })
-                    "
+                    @click.stop="openAssignDialog(slotProps.node.data)"
                   />
                 </div>
               </template>

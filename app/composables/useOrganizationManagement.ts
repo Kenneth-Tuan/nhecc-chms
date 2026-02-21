@@ -47,6 +47,8 @@ function buildTreeNodes(
       status: zone.status,
     },
     type: "zone",
+    droppable: false,
+    draggable: false,
     children: zone.groups.map((group) => ({
       key: group.id,
       label: group.name,
@@ -61,6 +63,7 @@ function buildTreeNodes(
       },
       type: "group",
       droppable: true,
+      draggable: false,
     })),
   }));
 }
@@ -82,6 +85,8 @@ function buildPendingTreeNodes(members: PendingMember[]): TreeNode[] {
     },
     type: "pending-member",
     leaf: true,
+    draggable: true,
+    droppable: false,
   }));
 }
 

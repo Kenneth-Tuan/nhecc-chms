@@ -2,7 +2,7 @@
  * Member Service
  * Business logic for member operations.
  */
-import type { UserContext } from '~/types/auth';
+import type { UserContext } from "~/types/auth";
 import type {
   Member,
   MemberListItem,
@@ -11,15 +11,15 @@ import type {
   MemberCourseRecord,
   CreateMemberPayload,
   UpdateMemberPayload,
-} from '~/types/member';
-import type { PaginatedResponse } from '~/types/api';
-import type { SensitiveField } from '~/types/role';
-import { MemberRepository } from '../repositories/member.repository';
-import { OrganizationRepository } from '../repositories/organization.repository';
-import { RoleRepository } from '../repositories/role.repository';
-import { getMaskFunction } from '../utils/rbac/masking';
-import { calculateAge, paginateArray } from '../utils/helpers';
-import { createError } from 'h3';
+} from "~/types/member";
+import type { PaginatedResponse } from "~/types/api";
+import type { SensitiveField } from "~/types/role";
+import { MemberRepository } from "../repositories/member.repository";
+import { OrganizationRepository } from "../repositories/organization.repository";
+import { RoleRepository } from "../repositories/role.repository";
+import { getMaskFunction } from "../utils/rbac/masking";
+import { calculateAge, paginateArray } from "../utils/helpers";
+import { createError } from "h3";
 
 const memberRepo = new MemberRepository();
 const orgRepo = new OrganizationRepository();
@@ -35,7 +35,7 @@ export class MemberService {
     page: number,
     pageSize: number,
     sortBy: string,
-    sortOrder: 'asc' | 'desc',
+    sortOrder: "asc" | "desc",
   ): Promise<PaginatedResponse<MemberListItem>> {
     // 1. Apply scope filter
     const scopedFilters = this.applyScopeFilter(userContext, filters);
@@ -62,9 +62,9 @@ export class MemberService {
         gender: m.gender,
         dob: m.dob,
         age: calculateAge(m.dob),
-        mobile: getMaskFunction('mobile')(m.mobile),
+        mobile: getMaskFunction("mobile")(m.mobile),
         mobileMeta: { canReveal: userContext.revealAuthority.mobile },
-        email: getMaskFunction('email')(m.email),
+        email: getMaskFunction("email")(m.email),
         emailMeta: { canReveal: userContext.revealAuthority.email },
         roleIds: m.roleIds,
         roleNames: memberRoles.map((r) => r.name),
@@ -91,7 +91,7 @@ export class MemberService {
   ): Promise<MemberDetail> {
     const member = await memberRepo.findById(uuid);
     if (!member) {
-      throw createError({ statusCode: 404, message: '找不到該會友' });
+      throw createError({ statusCode: 404, message: "找不到該會友" });
     }
 
     // Check scope access
@@ -113,33 +113,33 @@ export class MemberService {
         return {
           courseId,
           courseName: course?.name || courseId,
-          completionDate: '2024-06-01',
-          status: 'Completed' as const,
+          completionDate: "2024-06-01",
+          status: "Completed" as const,
         };
       },
     );
 
     // Apply masking
     const sensitiveFields: SensitiveField[] = [
-      'mobile',
-      'email',
-      'lineId',
-      'address',
-      'emergencyContactPhone',
+      "mobile",
+      "email",
+      "lineId",
+      "address",
+      "emergencyContactPhone",
     ];
 
     const maskedMember = { ...member };
     for (const field of sensitiveFields) {
       const maskFn = getMaskFunction(field);
-      if (field === 'mobile') {
+      if (field === "mobile") {
         maskedMember.mobile = maskFn(member.mobile);
-      } else if (field === 'email') {
+      } else if (field === "email") {
         maskedMember.email = maskFn(member.email);
-      } else if (field === 'lineId' && member.lineId) {
+      } else if (field === "lineId" && member.lineId) {
         maskedMember.lineId = maskFn(member.lineId);
-      } else if (field === 'address' && member.address) {
+      } else if (field === "address" && member.address) {
         maskedMember.address = maskFn(member.address);
-      } else if (field === 'emergencyContactPhone') {
+      } else if (field === "emergencyContactPhone") {
         maskedMember.emergencyContactPhone = maskFn(
           member.emergencyContactPhone,
         );
@@ -173,7 +173,7 @@ export class MemberService {
   ): Promise<Record<string, string>> {
     const member = await memberRepo.findById(uuid);
     if (!member) {
-      throw createError({ statusCode: 404, message: '找不到該會友' });
+      throw createError({ statusCode: 404, message: "找不到該會友" });
     }
 
     this.checkScopeAccess(userContext, member);
@@ -182,9 +182,7 @@ export class MemberService {
 
     for (const field of fields) {
       // Check reveal authority
-      if (
-        !userContext.revealAuthority[field as SensitiveField]
-      ) {
+      if (!userContext.revealAuthority[field as SensitiveField]) {
         throw createError({
           statusCode: 403,
           message: `無權解鎖欄位: ${field}`,
@@ -193,19 +191,19 @@ export class MemberService {
 
       // Return plain value
       switch (field) {
-        case 'mobile':
+        case "mobile":
           result[field] = member.mobile;
           break;
-        case 'email':
+        case "email":
           result[field] = member.email;
           break;
-        case 'lineId':
-          result[field] = member.lineId || '';
+        case "lineId":
+          result[field] = member.lineId || "";
           break;
-        case 'address':
-          result[field] = member.address || '';
+        case "address":
+          result[field] = member.address || "";
           break;
-        case 'emergencyContactPhone':
+        case "emergencyContactPhone":
           result[field] = member.emergencyContactPhone;
           break;
       }
@@ -225,16 +223,13 @@ export class MemberService {
     if (mobileExists) {
       throw createError({
         statusCode: 409,
-        message: '此手機號碼已被使用',
+        message: "此手機號碼已被使用",
       });
     }
 
     // Validate zone-group relationship
     if (payload.groupId) {
-      await this.validateZoneGroupRelationship(
-        payload.zoneId,
-        payload.groupId,
-      );
+      await this.validateZoneGroupRelationship(payload.zoneId, payload.groupId);
     }
 
     return memberRepo.create(payload);
@@ -243,13 +238,10 @@ export class MemberService {
   /**
    * Update an existing member.
    */
-  async update(
-    uuid: string,
-    payload: UpdateMemberPayload,
-  ): Promise<Member> {
+  async update(uuid: string, payload: UpdateMemberPayload): Promise<Member> {
     const existing = await memberRepo.findById(uuid);
     if (!existing) {
-      throw createError({ statusCode: 404, message: '找不到該會友' });
+      throw createError({ statusCode: 404, message: "找不到該會友" });
     }
 
     // Check mobile uniqueness if changed
@@ -261,21 +253,30 @@ export class MemberService {
       if (mobileExists) {
         throw createError({
           statusCode: 409,
-          message: '此手機號碼已被使用',
+          message: "此手機號碼已被使用",
         });
       }
     }
 
     // Validate zone-group relationship if changed
-    const newZoneId = payload.zoneId ?? existing.zoneId;
-    const newGroupId = payload.groupId ?? existing.groupId;
+    const newZoneId =
+      payload.zoneId !== undefined ? payload.zoneId : existing.zoneId;
+    const newGroupId =
+      payload.groupId !== undefined ? payload.groupId : existing.groupId;
+
     if (newGroupId) {
+      if (!newZoneId) {
+        throw createError({
+          statusCode: 400,
+          message: "選擇小組時必須先選擇牧區",
+        });
+      }
       await this.validateZoneGroupRelationship(newZoneId, newGroupId);
     }
 
     const updated = await memberRepo.update(uuid, payload);
     if (!updated) {
-      throw createError({ statusCode: 500, message: '更新失敗' });
+      throw createError({ statusCode: 500, message: "更新失敗" });
     }
 
     return updated;
@@ -290,12 +291,12 @@ export class MemberService {
   ): Promise<void> {
     const member = await memberRepo.findById(uuid);
     if (!member) {
-      throw createError({ statusCode: 404, message: '找不到該會友' });
+      throw createError({ statusCode: 404, message: "找不到該會友" });
     }
 
     const success = await memberRepo.softDelete(uuid, deletion);
     if (!success) {
-      throw createError({ statusCode: 500, message: '刪除失敗' });
+      throw createError({ statusCode: 500, message: "刪除失敗" });
     }
   }
 
@@ -311,22 +312,22 @@ export class MemberService {
     const scopedFilters = { ...filters };
 
     switch (ctx.scope) {
-      case 'Global':
+      case "Global":
         // No additional filtering
         break;
-      case 'Zone':
+      case "Zone":
         if (ctx.zoneId) {
           scopedFilters.zoneId = ctx.zoneId;
         }
         break;
-      case 'Group':
+      case "Group":
         // For group scope, we need to handle differently
         // This will be handled at the query level
         if (ctx.managedGroupIds.length > 0) {
           scopedFilters.groupId = ctx.managedGroupIds[0];
         }
         break;
-      case 'Self':
+      case "Self":
         // Will be handled specially - return only the user's own data
         break;
     }
@@ -339,21 +340,18 @@ export class MemberService {
    */
   private checkScopeAccess(ctx: UserContext, member: Member): void {
     switch (ctx.scope) {
-      case 'Global':
+      case "Global":
         return;
-      case 'Zone':
+      case "Zone":
         if (member.zoneId !== ctx.zoneId) {
           throw createError({
             statusCode: 403,
-            message: '無權存取此會友資料',
+            message: "無權存取此會友資料",
           });
         }
         return;
-      case 'Group':
-        if (
-          !member.groupId ||
-          !ctx.managedGroupIds.includes(member.groupId)
-        ) {
+      case "Group":
+        if (!member.groupId || !ctx.managedGroupIds.includes(member.groupId)) {
           // Also check functional groups
           const memberInFunctionalGroup = member.functionalGroupIds?.some(
             (fgId) => ctx.managedGroupIds.includes(fgId),
@@ -361,16 +359,16 @@ export class MemberService {
           if (!memberInFunctionalGroup) {
             throw createError({
               statusCode: 403,
-              message: '無權存取此會友資料',
+              message: "無權存取此會友資料",
             });
           }
         }
         return;
-      case 'Self':
+      case "Self":
         if (member.uuid !== ctx.userId) {
           throw createError({
             statusCode: 403,
-            message: '無權存取此會友資料',
+            message: "無權存取此會友資料",
           });
         }
         return;
@@ -381,13 +379,14 @@ export class MemberService {
    * Validate that a group belongs to the specified zone.
    */
   private async validateZoneGroupRelationship(
-    zoneId: string | undefined,
-    groupId: string,
+    zoneId: string | undefined | null,
+    groupId: string | undefined | null,
   ): Promise<void> {
+    if (!groupId) return;
     if (!zoneId) {
       throw createError({
         statusCode: 400,
-        message: '選擇小組時必須先選擇牧區',
+        message: "選擇小組時必須先選擇牧區",
       });
     }
 
@@ -395,17 +394,17 @@ export class MemberService {
     if (!group) {
       throw createError({
         statusCode: 400,
-        message: '找不到指定的小組',
+        message: "找不到指定的小組",
       });
     }
 
     // Functional groups don't need zone validation
-    if (group.type === 'Functional') return;
+    if (group.type === "Functional") return;
 
     if (group.zoneId !== zoneId) {
       throw createError({
         statusCode: 400,
-        message: '所選小組不屬於所選牧區',
+        message: "所選小組不屬於所選牧區",
       });
     }
   }
@@ -416,25 +415,23 @@ export class MemberService {
   private sortMembers(
     members: Member[],
     sortBy: string,
-    sortOrder: 'asc' | 'desc',
+    sortOrder: "asc" | "desc",
   ): Member[] {
-    const multiplier = sortOrder === 'asc' ? 1 : -1;
+    const multiplier = sortOrder === "asc" ? 1 : -1;
 
     return [...members].sort((a, b) => {
       switch (sortBy) {
-        case 'dob':
+        case "dob":
           return (
-            multiplier *
-            (new Date(a.dob).getTime() - new Date(b.dob).getTime())
+            multiplier * (new Date(a.dob).getTime() - new Date(b.dob).getTime())
           );
-        case 'fullName':
-          return multiplier * a.fullName.localeCompare(b.fullName, 'zh-TW');
-        case 'createdAt':
+        case "fullName":
+          return multiplier * a.fullName.localeCompare(b.fullName, "zh-TW");
+        case "createdAt":
         default:
           return (
             multiplier *
-            (new Date(a.createdAt).getTime() -
-              new Date(b.createdAt).getTime())
+            (new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
           );
       }
     });

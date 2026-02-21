@@ -2,11 +2,11 @@
 /**
  * Edit Member Page (ST004)
  */
-import type { MemberDetail, UpdateMemberPayload } from '~/types/member';
-import { useOrganizationStore } from '~/stores/organization.store';
+import type { MemberDetail, UpdateMemberPayload } from "~/types/member";
+import { useOrganizationStore } from "~/stores/organization.store";
 
 definePageMeta({
-  layout: 'dashboard',
+  layout: "dashboard",
 });
 
 const route = useRoute();
@@ -15,9 +15,32 @@ const toast = useToast();
 const orgStore = useOrganizationStore();
 const memberUuid = route.params.id as string;
 
-const { isSubmitting, fieldErrors, clearFieldError, validateUpdate, submitUpdate } = useMemberForm();
-const { avatarPreview, avatarFile, isUploading, avatarError, shouldRemoveAvatar, onAvatarSelect, uploadAvatar, removeAvatar, initFromExisting } = useAvatarUpload();
-const { mobileError, emailWarning, isCheckingMobile, isCheckingEmail, checkMobileUnique, checkEmailDuplicate } = useMemberValidation();
+const {
+  isSubmitting,
+  fieldErrors,
+  clearFieldError,
+  validateUpdate,
+  submitUpdate,
+} = useMemberForm();
+const {
+  avatarPreview,
+  avatarFile,
+  isUploading,
+  avatarError,
+  shouldRemoveAvatar,
+  onAvatarSelect,
+  uploadAvatar,
+  removeAvatar,
+  initFromExisting,
+} = useAvatarUpload();
+const {
+  mobileError,
+  emailWarning,
+  isCheckingMobile,
+  isCheckingEmail,
+  checkMobileUnique,
+  checkEmailDuplicate,
+} = useMemberValidation();
 
 const isLoading = ref(true);
 const member = ref<MemberDetail | null>(null);
@@ -25,19 +48,19 @@ const zoneGroupMismatch = ref(false);
 
 // Form data
 const form = ref({
-  fullName: '',
-  gender: '' as 'Male' | 'Female' | '',
-  dob: '',
-  email: '',
-  mobile: '',
-  address: '',
-  lineId: '',
-  emergencyContactName: '',
-  emergencyContactRelationship: '',
-  emergencyContactPhone: '',
+  fullName: "",
+  gender: "" as "Male" | "Female" | "",
+  dob: "",
+  email: "",
+  mobile: "",
+  address: "",
+  lineId: "",
+  emergencyContactName: "",
+  emergencyContactRelationship: "",
+  emergencyContactPhone: "",
   baptismStatus: false,
-  baptismDate: '',
-  status: 'Active' as 'Active' | 'Inactive' | 'Suspended',
+  baptismDate: "",
+  status: "Active" as "Active" | "Inactive" | "Suspended",
   zoneId: null as string | null,
   groupId: null as string | null,
   roleId: null as string | null,
@@ -57,26 +80,26 @@ function onZoneChange(): void {
 
 // Option lists
 const genderOptions = [
-  { label: '男', value: 'Male' },
-  { label: '女', value: 'Female' },
+  { label: "男", value: "Male" },
+  { label: "女", value: "Female" },
 ];
 
 const relationshipOptions = [
-  { label: '父子', value: '父子' },
-  { label: '母女', value: '母女' },
-  { label: '父女', value: '父女' },
-  { label: '母子', value: '母子' },
-  { label: '配偶', value: '配偶' },
-  { label: '兄弟姊妹', value: '兄弟姊妹' },
-  { label: '子女', value: '子女' },
-  { label: '朋友', value: '朋友' },
-  { label: '其他', value: '其他' },
+  { label: "父子", value: "父子" },
+  { label: "母女", value: "母女" },
+  { label: "父女", value: "父女" },
+  { label: "母子", value: "母子" },
+  { label: "配偶", value: "配偶" },
+  { label: "兄弟姊妹", value: "兄弟姊妹" },
+  { label: "子女", value: "子女" },
+  { label: "朋友", value: "朋友" },
+  { label: "其他", value: "其他" },
 ];
 
 const statusOptions = [
-  { label: '啟用', value: 'Active' },
-  { label: '停用', value: 'Inactive' },
-  { label: '停權', value: 'Suspended' },
+  { label: "啟用", value: "Active" },
+  { label: "停用", value: "Inactive" },
+  { label: "停權", value: "Suspended" },
 ];
 
 const zoneOptions = computed(() =>
@@ -100,13 +123,13 @@ const maxDate = new Date();
 const dobDate = computed({
   get: () => (form.value.dob ? new Date(form.value.dob) : null),
   set: (val: Date | null) => {
-    form.value.dob = val ? val.toISOString().split('T')[0] : '';
+    form.value.dob = val ? val.toISOString().split("T")[0] || "" : "";
   },
 });
 const baptismDateValue = computed({
   get: () => (form.value.baptismDate ? new Date(form.value.baptismDate) : null),
   set: (val: Date | null) => {
-    form.value.baptismDate = val ? val.toISOString().split('T')[0] : '';
+    form.value.baptismDate = val ? val.toISOString().split("T")[0] || "" : "";
   },
 });
 
@@ -136,31 +159,50 @@ async function onEmailBlur(): Promise<void> {
 // Form submission
 async function handleSubmit(): Promise<void> {
   const payload: UpdateMemberPayload = {
-    fullName: form.value.fullName.trim(),
-    gender: form.value.gender as 'Male' | 'Female',
+    fullName: form.value.fullName?.trim() || "",
+    gender: form.value.gender as "Male" | "Female",
     dob: form.value.dob,
-    email: form.value.email.trim(),
-    mobile: form.value.mobile.trim().replace(/-/g, ''),
-    address: form.value.address?.trim() || undefined,
-    lineId: form.value.lineId?.trim() || undefined,
-    emergencyContactName: form.value.emergencyContactName.trim(),
+    emergencyContactName: form.value.emergencyContactName?.trim() || "",
     emergencyContactRelationship: form.value.emergencyContactRelationship,
-    emergencyContactPhone: form.value.emergencyContactPhone.trim().replace(/-/g, ''),
     baptismStatus: form.value.baptismStatus,
-    baptismDate: form.value.baptismStatus ? form.value.baptismDate || undefined : undefined,
+    baptismDate: form.value.baptismStatus
+      ? form.value.baptismDate || undefined
+      : undefined,
     status: form.value.status,
-    zoneId: form.value.zoneId || undefined,
-    groupId: form.value.groupId || undefined,
+    zoneId: form.value.zoneId || null,
+    groupId: form.value.groupId || null,
     roleIds: form.value.roleId ? [form.value.roleId] : [],
     pastCourses: form.value.pastCourses,
   };
 
+  // Only include sensitive fields if they have been updated (i.e. not masked with *)
+  if (form.value.email && !form.value.email.includes("*")) {
+    payload.email = form.value.email.trim();
+  }
+  if (form.value.mobile && !form.value.mobile.includes("*")) {
+    payload.mobile = form.value.mobile.trim().replace(/-/g, "");
+  }
+  if (form.value.address && !form.value.address.includes("*")) {
+    payload.address = form.value.address.trim();
+  }
+  if (form.value.lineId && !form.value.lineId.includes("*")) {
+    payload.lineId = form.value.lineId.trim();
+  }
+  if (
+    form.value.emergencyContactPhone &&
+    !form.value.emergencyContactPhone.includes("*")
+  ) {
+    payload.emergencyContactPhone = form.value.emergencyContactPhone
+      .trim()
+      .replace(/-/g, "");
+  }
+
   // Frontend validation
   if (!validateUpdate(payload)) {
     toast.add({
-      severity: 'error',
-      summary: '表單驗證失敗',
-      detail: '請檢查紅色標記的欄位',
+      severity: "error",
+      summary: "表單驗證失敗",
+      detail: "請檢查紅色標記的欄位",
       life: 5000,
     });
     return;
@@ -169,9 +211,9 @@ async function handleSubmit(): Promise<void> {
   // Check mobile uniqueness
   if (mobileError.value) {
     toast.add({
-      severity: 'error',
-      summary: '錯誤',
-      detail: '手機號碼已被使用，請更換',
+      severity: "error",
+      summary: "錯誤",
+      detail: "手機號碼已被使用，請更換",
       life: 3000,
     });
     return;
@@ -186,9 +228,9 @@ async function handleSubmit(): Promise<void> {
       }
     } catch {
       toast.add({
-        severity: 'error',
-        summary: '頭像上傳失敗',
-        detail: '請稍後再試',
+        severity: "error",
+        summary: "頭像上傳失敗",
+        detail: "請稍後再試",
         life: 5000,
       });
       return;
@@ -199,7 +241,7 @@ async function handleSubmit(): Promise<void> {
 
   const result = await submitUpdate(memberUuid, payload);
   if (result.success) {
-    router.push('/dashboard/members');
+    router.push("/dashboard/members");
   }
 }
 
@@ -223,13 +265,13 @@ async function loadData(): Promise<void> {
       dob: memberData.dob,
       email: memberData.email,
       mobile: memberData.mobile,
-      address: memberData.address || '',
-      lineId: memberData.lineId || '',
+      address: memberData.address || "",
+      lineId: memberData.lineId || "",
       emergencyContactName: memberData.emergencyContactName,
       emergencyContactRelationship: memberData.emergencyContactRelationship,
       emergencyContactPhone: memberData.emergencyContactPhone,
       baptismStatus: memberData.baptismStatus,
-      baptismDate: memberData.baptismDate || '',
+      baptismDate: memberData.baptismDate || "",
       status: memberData.status,
       zoneId: memberData.zoneId || null,
       groupId: memberData.groupId || null,
@@ -246,18 +288,22 @@ async function loadData(): Promise<void> {
     // Check zone-group mismatch
     if (memberData.zoneId && memberData.groupId) {
       const group = orgStore.groups.find((g) => g.id === memberData.groupId);
-      if (group && group.type === 'Pastoral' && group.zoneId !== memberData.zoneId) {
+      if (
+        group &&
+        group.type === "Pastoral" &&
+        group.zoneId !== memberData.zoneId
+      ) {
         zoneGroupMismatch.value = true;
       }
     }
   } catch {
     toast.add({
-      severity: 'error',
-      summary: '錯誤',
-      detail: '載入會友資料失敗',
+      severity: "error",
+      summary: "錯誤",
+      detail: "載入會友資料失敗",
       life: 3000,
     });
-    router.push('/dashboard/members');
+    router.push("/dashboard/members");
   } finally {
     isLoading.value = false;
   }
@@ -276,7 +322,7 @@ onMounted(() => {
       <div>
         <h1 class="text-2xl font-bold">編輯會友資料</h1>
         <p class="text-sm text-slate-500 mt-1">
-          {{ member?.fullName || '載入中...' }}
+          {{ member?.fullName || "載入中..." }}
         </p>
       </div>
     </div>
@@ -293,7 +339,9 @@ onMounted(() => {
       </Message>
 
       <!-- A. Basic Info -->
-      <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+      <div
+        class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6"
+      >
         <h2 class="text-lg font-semibold mb-4">
           <i class="pi pi-user mr-2 text-primary" />
           基本資訊
@@ -305,7 +353,9 @@ onMounted(() => {
           <div class="flex items-center gap-4">
             <Avatar
               :image="displayAvatar"
-              :label="!displayAvatar ? (form.fullName?.charAt(0) || '?') : undefined"
+              :label="
+                !displayAvatar ? form.fullName?.charAt(0) || '?' : undefined
+              "
               shape="circle"
               class="!w-24 !h-24 !text-3xl !bg-primary-100 dark:!bg-primary-900/30 !text-primary shrink-0"
             />
@@ -329,42 +379,64 @@ onMounted(() => {
               />
             </div>
           </div>
-          <small class="text-slate-500 mt-1 block">支援 JPG、PNG 格式，大小上限 2MB</small>
-          <small v-if="avatarError" class="text-red-500 mt-1 block">{{ avatarError }}</small>
+          <small class="text-slate-500 mt-1 block"
+            >支援 JPG、PNG 格式，大小上限 2MB</small
+          >
+          <small v-if="avatarError" class="text-red-500 mt-1 block">{{
+            avatarError
+          }}</small>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Full Name -->
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium">姓名 <span class="text-red-500">*</span></label>
+            <label class="text-sm font-medium"
+              >姓名 <span class="text-red-500">*</span></label
+            >
             <InputText
               v-model="form.fullName"
               placeholder="請輸入完整姓名"
               :invalid="!!fieldErrors.fullName"
               @input="clearFieldError('fullName')"
             />
-            <small v-if="fieldErrors.fullName" class="text-red-500">{{ fieldErrors.fullName }}</small>
+            <small v-if="fieldErrors.fullName" class="text-red-500">{{
+              fieldErrors.fullName
+            }}</small>
           </div>
 
           <!-- Gender -->
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium">性別 <span class="text-red-500">*</span></label>
+            <label class="text-sm font-medium"
+              >性別 <span class="text-red-500">*</span></label
+            >
             <div class="flex items-center gap-4 h-[42px]">
-              <div v-for="option in genderOptions" :key="option.value" class="flex items-center gap-2">
+              <div
+                v-for="option in genderOptions"
+                :key="option.value"
+                class="flex items-center gap-2"
+              >
                 <RadioButton
                   v-model="form.gender"
                   :value="option.value"
                   :inputId="`gender-${option.value}`"
                 />
-                <label :for="`gender-${option.value}`" class="text-sm cursor-pointer">{{ option.label }}</label>
+                <label
+                  :for="`gender-${option.value}`"
+                  class="text-sm cursor-pointer"
+                  >{{ option.label }}</label
+                >
               </div>
             </div>
-            <small v-if="fieldErrors.gender" class="text-red-500">{{ fieldErrors.gender }}</small>
+            <small v-if="fieldErrors.gender" class="text-red-500">{{
+              fieldErrors.gender
+            }}</small>
           </div>
 
           <!-- Date of Birth -->
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium">出生年月日 <span class="text-red-500">*</span></label>
+            <label class="text-sm font-medium"
+              >出生年月日 <span class="text-red-500">*</span></label
+            >
             <DatePicker
               v-model="dobDate"
               dateFormat="yy-mm-dd"
@@ -373,13 +445,17 @@ onMounted(() => {
               placeholder="選擇日期"
               :invalid="!!fieldErrors.dob"
             />
-            <small v-if="fieldErrors.dob" class="text-red-500">{{ fieldErrors.dob }}</small>
+            <small v-if="fieldErrors.dob" class="text-red-500">{{
+              fieldErrors.dob
+            }}</small>
           </div>
         </div>
       </div>
 
       <!-- B. Contact Info -->
-      <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+      <div
+        class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6"
+      >
         <h2 class="text-lg font-semibold mb-4">
           <i class="pi pi-phone mr-2 text-primary" />
           聯絡資訊
@@ -388,7 +464,9 @@ onMounted(() => {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Mobile -->
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium">手機 <span class="text-red-500">*</span></label>
+            <label class="text-sm font-medium"
+              >手機 <span class="text-red-500">*</span></label
+            >
             <div class="relative">
               <InputText
                 v-model="form.mobile"
@@ -398,15 +476,24 @@ onMounted(() => {
                 @blur="onMobileBlur"
                 @input="clearFieldError('mobile')"
               />
-              <i v-if="isCheckingMobile" class="pi pi-spin pi-spinner absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <i
+                v-if="isCheckingMobile"
+                class="pi pi-spin pi-spinner absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
+              />
             </div>
-            <small v-if="fieldErrors.mobile" class="text-red-500">{{ fieldErrors.mobile }}</small>
-            <small v-else-if="mobileError" class="text-red-500">{{ mobileError }}</small>
+            <small v-if="fieldErrors.mobile" class="text-red-500">{{
+              fieldErrors.mobile
+            }}</small>
+            <small v-else-if="mobileError" class="text-red-500">{{
+              mobileError
+            }}</small>
           </div>
 
           <!-- Email -->
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium">Email <span class="text-red-500">*</span></label>
+            <label class="text-sm font-medium"
+              >Email <span class="text-red-500">*</span></label
+            >
             <div class="relative">
               <InputText
                 v-model="form.email"
@@ -417,10 +504,17 @@ onMounted(() => {
                 @blur="onEmailBlur"
                 @input="clearFieldError('email')"
               />
-              <i v-if="isCheckingEmail" class="pi pi-spin pi-spinner absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <i
+                v-if="isCheckingEmail"
+                class="pi pi-spin pi-spinner absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
+              />
             </div>
-            <small v-if="fieldErrors.email" class="text-red-500">{{ fieldErrors.email }}</small>
-            <small v-else-if="emailWarning" class="text-amber-500">{{ emailWarning }}</small>
+            <small v-if="fieldErrors.email" class="text-red-500">{{
+              fieldErrors.email
+            }}</small>
+            <small v-else-if="emailWarning" class="text-amber-500">{{
+              emailWarning
+            }}</small>
           </div>
 
           <!-- Line ID -->
@@ -433,13 +527,17 @@ onMounted(() => {
           <div class="flex flex-col gap-2 md:col-span-2">
             <label class="text-sm font-medium">地址</label>
             <Textarea v-model="form.address" rows="2" placeholder="選填" />
-            <small v-if="fieldErrors.address" class="text-red-500">{{ fieldErrors.address }}</small>
+            <small v-if="fieldErrors.address" class="text-red-500">{{
+              fieldErrors.address
+            }}</small>
           </div>
         </div>
       </div>
 
       <!-- C. Emergency Contact -->
-      <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+      <div
+        class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6"
+      >
         <h2 class="text-lg font-semibold mb-4">
           <i class="pi pi-exclamation-circle mr-2 text-primary" />
           緊急聯絡人
@@ -447,18 +545,26 @@ onMounted(() => {
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium">姓名 <span class="text-red-500">*</span></label>
+            <label class="text-sm font-medium"
+              >姓名 <span class="text-red-500">*</span></label
+            >
             <InputText
               v-model="form.emergencyContactName"
               placeholder="緊急聯絡人姓名"
               :invalid="!!fieldErrors.emergencyContactName"
               @input="clearFieldError('emergencyContactName')"
             />
-            <small v-if="fieldErrors.emergencyContactName" class="text-red-500">{{ fieldErrors.emergencyContactName }}</small>
+            <small
+              v-if="fieldErrors.emergencyContactName"
+              class="text-red-500"
+              >{{ fieldErrors.emergencyContactName }}</small
+            >
           </div>
 
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium">關係 <span class="text-red-500">*</span></label>
+            <label class="text-sm font-medium"
+              >關係 <span class="text-red-500">*</span></label
+            >
             <Select
               v-model="form.emergencyContactRelationship"
               :options="relationshipOptions"
@@ -468,24 +574,36 @@ onMounted(() => {
               :invalid="!!fieldErrors.emergencyContactRelationship"
               @change="clearFieldError('emergencyContactRelationship')"
             />
-            <small v-if="fieldErrors.emergencyContactRelationship" class="text-red-500">{{ fieldErrors.emergencyContactRelationship }}</small>
+            <small
+              v-if="fieldErrors.emergencyContactRelationship"
+              class="text-red-500"
+              >{{ fieldErrors.emergencyContactRelationship }}</small
+            >
           </div>
 
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium">電話 <span class="text-red-500">*</span></label>
+            <label class="text-sm font-medium"
+              >電話 <span class="text-red-500">*</span></label
+            >
             <InputText
               v-model="form.emergencyContactPhone"
               placeholder="0912345678"
               :invalid="!!fieldErrors.emergencyContactPhone"
               @input="clearFieldError('emergencyContactPhone')"
             />
-            <small v-if="fieldErrors.emergencyContactPhone" class="text-red-500">{{ fieldErrors.emergencyContactPhone }}</small>
+            <small
+              v-if="fieldErrors.emergencyContactPhone"
+              class="text-red-500"
+              >{{ fieldErrors.emergencyContactPhone }}</small
+            >
           </div>
         </div>
       </div>
 
       <!-- D. Faith & Church Info -->
-      <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+      <div
+        class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6"
+      >
         <h2 class="text-lg font-semibold mb-4">
           <i class="pi pi-heart mr-2 text-primary" />
           信仰與歸屬
@@ -496,8 +614,14 @@ onMounted(() => {
           <div class="flex flex-col gap-2">
             <label class="text-sm font-medium">受洗狀態</label>
             <div class="flex items-center gap-2 h-[42px]">
-              <Checkbox v-model="form.baptismStatus" :binary="true" inputId="baptismStatus" />
-              <label for="baptismStatus" class="text-sm cursor-pointer">已受洗</label>
+              <Checkbox
+                v-model="form.baptismStatus"
+                :binary="true"
+                inputId="baptismStatus"
+              />
+              <label for="baptismStatus" class="text-sm cursor-pointer"
+                >已受洗</label
+              >
             </div>
           </div>
 
@@ -540,7 +664,9 @@ onMounted(() => {
               :disabled="!form.zoneId"
               :invalid="!!fieldErrors.groupId"
             />
-            <small v-if="fieldErrors.groupId" class="text-red-500">{{ fieldErrors.groupId }}</small>
+            <small v-if="fieldErrors.groupId" class="text-red-500">{{
+              fieldErrors.groupId
+            }}</small>
           </div>
 
           <!-- Role -->
@@ -574,7 +700,9 @@ onMounted(() => {
       </div>
 
       <!-- E. System Settings -->
-      <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+      <div
+        class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6"
+      >
         <h2 class="text-lg font-semibold mb-4">
           <i class="pi pi-cog mr-2 text-primary" />
           系統設定
@@ -582,7 +710,9 @@ onMounted(() => {
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium">會籍狀態 <span class="text-red-500">*</span></label>
+            <label class="text-sm font-medium"
+              >會籍狀態 <span class="text-red-500">*</span></label
+            >
             <Select
               v-model="form.status"
               :options="statusOptions"
@@ -595,7 +725,12 @@ onMounted(() => {
 
       <!-- Actions -->
       <div class="flex items-center gap-3 justify-end">
-        <Button label="取消" severity="secondary" outlined @click="router.back()" />
+        <Button
+          label="取消"
+          severity="secondary"
+          outlined
+          @click="router.back()"
+        />
         <Button
           label="儲存變更"
           icon="pi pi-check"

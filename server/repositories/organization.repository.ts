@@ -10,8 +10,9 @@ import type {
   ZoneWithGroups,
 } from "~/types/organization";
 import type { Member } from "~/types/member";
-import { mockZones, mockGroups, mockCourses, mockMembers } from "../mockData";
+import { mockZones, mockGroups, mockCourses } from "../mockData";
 import { mockRoles } from "../mockData";
+import { devMembers as mockMembers } from "./member.repository";
 
 export class OrganizationRepository {
   /**

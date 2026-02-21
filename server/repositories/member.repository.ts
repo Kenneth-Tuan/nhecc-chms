@@ -2,12 +2,18 @@
  * Member Repository
  * Abstracts data source: DEV uses mock data, PROD uses Firebase.
  */
-import type { Member, MemberFilters, CreateMemberPayload, UpdateMemberPayload, DeletionReason } from '~/types/member';
-import { mockMembers } from '../mockData';
-import { generateId } from '../utils/helpers';
+import type {
+  Member,
+  MemberFilters,
+  CreateMemberPayload,
+  UpdateMemberPayload,
+  DeletionReason,
+} from "~/types/member";
+import { mockMembers } from "../mockData";
+import { generateId } from "../utils/helpers";
 
 /** In-memory store for DEV mode (allows mutations) */
-let devMembers: Member[] = [...mockMembers];
+export let devMembers: Member[] = [...mockMembers];
 
 export class MemberRepository {
   /**
@@ -18,15 +24,15 @@ export class MemberRepository {
 
     if (filters) {
       // Status filter
-      if (filters.status && filters.status !== 'all') {
+      if (filters.status && filters.status !== "all") {
         results = results.filter((m) => m.status === filters.status);
       }
 
       // Baptism status filter
-      if (filters.baptismStatus && filters.baptismStatus !== 'all') {
-        if (filters.baptismStatus === 'baptized') {
+      if (filters.baptismStatus && filters.baptismStatus !== "all") {
+        if (filters.baptismStatus === "baptized") {
           results = results.filter((m) => m.baptismStatus === true);
-        } else if (filters.baptismStatus === 'notBaptized') {
+        } else if (filters.baptismStatus === "notBaptized") {
           results = results.filter((m) => m.baptismStatus === false);
         }
       }
@@ -49,13 +55,13 @@ export class MemberRepository {
       // Search filter
       if (filters.search) {
         const searchTerm = filters.search.toLowerCase();
-        const searchField = filters.searchField || 'fullName';
+        const searchField = filters.searchField || "fullName";
 
-        if (searchField === 'fullName') {
+        if (searchField === "fullName") {
           results = results.filter((m) =>
             m.fullName.toLowerCase().includes(searchTerm),
           );
-        } else if (searchField === 'mobile') {
+        } else if (searchField === "mobile") {
           // Exact match for mobile
           results = results.filter((m) => m.mobile === filters.search);
         }
@@ -93,10 +99,7 @@ export class MemberRepository {
   /**
    * Check if a mobile number already exists (excluding given uuid).
    */
-  async isMobileExists(
-    mobile: string,
-    excludeUuid?: string,
-  ): Promise<boolean> {
+  async isMobileExists(mobile: string, excludeUuid?: string): Promise<boolean> {
     return devMembers.some(
       (m) => m.mobile === mobile && m.uuid !== excludeUuid,
     );
@@ -105,13 +108,8 @@ export class MemberRepository {
   /**
    * Check if an email already exists (excluding given uuid).
    */
-  async isEmailExists(
-    email: string,
-    excludeUuid?: string,
-  ): Promise<boolean> {
-    return devMembers.some(
-      (m) => m.email === email && m.uuid !== excludeUuid,
-    );
+  async isEmailExists(email: string, excludeUuid?: string): Promise<boolean> {
+    return devMembers.some((m) => m.email === email && m.uuid !== excludeUuid);
   }
 
   /**
@@ -123,8 +121,8 @@ export class MemberRepository {
       uuid: generateId(),
       createdAt: now,
       updatedAt: now,
-      createdBy: 'system',
-      updatedBy: 'system',
+      createdBy: "system",
+      updatedBy: "system",
       fullName: payload.fullName,
       gender: payload.gender,
       dob: payload.dob,
@@ -137,11 +135,11 @@ export class MemberRepository {
       emergencyContactPhone: payload.emergencyContactPhone,
       baptismStatus: payload.baptismStatus,
       baptismDate: payload.baptismDate,
-      status: payload.status || 'Active',
+      status: payload.status || "Active",
       zoneId: payload.zoneId,
       groupId: payload.groupId,
       pastCourses: payload.pastCourses || [],
-      roleIds: payload.roleIds || ['general'],
+      roleIds: payload.roleIds || ["general"],
       functionalGroupIds: payload.functionalGroupIds || [],
       avatar: payload.avatar,
     };
@@ -164,7 +162,7 @@ export class MemberRepository {
       ...devMembers[index],
       ...payload,
       updatedAt: new Date().toISOString(),
-      updatedBy: 'system',
+      updatedBy: "system",
     };
 
     devMembers[index] = updated;
@@ -183,9 +181,11 @@ export class MemberRepository {
 
     devMembers[index] = {
       ...devMembers[index],
-      status: 'Inactive',
+      status: "Inactive",
       updatedAt: new Date().toISOString(),
-      ...(deletion?.reason && { deletionReason: deletion.reason as DeletionReason }),
+      ...(deletion?.reason && {
+        deletionReason: deletion.reason as DeletionReason,
+      }),
       ...(deletion?.notes && { deletionNotes: deletion.notes }),
     };
     return true;

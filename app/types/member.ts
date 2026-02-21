@@ -3,13 +3,13 @@
  */
 
 /** Gender enum */
-export type Gender = 'Male' | 'Female';
+export type Gender = "Male" | "Female";
 
 /** Membership status */
-export type MemberStatus = 'Active' | 'Inactive' | 'Suspended';
+export type MemberStatus = "Active" | "Inactive" | "Suspended";
 
 /** Course completion status */
-export type CourseCompletionStatus = 'Completed' | 'Failed' | 'InProgress';
+export type CourseCompletionStatus = "Completed" | "Failed" | "InProgress";
 
 /** Member course record */
 export interface MemberCourseRecord {
@@ -21,11 +21,11 @@ export interface MemberCourseRecord {
 
 /** Deletion reason codes for soft delete */
 export type DeletionReason =
-  | 'left_church'
-  | 'transferred'
-  | 'duplicate'
-  | 'data_error'
-  | 'other';
+  | "left_church"
+  | "transferred"
+  | "duplicate"
+  | "data_error"
+  | "other";
 
 /** Full Member entity (stored in database) */
 export interface Member {
@@ -56,8 +56,8 @@ export interface Member {
   baptismStatus: boolean;
   baptismDate?: string;
   status: MemberStatus;
-  zoneId?: string;
-  groupId?: string;
+  zoneId?: string | null;
+  groupId?: string | null;
   pastCourses: string[];
 
   // RBAC (ST002)
@@ -90,9 +90,9 @@ export interface MemberListItem {
   emailMeta: SensitiveFieldMeta;
   roleIds: string[];
   roleNames: string[];
-  zoneId?: string;
+  zoneId?: string | null;
   zoneName?: string;
-  groupId?: string;
+  groupId?: string | null;
   groupName?: string;
   status: MemberStatus;
   avatar?: string;
@@ -118,11 +118,11 @@ export interface MemberDetail extends Member {
 /** Filters for member list API */
 export interface MemberFilters {
   search?: string;
-  searchField?: 'fullName' | 'mobile';
-  status?: MemberStatus | 'all';
-  baptismStatus?: 'all' | 'baptized' | 'notBaptized';
-  zoneId?: string;
-  groupId?: string;
+  searchField?: "fullName" | "mobile";
+  status?: MemberStatus | "all";
+  baptismStatus?: "all" | "baptized" | "notBaptized";
+  zoneId?: string | null;
+  groupId?: string | null;
   unassigned?: boolean; // members without group
 }
 
@@ -147,8 +147,8 @@ export interface CreateMemberPayload {
   baptismStatus: boolean;
   baptismDate?: string;
   status?: MemberStatus;
-  zoneId?: string;
-  groupId?: string;
+  zoneId?: string | null;
+  groupId?: string | null;
   pastCourses?: string[];
   roleIds?: string[];
   functionalGroupIds?: string[];
