@@ -7,6 +7,13 @@ runConfig:
   # cpu: 1
   # memoryMiB: 512
 
+  # runCommand: node .output/server/index.mjs
+  environmentVariables:
+    - variable: PORT
+      value: "8080"
+      availability:
+        - RUNTIME
+
 # Environment variables and secrets.
 env:
   # Configure environment variables.
