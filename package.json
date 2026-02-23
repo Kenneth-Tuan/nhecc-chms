@@ -1,6 +1,9 @@
 {
   "name": "nhecc-chms",
   "type": "module",
+  "engines": {
+    "node": "20.x"
+  },
   "private": true,
   "scripts": {
     "build": "nuxt build",

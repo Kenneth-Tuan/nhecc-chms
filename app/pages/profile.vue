@@ -42,6 +42,7 @@ const handleLogout = () => {
 const navigateToAdmin = () => {
   // 導向管理後台
   console.log("Navigate to Admin Console");
+  navigateTo("/dashboard");
 };
 </script>
 
