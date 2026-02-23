@@ -1,10 +1,18 @@
-env:
-  - variable: HOST
-    value: "0.0.0.0"
+# Settings for Backend (on Cloud Run).
+# See https://firebase.google.com/docs/app-hosting/configure#cloud-run.
+runConfig:
+  minInstances: 0
+  # maxInstances: 100
+  # concurrency: 80
+  # cpu: 1
+  # memoryMiB: 512
 
-- variable: NUXT_LINE_CHANNEL_ID
-    secret: 1657169336
-- variable: NUXT_LINE_CHANNEL_SECRET
-    secret: 643aad59418658fea3e187fa92690b5a
-- variable: NUXT_LINE_LIFF_ID
-    secret: 1657169336-P8kQq634
+# Environment variables and secrets.
+env:
+  # Configure environment variables.
+  # See https://firebase.google.com/docs/app-hosting/configure#user-defined-environment.
+
+  # Configure secrets
+  # See https://firebase.google.com/docs/app-hosting/configure#secret-parameters
+  # - variable: API_KEY
+  #   secret: myApiKeySecret

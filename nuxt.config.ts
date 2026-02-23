@@ -167,11 +167,4 @@ export default defineNuxtConfig({
      */
     storesDirs: [],
   },
-
-  nitro: {
-    firebase: {
-      gen: 2,
-    },
-    preset: "firebase_app_hosting",
-  },
 });
