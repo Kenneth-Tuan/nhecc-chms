@@ -67,7 +67,7 @@ async function confirmRevealAll(): Promise<void> {
 
       <!-- Reveal All Button -->
       <Button
-        v-if="auth.canReveal('mobile')"
+        v-if="auth.can('reveal', 'Member', 'mobile')"
         label="顯示所有敏感資料"
         icon="pi pi-eye"
         size="small"

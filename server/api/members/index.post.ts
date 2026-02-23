@@ -5,12 +5,12 @@
 import { readBody } from 'h3';
 import { createMemberSchema } from '~/schemas/member.schema';
 import { MemberService } from '../../services/member.service';
-import { requirePermission, validateWithSchema } from '../../utils/validation';
+import { requireAbility, validateWithSchema } from '../../utils/validation';
 
 const memberService = new MemberService();
 
 export default defineEventHandler(async (event) => {
-  requirePermission(event, 'member:create');
+  requireAbility(event, 'create', 'Member');
 
   const body = await readBody(event);
   const payload = validateWithSchema(createMemberSchema, body);

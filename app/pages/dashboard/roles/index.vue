@@ -97,7 +97,7 @@ onMounted(() => {
         <p class="text-sm text-slate-500 mt-1">管理系統角色與權限設定</p>
       </div>
       <Button
-        v-if="auth.hasPermission('system:config')"
+        v-if="auth.can('manage', 'System')"
         label="新增角色"
         icon="pi pi-plus"
         @click="router.push('/dashboard/roles/create')"

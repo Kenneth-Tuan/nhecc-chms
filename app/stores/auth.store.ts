@@ -1,13 +1,16 @@
 /**
  * Auth Store
- * Manages the current user context and permissions.
+ * Manages the current user context and CASL ability.
  */
 import { defineStore } from "pinia";
+import { useAbility } from "@casl/vue";
+import { unpackRules } from "@casl/ability/extra";
 import type {
   UserContext,
   MockTestUser,
   AuthContextResponse,
 } from "~/types/auth";
+import type { AppAbility } from "~/utils/casl/ability";
 
 export const useAuthStore = defineStore("auth", () => {
   const userContext = ref<UserContext | null>(null);
@@ -15,7 +18,8 @@ export const useAuthStore = defineStore("auth", () => {
   const isLoading = ref(false);
   const isInitialized = ref(false);
 
-  /** Current user's display name */
+  const ability = useAbility<AppAbility>();
+
   const currentUserName = computed(
     () => userContext.value?.fullName || "未登入",
   );
@@ -27,37 +31,19 @@ export const useAuthStore = defineStore("auth", () => {
     Self: "個人",
   };
 
-  /** Current user's scope */
   const currentScope = computed(() => userContext.value?.scope || "Self");
 
-  /** Current user's scope label (Chinese) */
   const currentScopeLabel = computed(
     () => scopeLabels[userContext.value?.scope || "Self"] || "個人",
   );
 
-  /** Check a specific permission */
-  function hasPermission(permission: string): boolean {
-    if (!userContext.value) return false;
-    return !!userContext.value.permissions[
-      permission as keyof typeof userContext.value.permissions
-    ];
-  }
-
-  /** Check reveal authority for a field */
-  function canReveal(field: string): boolean {
-    if (!userContext.value) return false;
-    return !!userContext.value.revealAuthority[
-      field as keyof typeof userContext.value.revealAuthority
-    ];
-  }
-
-  /** Load auth context from API */
   async function loadContext(): Promise<void> {
     isLoading.value = true;
     try {
       const response = await $fetch<AuthContextResponse>("/api/auth/context");
       userContext.value = response.user;
       availableTestUsers.value = response.availableTestUsers || [];
+      ability.update(unpackRules(response.rules));
       isInitialized.value = true;
     } catch (error) {
       console.error("Failed to load auth context:", error);
@@ -66,7 +52,6 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
-  /** Switch to a different test user (DEV mode) */
   async function switchUser(userId: string): Promise<void> {
     isLoading.value = true;
     try {
@@ -79,6 +64,7 @@ export const useAuthStore = defineStore("auth", () => {
       );
       userContext.value = response.user;
       availableTestUsers.value = response.availableTestUsers || [];
+      ability.update(unpackRules(response.rules));
     } catch (error) {
       console.error("Failed to switch user:", error);
       throw error;
@@ -95,8 +81,6 @@ export const useAuthStore = defineStore("auth", () => {
     currentUserName,
     currentScope,
     currentScopeLabel,
-    hasPermission,
-    canReveal,
     loadContext,
     switchUser,
   };

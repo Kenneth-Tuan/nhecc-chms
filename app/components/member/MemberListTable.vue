@@ -150,7 +150,7 @@ function onRowClick(event: { data: MemberListItem }): void {
         <template #body="{ data }">
           <div class="flex items-center gap-1" @click.stop>
             <Button
-              v-if="auth.hasPermission('member:edit')"
+              v-if="auth.can('update', 'Member')"
               icon="pi pi-pencil"
               text
               rounded
@@ -158,7 +158,7 @@ function onRowClick(event: { data: MemberListItem }): void {
               @click.stop="$emit('edit', data)"
             />
             <Button
-              v-if="auth.hasPermission('member:delete')"
+              v-if="auth.can('delete', 'Member')"
               icon="pi pi-trash"
               text
               rounded

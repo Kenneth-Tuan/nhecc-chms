@@ -5,12 +5,12 @@
 import { readBody } from 'h3';
 import { createRoleSchema } from '~/schemas/role.schema';
 import { RoleService } from '../../services/role.service';
-import { requirePermission, validateWithSchema } from '../../utils/validation';
+import { requireAbility, validateWithSchema } from '../../utils/validation';
 
 const roleService = new RoleService();
 
 export default defineEventHandler(async (event) => {
-  requirePermission(event, 'system:config');
+  requireAbility(event, 'manage', 'System');
 
   const body = await readBody(event);
   const payload = validateWithSchema(createRoleSchema, body);

@@ -5,19 +5,20 @@
 import { getQuery } from 'h3';
 import { memberFiltersSchema } from '~/schemas/member.schema';
 import { MemberService } from '../../services/member.service';
-import { getUserContext, requirePermission, validateWithSchema } from '../../utils/validation';
+import { getUserContext, requireAbility, validateWithSchema } from '../../utils/validation';
 
 const memberService = new MemberService();
 
 export default defineEventHandler(async (event) => {
   const userContext = getUserContext(event);
-  requirePermission(event, 'member:view');
+  requireAbility(event, 'view', 'Member');
 
   const query = getQuery(event);
   const filters = validateWithSchema(memberFiltersSchema, query);
 
   const result = await memberService.list(
     userContext,
+    event.context.ability!,
     {
       search: filters.search,
       searchField: filters.searchField,

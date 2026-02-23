@@ -5,12 +5,12 @@
 import { readBody } from 'h3';
 import { updateMemberSchema } from '~/schemas/member.schema';
 import { MemberService } from '../../services/member.service';
-import { requirePermission, validateWithSchema } from '../../utils/validation';
+import { requireAbility, validateWithSchema } from '../../utils/validation';
 
 const memberService = new MemberService();
 
 export default defineEventHandler(async (event) => {
-  requirePermission(event, 'member:edit');
+  requireAbility(event, 'update', 'Member');
 
   const id = getRouterParam(event, 'id');
   if (!id) {

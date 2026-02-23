@@ -14,6 +14,7 @@ import type {
 } from "~/types/member";
 import type { PaginatedResponse } from "~/types/api";
 import type { SensitiveField } from "~/types/role";
+import type { AppAbility } from "~/utils/casl/ability";
 import { MemberRepository } from "../repositories/member.repository";
 import { OrganizationRepository } from "../repositories/organization.repository";
 import { RoleRepository } from "../repositories/role.repository";
@@ -31,6 +32,7 @@ export class MemberService {
    */
   async list(
     userContext: UserContext,
+    ability: AppAbility,
     filters: MemberFilters,
     page: number,
     pageSize: number,
@@ -63,9 +65,9 @@ export class MemberService {
         dob: m.dob,
         age: calculateAge(m.dob),
         mobile: getMaskFunction("mobile")(m.mobile),
-        mobileMeta: { canReveal: userContext.revealAuthority.mobile },
+        mobileMeta: { canReveal: ability.can("reveal", "Member", "mobile") },
         email: getMaskFunction("email")(m.email),
-        emailMeta: { canReveal: userContext.revealAuthority.email },
+        emailMeta: { canReveal: ability.can("reveal", "Member", "email") },
         roleIds: m.roleIds,
         roleNames: memberRoles.map((r) => r.name),
         zoneId: m.zoneId,
@@ -87,6 +89,7 @@ export class MemberService {
    */
   async getDetail(
     userContext: UserContext,
+    ability: AppAbility,
     uuid: string,
   ): Promise<MemberDetail> {
     const member = await memberRepo.findById(uuid);
@@ -153,12 +156,12 @@ export class MemberService {
       groupName: group?.name,
       roleNames: memberRoles.map((r) => r.name),
       courseRecords,
-      mobileMeta: { canReveal: userContext.revealAuthority.mobile },
-      emailMeta: { canReveal: userContext.revealAuthority.email },
-      lineIdMeta: { canReveal: userContext.revealAuthority.lineId },
-      addressMeta: { canReveal: userContext.revealAuthority.address },
+      mobileMeta: { canReveal: ability.can("reveal", "Member", "mobile") },
+      emailMeta: { canReveal: ability.can("reveal", "Member", "email") },
+      lineIdMeta: { canReveal: ability.can("reveal", "Member", "lineId") },
+      addressMeta: { canReveal: ability.can("reveal", "Member", "address") },
       emergencyContactPhoneMeta: {
-        canReveal: userContext.revealAuthority.emergencyContactPhone,
+        canReveal: ability.can("reveal", "Member", "emergencyContactPhone"),
       },
     };
   }
@@ -168,6 +171,7 @@ export class MemberService {
    */
   async revealFields(
     userContext: UserContext,
+    ability: AppAbility,
     uuid: string,
     fields: string[],
   ): Promise<Record<string, string>> {
@@ -181,8 +185,7 @@ export class MemberService {
     const result: Record<string, string> = {};
 
     for (const field of fields) {
-      // Check reveal authority
-      if (!userContext.revealAuthority[field as SensitiveField]) {
+      if (!ability.can("reveal", "Member", field)) {
         throw createError({
           statusCode: 403,
           message: `無權解鎖欄位: ${field}`,

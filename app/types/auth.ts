@@ -2,7 +2,9 @@
  * Authentication and User Context type definitions
  */
 
+import type { PackRule, RawRuleOf } from '@casl/ability/extra';
 import type { DataScope, PermissionKey, SensitiveField } from './role';
+import type { AppAbility } from '~/utils/casl/ability';
 
 /** Resolved user context after RBAC middleware */
 export interface UserContext {
@@ -12,7 +14,7 @@ export interface UserContext {
   zoneId?: string;
   groupIds: string[];
   functionalGroupIds: string[];
-  managedGroupIds: string[]; // union of groupIds + functionalGroupIds
+  managedGroupIds: string[];
   permissions: Record<PermissionKey, boolean>;
   revealAuthority: Record<SensitiveField, boolean>;
 }
@@ -35,6 +37,7 @@ export interface SwitchUserRequest {
 /** Auth context response */
 export interface AuthContextResponse {
   user: UserContext;
+  rules: PackRule<RawRuleOf<AppAbility>>[];
   mode: 'DEV' | 'PROD';
   availableTestUsers?: MockTestUser[];
 }

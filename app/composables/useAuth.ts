@@ -1,13 +1,15 @@
 /**
  * Auth composable
- * Provides access to auth store with automatic initialization.
+ * Provides access to auth store with automatic initialization and CASL ability.
  */
+import { useAbility } from "@casl/vue";
 import { useAuthStore } from "~/stores/auth.store";
+import type { AppAbility } from "~/utils/casl/ability";
 
 export function useAuth() {
   const store = useAuthStore();
+  const { can } = useAbility<AppAbility>();
 
-  // Auto-initialize on first use
   if (!store.isInitialized && !store.isLoading) {
     store.loadContext();
   }
@@ -20,8 +22,7 @@ export function useAuth() {
     availableTestUsers: computed(() => store.availableTestUsers),
     isLoading: computed(() => store.isLoading),
     isInitialized: computed(() => store.isInitialized),
-    hasPermission: store.hasPermission,
-    canReveal: store.canReveal,
+    can,
     loadContext: store.loadContext,
     switchUser: store.switchUser,
   };

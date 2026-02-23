@@ -14,6 +14,8 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@casl/ability": "^6.8.0",
+    "@casl/vue": "^2.2.6",
     "@pinia/nuxt": "^0.11.3",
     "@primeuix/themes": "^2.0.2",
     "@unocss/reset": "^66.6.0",

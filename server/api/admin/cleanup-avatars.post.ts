@@ -5,12 +5,12 @@
  */
 import { MemberRepository } from '../../repositories/member.repository';
 import { cleanupUnusedAvatars, getAvatarStorageStats } from '../../utils/storage';
-import { requirePermission } from '../../utils/validation';
+import { requireAbility } from '../../utils/validation';
 
 const memberRepo = new MemberRepository();
 
 export default defineEventHandler(async (event) => {
-  requirePermission(event, 'system:config');
+  requireAbility(event, 'manage', 'System');
 
   // Get all active avatar URLs from members
   const allMembers = await memberRepo.findAll();

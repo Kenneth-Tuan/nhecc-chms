@@ -4,9 +4,11 @@
  */
 import type { UserContext, MockTestUser, AuthContextResponse } from '~/types/auth';
 import type { Role } from '~/types/role';
+import { packRules } from '@casl/ability/extra';
 import { MemberRepository } from '../repositories/member.repository';
 import { RoleRepository } from '../repositories/role.repository';
 import { resolveUserContext } from '../utils/rbac/resolver';
+import { buildAbility } from '~/utils/casl/ability';
 import { mockTestUsers, DEFAULT_TEST_USER_ID } from '../mockData';
 
 const memberRepo = new MemberRepository();
@@ -70,8 +72,10 @@ export class AuthService {
    */
   async getAuthContextResponse(userId: string): Promise<AuthContextResponse> {
     const context = await this.resolveContext(userId);
+    const ability = buildAbility(context);
     return {
       user: context,
+      rules: packRules(ability.rules),
       mode: 'DEV',
       availableTestUsers: mockTestUsers,
     };

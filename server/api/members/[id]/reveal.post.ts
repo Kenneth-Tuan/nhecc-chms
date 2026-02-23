@@ -5,13 +5,13 @@
  */
 import { readBody } from 'h3';
 import { MemberService } from '../../../services/member.service';
-import { getUserContext, requirePermission } from '../../../utils/validation';
+import { getUserContext, requireAbility } from '../../../utils/validation';
 
 const memberService = new MemberService();
 
 export default defineEventHandler(async (event) => {
   const userContext = getUserContext(event);
-  requirePermission(event, 'member:view');
+  requireAbility(event, 'view', 'Member');
 
   const id = getRouterParam(event, 'id');
   if (!id) {
@@ -30,6 +30,7 @@ export default defineEventHandler(async (event) => {
 
   const result = await memberService.revealFields(
     userContext,
+    event.context.ability!,
     id,
     fields,
   );

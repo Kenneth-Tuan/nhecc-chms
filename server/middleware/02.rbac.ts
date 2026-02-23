@@ -1,8 +1,9 @@
 /**
  * RBAC Middleware
- * Resolves user permissions and injects UserContext into event.
+ * Resolves user permissions and injects UserContext + CASL Ability into event.
  */
 import { AuthService } from '../services/auth.service';
+import { buildAbility } from '~/utils/casl/ability';
 
 const authService = new AuthService();
 
@@ -25,6 +26,7 @@ export default defineEventHandler(async (event) => {
           event.context.userId,
         );
         event.context.userContext = context;
+        event.context.ability = buildAbility(context);
       } catch {
         // Ignore errors for auth context
       }
@@ -40,6 +42,7 @@ export default defineEventHandler(async (event) => {
   try {
     const userContext = await authService.resolveContext(userId);
     event.context.userContext = userContext;
+    event.context.ability = buildAbility(userContext);
   } catch (error) {
     console.error('RBAC resolution failed:', error);
     // Don't block the request - let individual endpoints handle auth

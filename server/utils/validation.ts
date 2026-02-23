@@ -42,24 +42,25 @@ function formatZodErrors(
 }
 
 /**
- * Require a specific permission in the user context.
- * Throws 403 if user lacks the permission.
+ * Require a CASL ability check.
+ * Throws 401 if not authenticated, 403 if ability check fails.
  */
-export function requirePermission(
+export function requireAbility(
   event: H3Event,
-  permission: string,
+  action: import('~/utils/casl/ability').AppAction,
+  subject: import('~/utils/casl/ability').AppSubject,
 ): void {
-  const userContext = event.context.userContext;
-  if (!userContext) {
+  const ability = event.context.ability;
+  if (!ability) {
     throw createError({
       statusCode: 401,
       message: '未認證',
     });
   }
-  if (!userContext.permissions[permission]) {
+  if (!ability.can(action, subject)) {
     throw createError({
       statusCode: 403,
-      message: `權限不足：缺少 ${permission} 權限`,
+      message: `權限不足：需要 ${action} ${subject}`,
     });
   }
 }

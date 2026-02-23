@@ -3,12 +3,12 @@
  * Deletes a role.
  */
 import { RoleService } from '../../services/role.service';
-import { requirePermission } from '../../utils/validation';
+import { requireAbility } from '../../utils/validation';
 
 const roleService = new RoleService();
 
 export default defineEventHandler(async (event) => {
-  requirePermission(event, 'system:config');
+  requireAbility(event, 'manage', 'System');
 
   const id = getRouterParam(event, 'id');
   if (!id) {

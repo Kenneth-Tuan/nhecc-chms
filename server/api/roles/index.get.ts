@@ -5,12 +5,12 @@
 import { getQuery } from 'h3';
 import { roleFiltersSchema } from '~/schemas/role.schema';
 import { RoleService } from '../../services/role.service';
-import { requirePermission, validateWithSchema } from '../../utils/validation';
+import { requireAbility, validateWithSchema } from '../../utils/validation';
 
 const roleService = new RoleService();
 
 export default defineEventHandler(async (event) => {
-  requirePermission(event, 'system:config');
+  requireAbility(event, 'manage', 'System');
 
   const query = getQuery(event);
   const filters = validateWithSchema(roleFiltersSchema, query);

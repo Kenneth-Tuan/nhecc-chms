@@ -93,7 +93,7 @@ onMounted(() => {
         </p>
       </div>
       <Button
-        v-if="auth.hasPermission('member:create')"
+        v-if="auth.can('create', 'Member')"
         label="新增會友"
         icon="pi pi-plus"
         @click="router.push('/dashboard/members/create')"
