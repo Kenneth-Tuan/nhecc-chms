@@ -1,0 +1,10 @@
+env:
+  - variable: HOST
+    value: "0.0.0.0"
+
+- variable: NUXT_LINE_CHANNEL_ID
+    secret: 1657169336
+- variable: NUXT_LINE_CHANNEL_SECRET
+    secret: 643aad59418658fea3e187fa92690b5a
+- variable: NUXT_LINE_LIFF_ID
+    secret: 1657169336-P8kQq634

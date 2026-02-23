@@ -1,3 +1,0 @@
-env:
-  - variable: HOST
-    value: "0.0.0.0"
