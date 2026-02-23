@@ -7,7 +7,7 @@ runConfig:
   # cpu: 1
   # memoryMiB: 512
 
-  # runCommand: node .output/server/index.mjs
+  runCommand: yarn start
 
 # Environment variables and secrets.
 env:
