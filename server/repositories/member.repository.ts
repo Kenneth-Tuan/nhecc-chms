@@ -115,10 +115,10 @@ export class MemberRepository {
   /**
    * Create a new member.
    */
-  async create(payload: CreateMemberPayload): Promise<Member> {
+  async create(payload: CreateMemberPayload & { uuid?: string }): Promise<Member> {
     const now = new Date().toISOString();
     const newMember: Member = {
-      uuid: generateId(),
+      uuid: payload.uuid || generateId(),
       createdAt: now,
       updatedAt: now,
       createdBy: "system",

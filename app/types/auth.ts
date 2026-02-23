@@ -2,9 +2,10 @@
  * Authentication and User Context type definitions
  */
 
-import type { PackRule, RawRuleOf } from '@casl/ability/extra';
-import type { DataScope, PermissionKey, SensitiveField } from './role';
-import type { AppAbility } from '~/utils/casl/ability';
+import type { RawRuleOf } from "@casl/ability";
+import type { PackRule } from "@casl/ability/extra";
+import type { DataScope, PermissionKey, SensitiveField } from "./role";
+import type { AppAbility } from "~/utils/casl/ability";
 
 /** Resolved user context after RBAC middleware */
 export interface UserContext {
@@ -19,7 +20,7 @@ export interface UserContext {
   revealAuthority: Record<SensitiveField, boolean>;
 }
 
-/** Mock test user definition (DEV mode) */
+/** Mock test user definition (kept for mock data compatibility) */
 export interface MockTestUser {
   userId: string;
   fullName: string;
@@ -29,15 +30,8 @@ export interface MockTestUser {
   functionalGroupIds: string[];
 }
 
-/** Auth switch user request */
-export interface SwitchUserRequest {
-  userId: string;
-}
-
 /** Auth context response */
 export interface AuthContextResponse {
   user: UserContext;
   rules: PackRule<RawRuleOf<AppAbility>>[];
-  mode: 'DEV' | 'PROD';
-  availableTestUsers?: MockTestUser[];
 }

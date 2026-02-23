@@ -1,33 +1,36 @@
 /**
  * Auth Middleware
- * DEV: Reads mock user from cookie
- * PROD: Validates Firebase session token (future)
+ * Validates Firebase session cookie and sets userId on event context.
  */
-import { getCookie } from 'h3';
-import { AuthService } from '../services/auth.service';
-
-const authService = new AuthService();
+import { getAdminAuth } from "../utils/firebase-admin";
 
 export default defineEventHandler(async (event) => {
-  // Skip auth for non-API routes
   const url = getRequestURL(event);
-  if (!url.pathname.startsWith('/api/')) {
+  if (!url.pathname.startsWith("/api/")) {
     return;
   }
 
-  // Skip auth for the switch-user endpoint itself
-  if (url.pathname === '/api/auth/switch-user') {
+  // Skip auth for endpoints that don't require session
+  const publicPaths = [
+    "/api/auth/session",
+    "/api/auth/logout",
+    "/api/auth/line-token",
+    "/api/auth/register",
+  ];
+  if (publicPaths.includes(url.pathname)) {
     return;
   }
 
-  // DEV mode: read from cookie
-  const mockUserId =
-    getCookie(event, 'mock-user-id') || authService.getDefaultUserId();
+  const sessionCookie = getCookie(event, "session");
+  if (!sessionCookie) {
+    return;
+  }
 
   try {
-    event.context.userId = mockUserId;
+    const auth = getAdminAuth();
+    const decoded = await auth.verifySessionCookie(sessionCookie, true);
+    event.context.userId = decoded.uid;
   } catch {
-    // If user not found, use default
-    event.context.userId = authService.getDefaultUserId();
+    deleteCookie(event, "session");
   }
 });

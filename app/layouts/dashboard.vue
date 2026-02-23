@@ -1,10 +1,11 @@
 <script setup lang="ts">
 /**
  * Dashboard Layout
- * Admin layout with sidebar navigation and dev toolbar.
+ * Admin layout with sidebar navigation.
  */
 const route = useRoute();
 const auth = useAuth();
+const firebaseAuth = useFirebaseAuth();
 
 const menuItems = [
   { label: "首頁", icon: "pi pi-home", to: "/dashboard" },
@@ -20,25 +21,13 @@ const isActive = (path: string): boolean => {
   return route.path.startsWith(path);
 };
 
-// Dev toolbar
-const showDevToolbar = ref(true);
-const selectedUserId = ref("");
-
 onMounted(async () => {
   await auth.loadContext();
-  selectedUserId.value = auth.userContext.value?.userId || "";
 });
 
-async function onSwitchUser(): Promise<void> {
-  if (!selectedUserId.value) return;
-  try {
-    await auth.switchUser(selectedUserId.value);
-    // Reload the current page to reflect new permissions
-    await navigateTo(route.fullPath, { replace: true });
-    window.location.reload();
-  } catch {
-    console.error("Switch user failed");
-  }
+async function handleLogout(): Promise<void> {
+  await firebaseAuth.logout();
+  navigateTo("/login");
 }
 </script>
 
@@ -115,6 +104,14 @@ async function onSwitchUser(): Promise<void> {
               {{ auth.currentScopeLabel.value }}
             </p>
           </div>
+          <Button
+            icon="pi pi-sign-out"
+            text
+            rounded
+            size="small"
+            severity="secondary"
+            @click="handleLogout"
+          />
           <ColorModeButton />
         </div>
       </div>
@@ -122,42 +119,6 @@ async function onSwitchUser(): Promise<void> {
 
     <!-- Main Content -->
     <main class="flex-1 md:ml-64 min-h-screen">
-      <!-- Dev Toolbar -->
-      <div
-        v-if="showDevToolbar"
-        class="sticky top-0 z-40 flex items-center gap-3 px-4 py-2 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800 text-sm"
-      >
-        <Tag value="DEV" severity="warn" class="!text-xs" />
-        <span class="text-amber-800 dark:text-amber-200 font-medium"
-          >測試用戶：</span
-        >
-        <Select
-          v-model="selectedUserId"
-          :options="auth.availableTestUsers.value"
-          optionLabel="fullName"
-          optionValue="userId"
-          placeholder="選擇測試用戶"
-          class="!text-sm w-64"
-          size="small"
-        />
-        <Button
-          label="切換"
-          size="small"
-          severity="warn"
-          :loading="auth.isLoading.value"
-          @click="onSwitchUser"
-        />
-        <div class="flex-1" />
-        <Button
-          icon="pi pi-times"
-          text
-          rounded
-          size="small"
-          severity="secondary"
-          @click="showDevToolbar = false"
-        />
-      </div>
-
       <!-- Page Content -->
       <div class="p-6">
         <slot />

@@ -1,0 +1,174 @@
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  signInWithCustomToken,
+  GoogleAuthProvider,
+  signOut,
+  type Auth,
+} from "firebase/auth";
+import type { LineProfile } from "./useLiff";
+
+import { useAuthStore } from "~/stores/auth.store";
+
+export function useFirebaseAuth() {
+  const { $firebaseAuth } = useNuxtApp();
+  const auth = $firebaseAuth as Auth;
+  const authStore = useAuthStore();
+
+  const loading = ref(false);
+  const error = ref<string | null>(null);
+  const pendingLineProfile = ref<LineProfile | null>(null);
+
+  async function createSessionCookie(idToken: string): Promise<void> {
+    await $fetch("/api/auth/session", {
+      method: "POST",
+      body: { idToken },
+    });
+  }
+
+  async function loginWithEmail(
+    email: string,
+    password: string
+  ): Promise<{ isNewUser: boolean }> {
+    loading.value = true;
+    error.value = null;
+    try {
+      const credential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const idToken = await credential.user.getIdToken();
+      await createSessionCookie(idToken);
+      await authStore.loadContext();
+      return { isNewUser: false };
+    } catch (e: any) {
+      error.value = e.code || e.message;
+      throw e;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function registerWithEmail(
+    email: string,
+    password: string
+  ): Promise<string> {
+    loading.value = true;
+    error.value = null;
+    try {
+      const credential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const idToken = await credential.user.getIdToken();
+      await createSessionCookie(idToken);
+      return credential.user.uid;
+    } catch (e: any) {
+      error.value = e.code || e.message;
+      throw e;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function loginWithGoogle(): Promise<{
+    uid: string;
+    isNewUser: boolean;
+    displayName: string | null;
+    email: string | null;
+    photoURL: string | null;
+  }> {
+    loading.value = true;
+    error.value = null;
+    try {
+      const provider = new GoogleAuthProvider();
+      const credential = await signInWithPopup(auth, provider);
+      const idToken = await credential.user.getIdToken();
+      await createSessionCookie(idToken);
+
+      const isNew =
+        credential.user.metadata.creationTime ===
+        credential.user.metadata.lastSignInTime;
+
+      if (!isNew) {
+        await authStore.loadContext();
+      }
+
+      return {
+        uid: credential.user.uid,
+        isNewUser: isNew,
+        displayName: credential.user.displayName,
+        email: credential.user.email,
+        photoURL: credential.user.photoURL,
+      };
+    } catch (e: any) {
+      error.value = e.code || e.message;
+      throw e;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function loginWithLine(): Promise<{
+    uid: string;
+    isNewUser: boolean;
+    lineProfile: LineProfile | null;
+  }> {
+    loading.value = true;
+    error.value = null;
+    try {
+      const { loginWithLiff } = useLiff();
+      const result = await loginWithLiff();
+
+      if (!result) {
+        return { uid: "", isNewUser: false, lineProfile: null };
+      }
+
+      const credential = await signInWithCustomToken(auth, result.customToken);
+      const idToken = await credential.user.getIdToken();
+      await createSessionCookie(idToken);
+
+      if (result.isNewUser) {
+        pendingLineProfile.value = result.lineProfile;
+      } else {
+        await authStore.loadContext();
+      }
+
+      return {
+        uid: credential.user.uid,
+        isNewUser: result.isNewUser,
+        lineProfile: result.lineProfile,
+      };
+    } catch (e: any) {
+      error.value = e.code || e.message;
+      throw e;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function logout(): Promise<void> {
+    loading.value = true;
+    try {
+      await signOut(auth);
+      await $fetch("/api/auth/logout", { method: "POST" });
+      authStore.$reset();
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  return {
+    loginWithEmail,
+    registerWithEmail,
+    loginWithGoogle,
+    loginWithLine,
+    logout,
+    loading: readonly(loading),
+    error: readonly(error),
+    pendingLineProfile,
+  };
+}

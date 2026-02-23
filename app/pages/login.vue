@@ -1,8 +1,14 @@
 <script setup lang="ts">
 /**
  * 登入頁面
- * 支援 320px 最小寬度，採用 PrimeVue 與 UnoCSS 實作。
+ * 支援 Email/Password、Google、LINE 登入。
  */
+import { useToast } from "primevue/usetoast";
+
+import { useFirebaseAuth } from "~/composables/useFirebaseAuth";
+
+const firebaseAuth = useFirebaseAuth();
+const toast = useToast();
 
 const formData = ref({
   account: "",
@@ -11,19 +17,84 @@ const formData = ref({
 });
 
 const loading = ref(false);
+const socialLoading = ref<string | null>(null);
 
 const handleLogin = async () => {
+  if (!formData.value.account || !formData.value.password) return;
+
   loading.value = true;
-  // 模擬登入延遲
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  console.log("Login attempt", formData.value);
-  loading.value = false;
-  // 導向首頁
-  navigateTo("/");
+  try {
+    await firebaseAuth.loginWithEmail(
+      formData.value.account,
+      formData.value.password
+    );
+    navigateTo("/dashboard");
+  } catch (e: any) {
+    const msg =
+      e.code === "auth/invalid-credential"
+        ? "帳號或密碼錯誤"
+        : e.code === "auth/user-not-found"
+        ? "找不到此帳號"
+        : e.code === "auth/wrong-password"
+        ? "密碼錯誤"
+        : "登入失敗，請稍後再試";
+    toast.add({
+      severity: "error",
+      summary: "登入失敗",
+      detail: msg,
+      life: 4000,
+    });
+  } finally {
+    loading.value = false;
+  }
 };
 
-const handleSocialLogin = (provider: string) => {
-  console.log(`Social login with ${provider}`);
+const handleSocialLogin = async (provider: "google" | "line") => {
+  socialLoading.value = provider;
+  try {
+    if (provider === "google") {
+      const result = await firebaseAuth.loginWithGoogle();
+      if (result.isNewUser) {
+        navigateTo({
+          path: "/register",
+          query: {
+            uid: result.uid,
+            fullName: result.displayName || "",
+            email: result.email || "",
+            avatar: result.photoURL || "",
+            social: "google",
+          },
+        });
+      } else {
+        navigateTo("/dashboard");
+      }
+    } else {
+      const result = await firebaseAuth.loginWithLine();
+      if (!result.uid) return; // LIFF redirect happened
+      if (result.isNewUser) {
+        navigateTo({
+          path: "/register",
+          query: {
+            uid: result.uid,
+            fullName: result.lineProfile?.name || "",
+            avatar: result.lineProfile?.picture || "",
+            social: "line",
+          },
+        });
+      } else {
+        navigateTo("/dashboard");
+      }
+    }
+  } catch (e: any) {
+    toast.add({
+      severity: "error",
+      summary: "登入失敗",
+      detail: e.message || "社交登入失敗",
+      life: 4000,
+    });
+  } finally {
+    socialLoading.value = null;
+  }
 };
 
 definePageMeta({

@@ -8,15 +8,45 @@ import {
 } from "~/utils/user/formDef";
 import SmartField from "@/components/form/SmartField.vue";
 import { pastoralZones } from "~/data/pastoral-zones.data";
+import { useToast } from "primevue/usetoast";
+import { useAuthStore } from "~/stores/auth.store";
+import { useFirebaseAuth } from "~/composables/useFirebaseAuth";
+
+const route = useRoute();
+const firebaseAuth = useFirebaseAuth();
+const authStore = useAuthStore();
+const toast = useToast();
 
 const activeStep = ref(1);
 const loading = ref(false);
 
+// Social login state from query params (Google/LINE redirect)
+const socialUid = ref(route.query.uid as string | undefined);
+const isSocialRegister = computed(() => !!socialUid.value);
+
 const formData = ref<Partial<RegisterFormValues>>({
-  // Initial Values
+  fullName: (route.query.fullName as string) || "",
+  email: (route.query.email as string) || "",
   gender: "MALE",
   isBaptized: false,
   previousCourses: [],
+});
+
+// Pre-fill avatar from social login (LINE or Google)
+const socialAvatar = ref((route.query.avatar as string) || "");
+onMounted(() => {
+  // Also check pendingLineProfile from composable state
+  if (!socialAvatar.value && firebaseAuth.pendingLineProfile.value?.picture) {
+    socialAvatar.value = firebaseAuth.pendingLineProfile.value.picture;
+  }
+  if (socialAvatar.value) {
+    formData.value.avatar = socialAvatar.value;
+  }
+
+  // Social login: skip step 1, go directly to profile completion
+  if (isSocialRegister.value) {
+    activeStep.value = 2;
+  }
 });
 
 // Dynamic Options for Step 2
@@ -45,33 +75,124 @@ const triggerFileUpload = () => {
 const onStep1Submit = async (e: any) => {
   if (!e.valid) return;
 
-  // Merge Step 1 data
   formData.value = { ...formData.value, ...e.values };
 
   loading.value = true;
-  // Simulate API check
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  loading.value = false;
+  try {
+    const uid = await firebaseAuth.registerWithEmail(
+      formData.value.email!,
+      (e.values as any).password
+    );
 
-  activeStep.value = 2;
+    await $fetch("/api/auth/register", {
+      method: "POST",
+      body: {
+        uid,
+        fullName: formData.value.fullName,
+        phone: formData.value.phone,
+        email: formData.value.email,
+        avatar: formData.value.avatar,
+      },
+    });
+
+    socialUid.value = uid;
+    activeStep.value = 2;
+  } catch (err: any) {
+    const msg =
+      err.code === "auth/email-already-in-use"
+        ? "此 Email 已被註冊"
+        : err.message || "註冊失敗";
+    toast.add({
+      severity: "error",
+      summary: "註冊失敗",
+      detail: msg,
+      life: 4000,
+    });
+  } finally {
+    loading.value = false;
+  }
 };
 
 const onStep2Submit = async (e: any) => {
   if (!e.valid) return;
 
-  // Merge Step 2 data
   formData.value = { ...formData.value, ...e.values };
 
   loading.value = true;
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  console.log("Registration Complete:", formData.value);
-  loading.value = false;
+  try {
+    const uid = socialUid.value;
+    if (!uid) throw new Error("Missing user ID");
 
-  navigateTo("/");
+    // If this is a social register, create the Member record first
+    if (isSocialRegister.value && route.query.social) {
+      await $fetch("/api/auth/register", {
+        method: "POST",
+        body: {
+          uid,
+          fullName: formData.value.fullName || route.query.fullName || "",
+          phone: formData.value.phone || "",
+          email: formData.value.email || route.query.email || "",
+          avatar: formData.value.avatar,
+        },
+      });
+    }
+
+    // Update member profile with step 2 data
+    await $fetch(`/api/members/${uid}`, {
+      method: "PATCH",
+      body: {
+        gender: formData.value.gender === "MALE" ? "Male" : "Female",
+        dob: formData.value.birthDate
+          ? new Date(formData.value.birthDate).toISOString().split("T")[0]
+          : "",
+        lineId: formData.value.lineId,
+        address: formData.value.address,
+        emergencyContactName: formData.value.emergencyContactName,
+        emergencyContactPhone: formData.value.emergencyContactPhone,
+        baptismStatus: formData.value.isBaptized,
+        baptismDate: formData.value.baptismDate
+          ? new Date(formData.value.baptismDate).toISOString().split("T")[0]
+          : undefined,
+        zoneId: formData.value.pastoralZone,
+        groupId: formData.value.homeGroup,
+        pastCourses: formData.value.previousCourses,
+        avatar: formData.value.avatar,
+      },
+    });
+
+    await authStore.loadContext();
+    navigateTo("/dashboard");
+  } catch (err: any) {
+    toast.add({
+      severity: "error",
+      summary: "更新失敗",
+      detail: err.message || "無法更新個人資料",
+      life: 4000,
+    });
+  } finally {
+    loading.value = false;
+  }
 };
 
-const handleSkip = () => {
-  navigateTo("/");
+const handleSkip = async () => {
+  if (socialUid.value && isSocialRegister.value && route.query.social) {
+    try {
+      await $fetch("/api/auth/register", {
+        method: "POST",
+        body: {
+          uid: socialUid.value,
+          fullName: formData.value.fullName || route.query.fullName || "",
+          phone: "",
+          email: formData.value.email || route.query.email || "",
+          avatar: formData.value.avatar,
+        },
+      });
+    } catch {
+      // Member might already exist, ignore
+    }
+  }
+  await authStore.loadContext();
+  navigateTo("/dashboard");
 };
 
 definePageMeta({

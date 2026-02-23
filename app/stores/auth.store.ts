@@ -5,16 +5,11 @@
 import { defineStore } from "pinia";
 import { useAbility } from "@casl/vue";
 import { unpackRules } from "@casl/ability/extra";
-import type {
-  UserContext,
-  MockTestUser,
-  AuthContextResponse,
-} from "~/types/auth";
+import type { UserContext, AuthContextResponse } from "~/types/auth";
 import type { AppAbility } from "~/utils/casl/ability";
 
 export const useAuthStore = defineStore("auth", () => {
   const userContext = ref<UserContext | null>(null);
-  const availableTestUsers = ref<MockTestUser[]>([]);
   const isLoading = ref(false);
   const isInitialized = ref(false);
 
@@ -42,7 +37,6 @@ export const useAuthStore = defineStore("auth", () => {
     try {
       const response = await $fetch<AuthContextResponse>("/api/auth/context");
       userContext.value = response.user;
-      availableTestUsers.value = response.availableTestUsers || [];
       ability.update(unpackRules(response.rules));
       isInitialized.value = true;
     } catch (error) {
@@ -52,36 +46,20 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
-  async function switchUser(userId: string): Promise<void> {
-    isLoading.value = true;
-    try {
-      const response = await $fetch<AuthContextResponse & { success: boolean }>(
-        "/api/auth/switch-user",
-        {
-          method: "POST",
-          body: { userId },
-        },
-      );
-      userContext.value = response.user;
-      availableTestUsers.value = response.availableTestUsers || [];
-      ability.update(unpackRules(response.rules));
-    } catch (error) {
-      console.error("Failed to switch user:", error);
-      throw error;
-    } finally {
-      isLoading.value = false;
-    }
+  function $reset(): void {
+    userContext.value = null;
+    isInitialized.value = false;
+    isLoading.value = false;
   }
 
   return {
     userContext,
-    availableTestUsers,
     isLoading,
     isInitialized,
     currentUserName,
     currentScope,
     currentScopeLabel,
     loadContext,
-    switchUser,
+    $reset,
   };
 });

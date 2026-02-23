@@ -19,11 +19,9 @@ export function useAuth() {
     currentUserName: computed(() => store.currentUserName),
     currentScope: computed(() => store.currentScope),
     currentScopeLabel: computed(() => store.currentScopeLabel),
-    availableTestUsers: computed(() => store.availableTestUsers),
     isLoading: computed(() => store.isLoading),
     isInitialized: computed(() => store.isInitialized),
     can,
     loadContext: store.loadContext,
-    switchUser: store.switchUser,
   };
 }

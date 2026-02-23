@@ -90,17 +90,24 @@ const AppPreset = definePreset(Aura, {
 export default defineNuxtConfig({
   devServer: {
     port: 7000,
-    https: false,
+    https: true,
   },
 
   runtimeConfig: {
-    // Private keys are only available on the server
-    lineChannelId: "",
+    lineChannelId: process.env.NUXT_LINE_CHANNEL_ID,
+    lineChannelSecret: process.env.NUXT_LINE_CHANNEL_SECRET,
+    firebaseAdminCredential: process.env.NUXT_FIREBASE_ADMIN_CREDENTIAL,
 
     public: {
-      liffId: "",
+      liffId: process.env.NUXT_LINE_LIFF_ID,
       VERSION: "0.1.0",
-      appMode: "DEV", // DEV or PROD
+      firebaseApiKey: process.env.NUXT_PUBLIC_FIREBASE_API_KEY,
+      firebaseAuthDomain: process.env.NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+      firebaseProjectId: process.env.NUXT_PUBLIC_FIREBASE_PROJECT_ID,
+      firebaseStorageBucket: process.env.NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+      firebaseMessagingSenderId:
+        process.env.NUXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+      firebaseAppId: process.env.NUXT_PUBLIC_FIREBASE_APP_ID,
     },
   },
 
