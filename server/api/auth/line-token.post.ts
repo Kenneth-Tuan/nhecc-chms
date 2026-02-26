@@ -1,9 +1,9 @@
 /**
  * POST /api/auth/line-token
  *
- * Verifies a LINE LIFF ID token via LINE's official Verify ID token endpoint
- * (https://developers.line.biz/en/reference/line-login/#verify-id-token),
- * then creates or retrieves a Firebase user and returns a custom token.
+ * 透過 LINE 官方的 Verify ID token 端點驗證 LINE LIFF ID token
+ * (https://developers.line.biz/en/reference/line-login/#verify-id-token)，
+ * 隨後建立或獲取 Firebase 用戶並回傳自定義 Token (Custom token)。
  */
 import { getAdminAuth } from "../../utils/firebase-admin";
 import { MemberRepository } from "../../repositories/member.repository";
@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Step 1: Verify ID token via LINE Login v2.1 API
+  // 步驟 1：透過 LINE Login v2.1 API 驗證 ID token
   const verifyRes = await $fetch<LineVerifyResponse>(
     "https://api.line.me/oauth2/v2.1/verify",
     {
@@ -56,16 +56,15 @@ export default defineEventHandler(async (event) => {
   }
 
   const auth = getAdminAuth();
-  // Firebase UID must match [a-zA-Z0-9-_.], colons are not allowed
+  // Firebase UID 必須符合 [a-zA-Z0-9-_.], 不允許冒號
   const firebaseUid = `line_${verifyRes.sub}`;
 
-  // Check Member record to determine if this is a new user for our app.
-  // Firebase user is created automatically on the client when signInWithCustomToken
-  // is called — no need to call admin.createUser() here.
+  // 檢查會友記錄以判斷是否為應用程式的新用戶。
+  // Firebase 用戶會在用戶端呼叫 signInWithCustomToken 時自動建立，在此不需要呼叫 admin.createUser()。
   const existingMember = await memberRepo.findById(firebaseUid);
   const isNewUser = !existingMember;
 
-  // Create Firebase custom token
+  // 建立 Firebase 自定義 Token (Custom token)
   const customToken = await auth.createCustomToken(firebaseUid);
 
   return {

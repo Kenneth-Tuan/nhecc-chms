@@ -1,8 +1,8 @@
 /**
- * Reveal Sensitive Data Composable
- * Handles the reveal/mask toggle for sensitive fields.
+ * 解鎖敏感資料 Composable
+ * 處理敏感欄位的顯隱切換邏輯。
  */
-import type { RevealResponse } from '~/types/api';
+import type { RevealResponse } from "~/types/api";
 
 export function useRevealSensitiveData() {
   const revealedFields = ref<Record<string, Record<string, string>>>({});
@@ -10,8 +10,8 @@ export function useRevealSensitiveData() {
   const revealTimers = ref<Record<string, ReturnType<typeof setTimeout>>>({});
 
   /**
-   * Reveal specific fields for a member.
-   * Auto-masks after 30 seconds.
+   * 解鎖特定會友的指定欄位。
+   * 30 秒後會自動重新遮蔽。
    */
   async function revealFields(
     memberId: string,
@@ -23,12 +23,12 @@ export function useRevealSensitiveData() {
       const response = await $fetch<{ success: boolean; data: RevealResponse }>(
         `/api/members/${memberId}/reveal`,
         {
-          method: 'POST',
+          method: "POST",
           body: { fields },
         },
       );
 
-      // Store revealed data
+      // 儲存已解鎖的資料
       if (!revealedFields.value[memberId]) {
         revealedFields.value[memberId] = {};
       }
@@ -37,8 +37,8 @@ export function useRevealSensitiveData() {
         revealedFields.value[memberId][field] = value;
       }
 
-      // Auto-mask after 30 seconds
-      const timerKey = `${memberId}-${fields.join(',')}`;
+      // 30 秒後自動重新遮蔽
+      const timerKey = `${memberId}-${fields.join(",")}`;
       if (revealTimers.value[timerKey]) {
         clearTimeout(revealTimers.value[timerKey]);
       }
@@ -49,7 +49,7 @@ export function useRevealSensitiveData() {
 
       return response.data;
     } catch (err) {
-      console.error('Failed to reveal fields:', err);
+      console.error("Failed to reveal fields:", err);
       throw err;
     } finally {
       isRevealing.value = false;
@@ -57,21 +57,21 @@ export function useRevealSensitiveData() {
   }
 
   /**
-   * Reveal all sensitive fields for a member.
+   * 解賞某位會友的所有敏感欄位。
    */
   async function revealAll(memberId: string): Promise<void> {
     const allFields = [
-      'mobile',
-      'email',
-      'lineId',
-      'address',
-      'emergencyContactPhone',
+      "mobile",
+      "email",
+      "lineId",
+      "address",
+      "emergencyContactPhone",
     ];
     await revealFields(memberId, allFields);
   }
 
   /**
-   * Mask specific fields (remove from revealed cache).
+   * 遮蔽指定欄位（從緩存中移除）。
    */
   function maskFields(memberId: string, fields: string[]): void {
     if (!revealedFields.value[memberId]) return;
@@ -86,14 +86,14 @@ export function useRevealSensitiveData() {
   }
 
   /**
-   * Check if a field is currently revealed.
+   * 檢查特定欄位當前是否已解鎖。
    */
   function isFieldRevealed(memberId: string, field: string): boolean {
     return !!revealedFields.value[memberId]?.[field];
   }
 
   /**
-   * Get the revealed value for a field.
+   * 獲取欄位的解鎖數值。
    */
   function getRevealedValue(
     memberId: string,
@@ -103,7 +103,7 @@ export function useRevealSensitiveData() {
   }
 
   /**
-   * Clean up all timers.
+   * 清理所有計時器。
    */
   function cleanup(): void {
     for (const timer of Object.values(revealTimers.value)) {

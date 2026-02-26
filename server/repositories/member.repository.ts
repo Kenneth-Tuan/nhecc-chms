@@ -1,6 +1,6 @@
 /**
- * Member Repository
- * Data source: Real Firestore implementation.
+ * 會友儲存庫 (Member Repository)
+ * 資料來源：實體 Firestore 實作。
  */
 import type {
   Member,
@@ -23,38 +23,36 @@ export class MemberRepository {
   }
 
   /**
-   * Find all members with optional filters.
+   * 根據可選過濾條件查找所有會友。
    */
   async findAll(filters?: MemberFilters): Promise<Member[]> {
     let query: any = this.collection;
 
     if (filters) {
-      // Status filter
+      // 狀態過濾
       if (filters.status && filters.status !== "all") {
         query = query.where("status", "==", filters.status);
       }
 
-      // Baptism status filter
+      // 受洗狀態過濾
       if (filters.baptismStatus && filters.baptismStatus !== "all") {
         const isBaptized = filters.baptismStatus === "baptized";
         query = query.where("baptismStatus", "==", isBaptized);
       }
 
-      // Zone filter
+      // 牧區過濾
       if (filters.zoneId) {
         query = query.where("zoneId", "==", filters.zoneId);
       }
 
-      // Group filter
+      // 小組過濾
       if (filters.groupId) {
         query = query.where("groupId", "==", filters.groupId);
       }
 
-      // Unassigned filter (no group)
-      // Note: Firestore doesn't support 'not in' or 'not equal to null' efficiently without specific indexing or structures
-      // For simple unassigned, we might need to fetch and filter in memory if it's complex,
-      // but if we use a specific value for unassigned it's easier.
-      // For now, let's keep it simple.
+      // 未分配過濾（無小組）
+      // 註：Firestore 不支持高效的 'not in' 或 'not equal to null'，除非有特定的索引或結構。
+      // 目前為了簡單起見，我們先在記憶體中過濾。
     }
 
     const snapshot = await query.get();
@@ -68,7 +66,7 @@ export class MemberRepository {
         results = results.filter((m) => !m.groupId);
       }
 
-      // Search filter (Firestore doesn't do partial text search well, filtering in-memory for now or until we use Algolia)
+      // 搜尋過濾（Firestore 對模糊搜尋支持較弱，暫時在記憶體中處理，直到改用 Algolia 等方案）
       if (filters.search) {
         const searchTerm = filters.search.toLowerCase();
         const searchField = filters.searchField || "fullName";
@@ -87,7 +85,7 @@ export class MemberRepository {
   }
 
   /**
-   * Find members by zone ID.
+   * 根據牧區 ID 查找會友。
    */
   async findByZoneId(zoneId: string): Promise<Member[]> {
     const snapshot = await this.collection.where("zoneId", "==", zoneId).get();
@@ -98,13 +96,13 @@ export class MemberRepository {
   }
 
   /**
-   * Find members by group IDs.
+   * 根據小組 ID 清單查找會友。
    */
   async findByGroupIds(groupIds: string[]): Promise<Member[]> {
     if (groupIds.length === 0) return [];
 
-    // Firestore where 'in' limited to 10/30 elements depending on version, usually 10 for 'in'
-    // Split into chunks if necessary, but typically groups are few per query
+    // Firestore 的 'in' 查詢限制為 30 個元素（此版本通常為 10 個）
+    // 如有必要需分批查詢，但在一般情況下，一次查詢中的小組數量不多。
     const snapshot = await this.collection
       .where("groupId", "in", groupIds)
       .get();
@@ -115,7 +113,7 @@ export class MemberRepository {
   }
 
   /**
-   * Find a single member by UUID.
+   * 根據 UUID 查找單一會友。
    */
   async findById(uuid: string): Promise<Member | undefined> {
     const doc = await this.collection.doc(uuid).get();
@@ -124,7 +122,7 @@ export class MemberRepository {
   }
 
   /**
-   * Check if a mobile number already exists (excluding given uuid).
+   * 檢查手機號碼是否已存在（排除指定的 UUID）。
    */
   async isMobileExists(mobile: string, excludeUuid?: string): Promise<boolean> {
     const query = this.collection.where("mobile", "==", mobile);
@@ -137,7 +135,7 @@ export class MemberRepository {
   }
 
   /**
-   * Check if an email already exists (excluding given uuid).
+   * 檢查電子信箱是否已存在（排除指定的 UUID）。
    */
   async isEmailExists(email: string, excludeUuid?: string): Promise<boolean> {
     const query = this.collection.where("email", "==", email);
@@ -150,7 +148,7 @@ export class MemberRepository {
   }
 
   /**
-   * Create a new member.
+   * 建立新會友。
    */
   async create(
     payload: CreateMemberPayload & { uuid?: string },
@@ -194,7 +192,7 @@ export class MemberRepository {
   }
 
   /**
-   * Update an existing member.
+   * 更新現有會友資料。
    */
   async update(
     uuid: string,
@@ -216,7 +214,7 @@ export class MemberRepository {
   }
 
   /**
-   * Soft delete a member (set status to Inactive) with optional deletion metadata.
+   * 軟刪除會友（將狀態設為 Inactive），可選填刪除中繼資料。
    */
   async softDelete(
     uuid: string,
@@ -239,11 +237,11 @@ export class MemberRepository {
   }
 
   /**
-   * Get count of members with a specific role.
+   * 獲取具有特定角色的會友人數。
    */
   async countByRoleId(roleId: string): Promise<number> {
-    // Note: This can be expensive if there are many members.
-    // For now fine, but typically you'd use a counter or aggregation.
+    // 註：如果會友人數眾多，此操作可能較耗能。
+    // 目前尚可，但通常應使用計數器或聚合方式處理。
     const snapshot = await this.collection
       .where("roleIds", "array-contains", roleId)
       .get();
@@ -251,7 +249,7 @@ export class MemberRepository {
   }
 
   /**
-   * Reset - No-op for real Firestore as we don't want to wipe data easily.
+   * 重置 - 對實體 Firestore 無操作 (No-op)，避免誤刪資料。
    */
   reset(): void {}
 }

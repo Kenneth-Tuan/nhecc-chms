@@ -1,6 +1,6 @@
 /**
- * Member Service
- * Business logic for member operations.
+ * 會友服務 (Member Service)
+ * 處理會友相關操作的業務邏輯。
  */
 import type { UserContext } from "~/types/auth";
 import type {
@@ -29,7 +29,7 @@ const roleRepo = new RoleRepository();
 
 export class MemberService {
   /**
-   * Get paginated member list with scope filtering and data masking.
+   * 獲取分頁會友清單，包含範圍過濾與資料遮蔽處理。
    */
   async list(
     userContext: UserContext,
@@ -40,16 +40,16 @@ export class MemberService {
     sortBy: string,
     sortOrder: "asc" | "desc",
   ): Promise<PaginatedResponse<MemberListItem>> {
-    // 1. Apply scope filter
+    // 1. 應用範圍過濾 (Scope filter)
     const scopedFilters = this.applyScopeFilter(userContext, filters);
 
-    // 2. Fetch data
+    // 2. 獲取資料
     let members = await memberRepo.findAll(scopedFilters);
 
-    // 3. Sort
+    // 3. 排序
     members = this.sortMembers(members, sortBy, sortOrder);
 
-    // 4. Transform to list items with masking
+    // 4. 轉換為清單項目並進行資料遮蔽 (Masking)
     const zones = await orgRepo.findAllZones();
     const groups = await orgRepo.findAllGroups();
     const roles = await roleRepo.findAll();
@@ -81,12 +81,12 @@ export class MemberService {
       };
     });
 
-    // 5. Paginate
+    // 5. 分頁處理
     return paginateArray(listItems, page, pageSize);
   }
 
   /**
-   * Get a single member detail with masking.
+   * 獲取單一會友詳情與資料遮蔽處理。
    */
   async getDetail(
     userContext: UserContext,
@@ -98,7 +98,7 @@ export class MemberService {
       throw createError({ statusCode: 404, message: "找不到該會友" });
     }
 
-    // Check scope access
+    // 檢查範圍權限
     this.checkScopeAccess(userContext, member);
 
     const zones = await orgRepo.findAllZones();
@@ -110,7 +110,7 @@ export class MemberService {
     const group = groups.find((g) => g.id === member.groupId);
     const memberRoles = roles.filter((r) => member.roleIds.includes(r.id));
 
-    // Build course records
+    // 建立課程記錄
     const courseRecords: MemberCourseRecord[] = member.pastCourses.map(
       (courseId) => {
         const course = courses.find((c) => c.id === courseId);
@@ -123,7 +123,7 @@ export class MemberService {
       },
     );
 
-    // Apply masking
+    // 應用資料遮蔽
     const sensitiveFields: SensitiveField[] = [
       "mobile",
       "email",
@@ -168,7 +168,7 @@ export class MemberService {
   }
 
   /**
-   * Reveal sensitive fields for a member.
+   * 解鎖（顯示）會友的敏感欄位資資料。
    */
   async revealFields(
     userContext: UserContext,
@@ -193,7 +193,7 @@ export class MemberService {
         });
       }
 
-      // Return plain value
+      // 回傳原始明文值
       switch (field) {
         case "mobile":
           result[field] = member.mobile;
@@ -213,13 +213,13 @@ export class MemberService {
       }
     }
 
-    // TODO: Log audit trail for reveal action
+    // TODO: 記錄解鎖操作的稽核軌跡 (Audit trail)
 
     return result;
   }
 
   /**
-   * Create a new member.
+   * 建立新會友。
    */
   async create(payload: CreateMemberPayload): Promise<Member> {
     // Check mobile uniqueness
@@ -231,7 +231,7 @@ export class MemberService {
       });
     }
 
-    // Validate zone-group relationship
+    // 驗證牧區-小組關係
     if (payload.groupId) {
       await this.validateZoneGroupRelationship(payload.zoneId, payload.groupId);
     }
@@ -240,7 +240,7 @@ export class MemberService {
   }
 
   /**
-   * Update an existing member.
+   * 更新現有會友。
    */
   async update(uuid: string, payload: UpdateMemberPayload): Promise<Member> {
     const existing = await memberRepo.findById(uuid);
@@ -248,7 +248,7 @@ export class MemberService {
       throw createError({ statusCode: 404, message: "找不到該會友" });
     }
 
-    // Check for immutable fields based on social login provider
+    // 根據社交登入提供者檢查不可變動的欄位
     const auth = getAdminAuth();
     try {
       const fbUser = await auth.getUser(uuid);
@@ -271,10 +271,10 @@ export class MemberService {
         });
       }
     } catch {
-      // If Firebase user not found or other auth error, continue with standard logic
+      // 如果找不到 Firebase 用戶或其他驗證錯誤，繼續標準邏輯
     }
 
-    // Check mobile uniqueness if changed
+    // 如果手機號碼有變動，檢查唯一性
     if (payload.mobile && payload.mobile !== existing.mobile) {
       const mobileExists = await memberRepo.isMobileExists(
         payload.mobile,
@@ -288,7 +288,7 @@ export class MemberService {
       }
     }
 
-    // Validate zone-group relationship if changed
+    // 如果有變動，驗證牧區-小組關係
     const newZoneId =
       payload.zoneId !== undefined ? payload.zoneId : existing.zoneId;
     const newGroupId =
@@ -313,7 +313,7 @@ export class MemberService {
   }
 
   /**
-   * Soft delete a member with deletion reason.
+   * 軟刪除會友，需提供刪除原因。
    */
   async softDelete(
     uuid: string,
@@ -330,10 +330,10 @@ export class MemberService {
     }
   }
 
-  // ===== Private helpers =====
+  // ===== 私有輔助方法 (Private helpers) =====
 
   /**
-   * Apply RBAC scope filtering to member query filters.
+   * 將 RBAC 範圍過濾應用於會友查詢條件。
    */
   private applyScopeFilter(
     ctx: UserContext,
@@ -343,7 +343,7 @@ export class MemberService {
 
     switch (ctx.scope) {
       case "Global":
-        // No additional filtering
+        // 無須額外過濾
         break;
       case "Zone":
         if (ctx.zoneId) {
@@ -351,14 +351,14 @@ export class MemberService {
         }
         break;
       case "Group":
-        // For group scope, we need to handle differently
-        // This will be handled at the query level
+        // 對於小組範圍，我們需要採取不同處理方式
+        // 優先在查詢層級處理
         if (ctx.managedGroupIds.length > 0) {
           scopedFilters.groupId = ctx.managedGroupIds[0];
         }
         break;
       case "Self":
-        // Will be handled specially - return only the user's own data
+        // 將進行特殊處理 - 僅回傳用戶本人資料
         break;
     }
 
@@ -366,7 +366,7 @@ export class MemberService {
   }
 
   /**
-   * Check if user has scope access to a member.
+   * 檢查用戶是否具有存取該會友資料的範圍權限。
    */
   private checkScopeAccess(ctx: UserContext, member: Member): void {
     switch (ctx.scope) {
@@ -382,7 +382,7 @@ export class MemberService {
         return;
       case "Group":
         if (!member.groupId || !ctx.managedGroupIds.includes(member.groupId)) {
-          // Also check functional groups
+          // 同時檢查功能性小組 (Functional groups)
           const memberInFunctionalGroup = member.functionalGroupIds?.some(
             (fgId) => ctx.managedGroupIds.includes(fgId),
           );
@@ -406,7 +406,7 @@ export class MemberService {
   }
 
   /**
-   * Validate that a group belongs to the specified zone.
+   * 驗證小組是否隸屬於指定的牧區。
    */
   private async validateZoneGroupRelationship(
     zoneId: string | undefined | null,
@@ -428,7 +428,7 @@ export class MemberService {
       });
     }
 
-    // Functional groups don't need zone validation
+    // 功能性小組不需要牧區驗證
     if (group.type === "Functional") return;
 
     if (group.zoneId !== zoneId) {
@@ -440,7 +440,7 @@ export class MemberService {
   }
 
   /**
-   * Sort members array.
+   * 排序會友陣列。
    */
   private sortMembers(
     members: Member[],

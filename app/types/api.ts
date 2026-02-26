@@ -1,20 +1,20 @@
 /**
- * API common type definitions
+ * API 通用型別定義
  */
 
-/** Pagination parameters */
+/** 分頁參數 */
 export interface PaginationParams {
   page: number;
   pageSize: number;
 }
 
-/** Sort parameters */
+/** 排序參數 */
 export interface SortParams {
   sortBy: string;
-  sortOrder: 'asc' | 'desc';
+  sortOrder: "asc" | "desc";
 }
 
-/** Paginated response wrapper */
+/** 分頁回應包裝介面 */
 export interface PaginatedResponse<T> {
   data: T[];
   pagination: {
@@ -25,14 +25,14 @@ export interface PaginatedResponse<T> {
   };
 }
 
-/** Standard API success response */
+/** 標準 API 成功回應介面 */
 export interface ApiSuccessResponse<T> {
   success: true;
   data: T;
   message?: string;
 }
 
-/** Standard API error response */
+/** 標準 API 錯誤回應介面 */
 export interface ApiErrorResponse {
   success: false;
   error: {
@@ -42,15 +42,15 @@ export interface ApiErrorResponse {
   };
 }
 
-/** Union API response */
+/** API 聯合回應型別 */
 export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
 
-/** Reveal sensitive data request */
+/** 解鎖敏感資造請求介面 */
 export interface RevealRequest {
   fields: string[];
 }
 
-/** Reveal sensitive data response */
+/** 解鎖敏感資料回應結果 */
 export interface RevealResponse {
   [field: string]: string;
 }

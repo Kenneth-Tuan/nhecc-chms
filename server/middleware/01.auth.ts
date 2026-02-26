@@ -1,6 +1,6 @@
 /**
- * Auth Middleware
- * Validates Firebase session cookie and sets userId on event context.
+ * 身份驗證中間件 (Auth Middleware)
+ * 驗證 Firebase 會話 Cookie (Session cookie) 並將 userId 注入事件上下文 (Event context)。
  */
 import { getAdminAuth } from "../utils/firebase-admin";
 
@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     return;
   }
 
-  // Skip auth for endpoints that don't require session
+  // 對於不需要會話 (Session) 的端點跳過身份驗證
   const publicPaths = [
     "/api/auth/session",
     "/api/auth/logout",

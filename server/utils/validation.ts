@@ -1,12 +1,12 @@
 /**
- * Server-side validation utilities
+ * 伺服器端驗證工具函式
  */
 import { createError, type H3Event } from "h3";
 import type { ZodSchema, ZodError } from "zod";
 
 /**
- * Validate data against a Zod schema.
- * Throws a 400 error with details if validation fails.
+ * 根據 Zod schema 驗證資料。
+ * 如果驗證失敗，拋出包含詳細錯誤內容的 400 錯誤。
  */
 export function validateWithSchema<T>(schema: ZodSchema<T>, data: unknown): T {
   const result = schema.safeParse(data);
@@ -22,7 +22,7 @@ export function validateWithSchema<T>(schema: ZodSchema<T>, data: unknown): T {
 }
 
 /**
- * Format Zod validation errors into a readable structure.
+ * 將 Zod 驗證錯誤格式化為易讀的結構。
  */
 function formatZodErrors(error: ZodError): Record<string, string[]> {
   const errors: Record<string, string[]> = {};
@@ -37,8 +37,8 @@ function formatZodErrors(error: ZodError): Record<string, string[]> {
 }
 
 /**
- * Require a CASL ability check.
- * Throws 401 if not authenticated, 403 if ability check fails.
+ * 要求進行 CASL 權限檢查。
+ * 若未通過身份驗證則拋出 401，若權限檢查失敗則拋出 403。
  */
 export function requireAbility(
   event: H3Event,
@@ -64,7 +64,7 @@ export function requireAbility(
 }
 
 /**
- * Get user context from event, throwing 401 if not present.
+ * 從 event 中獲取用戶上下文，若不存在則拋出 401。
  */
 export function getUserContext(event: H3Event) {
   const userContext = event.context.userContext;

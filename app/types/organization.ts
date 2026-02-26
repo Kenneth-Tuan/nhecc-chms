@@ -1,23 +1,23 @@
 /**
- * Organization-related type definitions (Zones, Groups, Courses)
+ * 組織相關型別定義（牧區、小組、課程）
  */
 
-/** Zone status */
-export type ZoneStatus = 'Active' | 'Inactive';
+/** 牧區狀態 */
+export type ZoneStatus = "Active" | "Inactive";
 
-/** Group type */
-export type GroupType = 'Pastoral' | 'Functional';
+/** 小組類型 */
+export type GroupType = "Pastoral" | "Functional";
 
-/** Group status */
-export type GroupStatus = 'Active' | 'Inactive';
+/** 小組狀態 */
+export type GroupStatus = "Active" | "Inactive";
 
-/** Course status */
-export type CourseStatus = 'Active' | 'Inactive';
+/** 課程狀態 */
+export type CourseStatus = "Active" | "Inactive";
 
-/** Course category */
-export type CourseCategory = 'Gospel' | 'Discipleship' | 'Ministry' | 'Other';
+/** 課程類別 */
+export type CourseCategory = "Gospel" | "Discipleship" | "Ministry" | "Other";
 
-/** Pastoral Zone entity */
+/** 牧區 (Zone) 實體介面 */
 export interface Zone {
   id: string;
   name: string;
@@ -28,7 +28,7 @@ export interface Zone {
   updatedAt: string;
 }
 
-/** Group entity (pastoral or functional) */
+/** 小組 (Group) 實體介面（包含牧區或功能性小組） */
 export interface Group {
   id: string;
   name: string;
@@ -41,7 +41,7 @@ export interface Group {
   updatedAt: string;
 }
 
-/** Course entity */
+/** 課程 (Course) 實體介面 */
 export interface Course {
   id: string;
   name: string;
@@ -51,13 +51,13 @@ export interface Course {
   createdAt: string;
 }
 
-/** Organization structure response (zones with their groups) */
+/** 組織架構回應介面（包含各牧區小組及功能性小組） */
 export interface OrganizationStructure {
   zones: ZoneWithGroups[];
   functionalGroups: Group[];
 }
 
-/** Zone with nested groups */
+/** 牧區及其嵌套的小組清單 */
 export interface ZoneWithGroups extends Zone {
   groups: Group[];
 }

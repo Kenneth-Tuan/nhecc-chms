@@ -1,30 +1,30 @@
 /**
- * Member Zod Schemas (ST001)
- * Used for both frontend form validation and backend API validation.
+ * 會友 Zod 驗證架構 (ST001)
+ * 用於前端表單驗證及後端 API 驗證。
  */
 import { z } from "zod";
 
-/** Taiwan mobile phone format: 09XXXXXXXX */
+/** 台灣手機格式：09XXXXXXXX */
 const mobileSchema = z
   .string()
   .regex(/^09\d{8}$/, "手機號碼格式不正確，請輸入 09 開頭的 10 碼手機號碼")
   .transform((val) => val.replace(/-/g, ""));
 
-/** Gender enum */
+/** 性別列舉 */
 const genderSchema = z.enum(["Male", "Female"], {
   message: "請選擇性別",
 });
 
-/** Member status enum */
+/** 會友狀態列舉 */
 const memberStatusSchema = z.enum(["Active", "Inactive", "Suspended"]);
 
-/** Date string that must not be in the future */
+/** 日期字串，且不可晚於今天 */
 const pastDateSchema = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, "日期格式不正確")
   .refine((val) => new Date(val) <= new Date(), "日期不可為未來日期");
 
-/** Base member object schema (without refinements) */
+/** 基礎會友物件架構（未含進階邏輯驗證） */
 const baseMemberSchema = z.object({
   fullName: z.string().min(1, "姓名為必填").max(50, "姓名不可超過 50 字"),
   gender: genderSchema,
@@ -47,10 +47,10 @@ const baseMemberSchema = z.object({
   avatar: z.string().url("頭像必須為有效 URL").optional(),
 });
 
-/** Create member validation schema (with zone-group refinement) */
+/** 建立新會友的驗證架構（包含牧區-小組關係驗證） */
 export const createMemberSchema = baseMemberSchema.refine(
   (data) => {
-    // If groupId is set, zoneId must also be set
+    // 若設定了小組，則必須同時設定牧區
     if (data.groupId && !data.zoneId) {
       return false;
     }
@@ -62,10 +62,10 @@ export const createMemberSchema = baseMemberSchema.refine(
   },
 );
 
-/** Update member validation schema (all fields optional, no refinements) */
+/** 更新會友的驗證架構（所有欄位皆為可選，不含進階邏輯驗證） */
 export const updateMemberSchema = baseMemberSchema.partial();
 
-/** Member list filters schema */
+/** 會友清單過濾條件架構 */
 export const memberFiltersSchema = z.object({
   search: z.string().optional(),
   searchField: z.enum(["fullName", "mobile"]).default("fullName"),
@@ -84,7 +84,7 @@ export const memberFiltersSchema = z.object({
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });
 
-/** Deletion reason enum */
+/** 刪除原因列舉 */
 const deletionReasonSchema = z.enum([
   "left_church",
   "transferred",
@@ -93,13 +93,13 @@ const deletionReasonSchema = z.enum([
   "other",
 ]);
 
-/** Soft delete request schema */
+/** 軟刪除請求架構 */
 export const softDeleteSchema = z.object({
   reason: deletionReasonSchema,
   notes: z.string().max(500, "備註不可超過 500 字").optional(),
 });
 
-/** Type inference */
+/** 型別推導 */
 export type CreateMemberInput = z.infer<typeof createMemberSchema>;
 export type UpdateMemberInput = z.infer<typeof updateMemberSchema>;
 export type MemberFiltersInput = z.infer<typeof memberFiltersSchema>;

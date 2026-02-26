@@ -1,6 +1,6 @@
 /**
- * Auth Service
- * Handles authentication and user context resolution.
+ * 驗證服務 (Auth Service)
+ * 處理身份驗證與用戶上下文 (User Context) 解析。
  */
 import type { UserContext, AuthContextResponse } from "~/types/auth";
 import type { Role } from "~/types/role";
@@ -13,7 +13,7 @@ import { buildAbility } from "~/utils/casl/ability";
 const memberRepo = new MemberRepository();
 const roleRepo = new RoleRepository();
 
-/** In-memory cache for user contexts */
+/** 用戶上下文的記憶體暫存 (Cache) */
 const contextCache = new Map<
   string,
   { context: UserContext; expiresAt: number }

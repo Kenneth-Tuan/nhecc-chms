@@ -1,3 +1,7 @@
+/**
+ * POST /api/auth/session
+ * 驗證 ID token 並建立 Firebase 會期 Cookie (Session cookie)。
+ */
 import { getAdminAuth } from "../../utils/firebase-admin";
 import { MemberRepository } from "../../repositories/member.repository";
 

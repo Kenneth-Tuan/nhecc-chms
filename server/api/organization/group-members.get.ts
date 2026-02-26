@@ -1,6 +1,6 @@
 /**
  * GET /api/organization/group-members?groupId=xxx
- * Returns members belonging to a specific group.
+ * 回傳隸屬於特定小組的成員。
  */
 import { getQuery } from "h3";
 import { OrganizationService } from "../../services/organization.service";

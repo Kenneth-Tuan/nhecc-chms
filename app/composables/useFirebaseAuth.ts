@@ -1,3 +1,7 @@
+/**
+ * Firebase 身份驗證 Composable
+ * 整合電子信箱、Google、LINE 登入以及會期管理。
+ */
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -20,6 +24,7 @@ export function useFirebaseAuth() {
   const error = ref<string | null>(null);
   const pendingLineProfile = ref<LineProfile | null>(null);
 
+  /** 建立 Firebase 會期 Cookie */
   async function createSessionCookie(
     idToken: string,
   ): Promise<{ uid: string; isNewUser: boolean }> {
@@ -32,6 +37,7 @@ export function useFirebaseAuth() {
     );
   }
 
+  /** 使用電子信箱登入 */
   async function loginWithEmail(
     email: string,
     password: string,
@@ -56,6 +62,7 @@ export function useFirebaseAuth() {
     }
   }
 
+  /** 註冊新帳號 */
   async function registerWithEmail(
     email: string,
     password: string,
@@ -79,6 +86,7 @@ export function useFirebaseAuth() {
     }
   }
 
+  /** 使用 Google 彈窗登入 */
   async function loginWithGoogle(): Promise<{
     uid: string;
     isNewUser: boolean;
@@ -114,6 +122,7 @@ export function useFirebaseAuth() {
     }
   }
 
+  /** 使用 LINE (LIFF) 登入 */
   async function loginWithLine(): Promise<{
     uid: string;
     isNewUser: boolean;
@@ -152,6 +161,7 @@ export function useFirebaseAuth() {
     }
   }
 
+  /** 登出並清除會期 */
   async function logout(): Promise<void> {
     loading.value = true;
     try {

@@ -1,6 +1,6 @@
 /**
  * GET /api/auth/context
- * Returns the current user's resolved context including permissions.
+ * 回傳當前用戶的解析後上下文 (Resolved context)，包含相關權限規則。
  */
 import { AuthService } from "../../services/auth.service";
 

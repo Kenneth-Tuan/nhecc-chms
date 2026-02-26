@@ -1,6 +1,6 @@
 /**
  * POST /api/organization/assign-member
- * Assigns a member to a zone and group.
+ * 將會友分配至特定的牧區與小組。
  */
 import { OrganizationService } from "../../services/organization.service";
 

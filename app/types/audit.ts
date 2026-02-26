@@ -1,16 +1,16 @@
 /**
- * Audit Log Type Definitions (ST005)
+ * 稽核日誌型別定義 (ST005)
  */
 
-/** Audit action types */
+/** 稽核操作類型列舉 */
 export type AuditAction =
-  | 'REVEAL_SENSITIVE_DATA'
-  | 'REVEAL_ATTEMPT_FAILED'
-  | 'member:create'
-  | 'member:update'
-  | 'member:delete';
+  | "REVEAL_SENSITIVE_DATA"
+  | "REVEAL_ATTEMPT_FAILED"
+  | "member:create"
+  | "member:update"
+  | "member:delete";
 
-/** Audit log entry */
+/** 稽核日誌條目介面 */
 export interface AuditLog {
   id: string;
   action: AuditAction;
@@ -25,7 +25,7 @@ export interface AuditLog {
   details?: Record<string, unknown>;
 }
 
-/** Audit log create payload */
+/** 稽核日誌建立請求資料 */
 export interface CreateAuditLogPayload {
   action: AuditAction;
   userId: string;
@@ -38,7 +38,7 @@ export interface CreateAuditLogPayload {
   details?: Record<string, unknown>;
 }
 
-/** Reveal operation result for API response */
+/** API 回應中的解鎖操作結果介面 */
 export interface RevealResult {
   revealedFields: Record<string, { value: string; auditLogId: string }>;
   failedFields: Record<string, { error: string; message: string }>;

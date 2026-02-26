@@ -1,6 +1,6 @@
 /**
  * GET /api/organization/zones
- * Returns all zones with their nested pastoral groups.
+ * 回傳所有牧區及其嵌套的小組。
  */
 import { OrganizationService } from "../../../services/organization.service";
 

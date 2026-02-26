@@ -1,6 +1,6 @@
 /**
- * Role Repository
- * Data source: Real Firestore implementation.
+ * 角色儲存庫 (Role Repository)
+ * 資料來源：實體 Firestore 實作。
  */
 import type { Role } from "~/types/role";
 import type { CreateRolePayload, UpdateRolePayload } from "~/types/role";
@@ -18,7 +18,7 @@ export class RoleRepository {
   }
 
   /**
-   * Find all roles.
+   * 查找所有角色。
    */
   async findAll(search?: string): Promise<Role[]> {
     let query: any = this.collection;
@@ -41,7 +41,7 @@ export class RoleRepository {
   }
 
   /**
-   * Find a single role by ID.
+   * 根據 ID 查找單一角色。
    */
   async findById(id: string): Promise<Role | undefined> {
     const doc = await this.collection.doc(id).get();
@@ -50,12 +50,12 @@ export class RoleRepository {
   }
 
   /**
-   * Find multiple roles by IDs.
+   * 根據 ID 清單查找多個角色。
    */
   async findByIds(ids: string[]): Promise<Role[]> {
     if (ids.length === 0) return [];
 
-    // Firestore where 'in' limited to 10 elements
+    // Firestore 的 'in' 查詢限制為 10 個元素
     const chunks = [];
     for (let i = 0; i < ids.length; i += 10) {
       chunks.push(ids.slice(i, i + 10));
@@ -75,7 +75,7 @@ export class RoleRepository {
   }
 
   /**
-   * Create a new role.
+   * 建立新角色。
    */
   async create(payload: CreateRolePayload): Promise<Role> {
     const now = new Date().toISOString();
@@ -96,7 +96,7 @@ export class RoleRepository {
   }
 
   /**
-   * Update an existing role.
+   * 更新現有角色。
    */
   async update(
     id: string,
@@ -108,7 +108,7 @@ export class RoleRepository {
 
     const currentData = doc.data() as Role;
 
-    // Prevent modifying system roles' permissions via general update
+    // 防止透過一般更新管道修改系統角色的權限
     if (currentData.isSystem) {
       const updateData: any = {
         updatedAt: new Date().toISOString(),
@@ -133,7 +133,7 @@ export class RoleRepository {
   }
 
   /**
-   * Delete a role.
+   * 刪除角色。
    */
   async delete(id: string): Promise<boolean> {
     const docRef = this.collection.doc(id);
@@ -149,7 +149,7 @@ export class RoleRepository {
   }
 
   /**
-   * Reset - No-op
+   * 重置 - 無操作 (No-op)
    */
   reset(): void {}
 }

@@ -1,6 +1,6 @@
 /**
- * RBAC Permission Constants - Server re-export
- * Re-exports from the shared app/utils/rbac/permissions.ts
+ * RBAC 權限常量 - 伺服器端重新導出
+ * 重新導出自共用的 app/utils/rbac/permissions.ts
  */
 export {
   ALL_PERMISSION_KEYS,
@@ -11,4 +11,4 @@ export {
   SCOPE_HIERARCHY,
   createEmptyPermissions,
   createEmptyRevealAuthority,
-} from '~/utils/rbac/permissions';
+} from "~/utils/rbac/permissions";

@@ -1,20 +1,20 @@
 /**
- * Storage Utilities (ST004)
- * Handles avatar file management and cleanup operations.
- * DEV mode: operates on in-memory mock state.
- * PROD mode: uses Firebase Storage (to be implemented).
+ * 儲存服務工具 (ST004)
+ * 處理大頭貼檔案管理與清理操作。
+ * 開發模式 (DEV)：操作記憶體內模擬狀態。
+ * 正式模式 (PROD)：使用 Firebase Storage (待實作)。
  */
 
-/** Tracked avatar files in DEV mode */
-const devAvatarStore = new Map<string, { url: string; memberUuid: string; createdAt: Date }>();
+/** 開發模式下的追蹤大頭貼檔案 */
+const devAvatarStore = new Map<
+  string,
+  { url: string; memberUuid: string; createdAt: Date }
+>();
 
 /**
- * Register an avatar file URL for tracking.
+ * 註冊大頭貼檔案 URL 以供追蹤。
  */
-export function trackAvatarFile(
-  url: string,
-  memberUuid: string,
-): void {
+export function trackAvatarFile(url: string, memberUuid: string): void {
   devAvatarStore.set(url, {
     url,
     memberUuid,
@@ -23,24 +23,24 @@ export function trackAvatarFile(
 }
 
 /**
- * Delete a single avatar file by URL.
- * In DEV mode this removes from the in-memory tracker.
- * In PROD this would call Firebase Storage deleteObject.
+ * 根據 URL 刪除單一頭像檔案。
+ * 開發模式：從記憶體追蹤器中移除。
+ * 正式模式：調用 Firebase Storage 的 deleteObject。
  */
 export async function deleteAvatarFile(avatarUrl: string): Promise<void> {
   if (!avatarUrl) return;
 
-  // DEV mode: remove from tracker
+  // 開發模式：從追蹤器移除
   devAvatarStore.delete(avatarUrl);
 
-  // PROD mode would be:
+  // 正式模式應為：
   // const storage = getStorage();
   // const fileRef = ref(storage, getPathFromUrl(avatarUrl));
   // await deleteObject(fileRef);
 }
 
 /**
- * Delete all avatar files for a specific member.
+ * 刪除特定會友的所有頭像檔案。
  */
 export async function deleteAllAvatarsForMember(
   memberUuid: string,
@@ -58,13 +58,13 @@ export async function deleteAllAvatarsForMember(
 }
 
 /**
- * Extract the storage path from a Firebase Storage download URL.
+ * 從 Firebase Storage 下載連結中提取儲存路徑。
  */
 export function getPathFromUrl(url: string): string {
   try {
     const urlObj = new URL(url);
     const path = urlObj.pathname;
-    // Firebase Storage URL format: /v0/b/{bucket}/o/{encoded_path}
+    // Firebase Storage URL 格式：/v0/b/{bucket}/o/{encoded_path}
     const match = path.match(/\/o\/(.+)/);
     if (match) {
       return decodeURIComponent(match[1]);
@@ -76,9 +76,8 @@ export function getPathFromUrl(url: string): string {
 }
 
 /**
- * Cleanup unused avatar files.
- * Finds files in storage that don't match any member's current avatar URL.
- * Respects a safety buffer period (default 7 days).
+ * 清理未使用的頭像檔案。
+ * 找出儲存空間中不符合任何會友當前頭像 URL 的檔案。
  */
 export async function cleanupUnusedAvatars(
   activeAvatarUrls: string[],
@@ -91,18 +90,18 @@ export async function cleanupUnusedAvatars(
   let skipped = 0;
 
   for (const [url, entry] of devAvatarStore.entries()) {
-    // Skip files that are still in use
+    // 跳過仍在使用中的檔案
     if (activeAvatarUrls.includes(url)) {
       continue;
     }
 
-    // Skip files within the safety buffer
+    // 跳過安全緩衝期內的檔案
     if (entry.createdAt > cutoffDate) {
       skipped++;
       continue;
     }
 
-    // Delete unused file
+    // 刪除未使用的檔案
     await deleteAvatarFile(url);
     deleted++;
   }
@@ -111,7 +110,7 @@ export async function cleanupUnusedAvatars(
 }
 
 /**
- * Get storage usage stats (for monitoring).
+ * 獲取儲存使用統計數據 (用於監控)。
  */
 export function getAvatarStorageStats(): {
   totalFiles: number;

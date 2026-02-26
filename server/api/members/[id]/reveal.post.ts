@@ -1,21 +1,21 @@
 /**
  * POST /api/members/:id/reveal
- * Reveals sensitive fields for a member.
+ * 解鎖（顯示）會友的敏感欄位資料。
  * Body: { fields: ["mobile", "email", ...] }
  */
-import { readBody } from 'h3';
-import { MemberService } from '../../../services/member.service';
-import { getUserContext, requireAbility } from '../../../utils/validation';
+import { readBody } from "h3";
+import { MemberService } from "../../../services/member.service";
+import { getUserContext, requireAbility } from "../../../utils/validation";
 
 const memberService = new MemberService();
 
 export default defineEventHandler(async (event) => {
   const userContext = getUserContext(event);
-  requireAbility(event, 'view', 'Member');
+  requireAbility(event, "view", "Member");
 
-  const id = getRouterParam(event, 'id');
+  const id = getRouterParam(event, "id");
   if (!id) {
-    throw createError({ statusCode: 400, message: '缺少會友 ID' });
+    throw createError({ statusCode: 400, message: "缺少會友 ID" });
   }
 
   const body = await readBody(event);
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
   if (!Array.isArray(fields) || fields.length === 0) {
     throw createError({
       statusCode: 400,
-      message: '請提供要解鎖的欄位',
+      message: "請提供要解鎖的欄位",
     });
   }
 

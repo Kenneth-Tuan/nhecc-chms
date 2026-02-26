@@ -1,6 +1,6 @@
 /**
- * Organization Repository
- * Data source: Real Firestore implementation.
+ * 組織架構儲存庫 (Organization Repository)
+ * 資料來源：實體 Firestore 實作。
  */
 import type {
   Zone,
@@ -18,7 +18,7 @@ export class OrganizationRepository {
   }
 
   /**
-   * Find all zones.
+   * 查找所有牧區。
    */
   async findAllZones(): Promise<Zone[]> {
     const snapshot = await this.db.collection("zones").get();
@@ -29,7 +29,7 @@ export class OrganizationRepository {
   }
 
   /**
-   * Find a zone by ID.
+   * 根據 ID 查找牧區。
    */
   async findZoneById(id: string): Promise<Zone | undefined> {
     const doc = await this.db.collection("zones").doc(id).get();
@@ -38,7 +38,7 @@ export class OrganizationRepository {
   }
 
   /**
-   * Find all groups.
+   * 查找所有小組。
    */
   async findAllGroups(): Promise<Group[]> {
     const snapshot = await this.db.collection("groups").get();
@@ -49,7 +49,7 @@ export class OrganizationRepository {
   }
 
   /**
-   * Find groups by zone ID.
+   * 根據牧區 ID 查找小組。
    */
   async findGroupsByZoneId(zoneId: string): Promise<Group[]> {
     const snapshot = await this.db
@@ -63,7 +63,7 @@ export class OrganizationRepository {
   }
 
   /**
-   * Find a group by ID.
+   * 根據 ID 查找小組。
    */
   async findGroupById(id: string): Promise<Group | undefined> {
     const doc = await this.db.collection("groups").doc(id).get();
@@ -72,7 +72,7 @@ export class OrganizationRepository {
   }
 
   /**
-   * Get the full organization structure (zones with nested groups).
+   * 獲取完整的組織架構（包含牧區及其嵌套的小組）。
    */
   async getStructure(): Promise<OrganizationStructure> {
     const zones = await this.findAllZones();
@@ -94,12 +94,12 @@ export class OrganizationRepository {
   }
 
   /**
-   * Get member counts per group (groupId -> count).
+   * 獲取每個小組的成員人數 (groupId -> count)。
    */
   async getMemberCounts(): Promise<Record<string, number>> {
-    // This is expensive to do on the fly in Firestore.
-    // Usually we'd use a cloud function to update counts or an aggregation query.
-    // For now, we fetch active members and count.
+    // 在 Firestore 中即時計算這項資料較耗能。
+    // 通常會使用雲端函式 (Cloud Function) 更新計數，或使用聚合查詢。
+    // 目前先暫時抓取所有活動會友並進行計算。
     const snapshot = await this.db
       .collection("members")
       .where("status", "==", "Active")
@@ -115,7 +115,7 @@ export class OrganizationRepository {
   }
 
   /**
-   * Get unassigned (pending) members — no zoneId, no groupId, active status.
+   * 獲取未分配（待處理）的會友 — 無牧區 ID、無小組 ID 且狀態為活動中。
    */
   async findPendingMembers(): Promise<
     Pick<
@@ -143,7 +143,7 @@ export class OrganizationRepository {
   }
 
   /**
-   * Get members belonging to a specific group.
+   * 獲取隸屬於特定小組的會友。
    */
   async findMembersByGroupId(groupId: string): Promise<
     {
@@ -187,7 +187,7 @@ export class OrganizationRepository {
   }
 
   /**
-   * Assign a member to a group.
+   * 將會友分配至小組。
    */
   async assignMemberToGroup(
     memberId: string,
@@ -222,10 +222,10 @@ export class OrganizationRepository {
     };
   }
 
-  // ===== Course methods =====
+  // ===== 課程相關方法 (Course methods) =====
 
   /**
-   * Find all courses.
+   * 查找所有課程。
    */
   async findAllCourses(): Promise<Course[]> {
     const snapshot = await this.db.collection("courses").get();
@@ -236,7 +236,7 @@ export class OrganizationRepository {
   }
 
   /**
-   * Find a course by ID.
+   * 根據 ID 查找課程。
    */
   async findCourseById(id: string): Promise<Course | undefined> {
     const doc = await this.db.collection("courses").doc(id).get();
@@ -245,7 +245,7 @@ export class OrganizationRepository {
   }
 
   /**
-   * Find courses by IDs.
+   * 根據 ID 清單查找課程。
    */
   async findCoursesByIds(ids: string[]): Promise<Course[]> {
     if (ids.length === 0) return [];

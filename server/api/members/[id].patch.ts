@@ -1,6 +1,6 @@
 /**
  * PATCH /api/members/:id
- * Updates an existing member.
+ * 更新現有會友資料。
  */
 import { readBody } from "h3";
 import { updateMemberSchema } from "~/schemas/member.schema";
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: "缺少會友 ID" });
   }
 
-  // Check permission: allow if user has global edit perm OR is editing self (handled by CASL Self scope)
+  // 檢查權限：若用戶具備全域編輯權限，或是在編輯自身資料（由 CASL Self scope 處理）則允許
   requireAbility(event, "update", { __type: "Member", uuid: id } as any);
 
   const body = await readBody(event);

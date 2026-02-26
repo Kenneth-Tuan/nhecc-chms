@@ -1,9 +1,9 @@
 /**
- * Zone-Group Cascade Composable (ST004)
- * Handles cascading dropdown logic for zone -> group selection.
+ * 牧區-小組級聯 Composable (ST004)
+ * 處理牧區 -> 小組選擇的級聯下拉選單邏輯。
  */
-import type { Ref } from 'vue';
-import type { Zone, Group } from '~/types/organization';
+import type { Ref } from "vue";
+import type { Zone, Group } from "~/types/organization";
 
 export function useZoneGroupCascade() {
   const zones = ref<Zone[]>([]);
@@ -11,13 +11,14 @@ export function useZoneGroupCascade() {
   const filteredGroups = ref<Group[]>([]);
   const isLoading = ref(false);
 
-  /** Fetch organization structure (zones + groups) */
+  /** 獲取組織架構（牧區 + 小組） */
   async function fetchOrganizationStructure(): Promise<void> {
     isLoading.value = true;
     try {
-      const response = await $fetch<{ zones: Zone[]; functionalGroups: Group[] }>(
-        '/api/organization/structure',
-      );
+      const response = await $fetch<{
+        zones: Zone[];
+        functionalGroups: Group[];
+      }>("/api/organization/structure");
 
       zones.value = response.zones.map((z) => ({
         id: z.id,
@@ -29,10 +30,13 @@ export function useZoneGroupCascade() {
         updatedAt: z.updatedAt,
       }));
 
-      // Flatten groups from zone structure
+      // 從牧區結構中提取平坦的小組清單
       const pastoralGroups: Group[] = [];
       for (const zone of response.zones) {
-        if ('groups' in zone && Array.isArray((zone as Record<string, unknown>).groups)) {
+        if (
+          "groups" in zone &&
+          Array.isArray((zone as Record<string, unknown>).groups)
+        ) {
           for (const group of (zone as { groups: Group[] }).groups) {
             pastoralGroups.push(group);
           }
@@ -40,25 +44,25 @@ export function useZoneGroupCascade() {
       }
       allGroups.value = pastoralGroups;
     } catch (error) {
-      console.error('Failed to fetch organization structure:', error);
+      console.error("Failed to fetch organization structure:", error);
       throw error;
     } finally {
       isLoading.value = false;
     }
   }
 
-  /** Filter groups by the selected zone ID */
+  /** 根據選取的牧區 ID 過濾小組 */
   function filterGroupsByZone(zoneId: string | null | undefined): void {
     if (!zoneId) {
       filteredGroups.value = [];
       return;
     }
     filteredGroups.value = allGroups.value.filter(
-      (group) => group.type === 'Pastoral' && group.zoneId === zoneId,
+      (group) => group.type === "Pastoral" && group.zoneId === zoneId,
     );
   }
 
-  /** Watch zone changes and auto-clear the group selection */
+  /** 監聽牧區變動並自動清除已選取的小組 */
   function watchZoneChange(
     zoneIdRef: Ref<string | null | undefined>,
     groupIdRef: Ref<string | null | undefined>,
@@ -69,7 +73,7 @@ export function useZoneGroupCascade() {
     });
   }
 
-  /** Check if a zone-group combination is mismatched (for edit mode warning) */
+  /** 檢查牧區與小組組合是否不匹配（用於編輯模式警告） */
   function isZoneGroupMismatch(
     zoneId: string | undefined,
     groupId: string | undefined,
@@ -78,7 +82,7 @@ export function useZoneGroupCascade() {
 
     const group = allGroups.value.find((g) => g.id === groupId);
     if (!group) return true;
-    if (group.type === 'Functional') return false;
+    if (group.type === "Functional") return false;
 
     return group.zoneId !== zoneId;
   }

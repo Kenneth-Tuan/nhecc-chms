@@ -1,16 +1,16 @@
 /**
- * Audit Log Repository (ST005)
- * Handles audit log persistence (in-memory for DEV mode).
+ * 稽核日誌儲存庫 (Audit Log Repository - ST005)
+ * 處理稽核日誌的持久化（開發模式下存於記憶體）。
  */
-import type { AuditLog, CreateAuditLogPayload } from '~/types/audit';
-import { generateId } from '../utils/helpers';
+import type { AuditLog, CreateAuditLogPayload } from "~/types/audit";
+import { generateId } from "../utils/helpers";
 
-/** In-memory audit logs for DEV mode */
+/** 開發模式下的本地記憶體日誌 */
 let devAuditLogs: AuditLog[] = [];
 
 export class AuditLogRepository {
   /**
-   * Create a new audit log entry.
+   * 建立新的稽核日誌條目。
    */
   async create(payload: CreateAuditLogPayload): Promise<AuditLog> {
     const now = new Date().toISOString();
@@ -33,7 +33,7 @@ export class AuditLogRepository {
   }
 
   /**
-   * Find all audit logs (with optional filters).
+   * 查找所有稽核日誌（包含可選過濾條件）。
    */
   async findAll(filters?: {
     userId?: string;
@@ -49,7 +49,9 @@ export class AuditLogRepository {
         results = results.filter((log) => log.userId === filters.userId);
       }
       if (filters.targetMemberId) {
-        results = results.filter((log) => log.targetMemberId === filters.targetMemberId);
+        results = results.filter(
+          (log) => log.targetMemberId === filters.targetMemberId,
+        );
       }
       if (filters.action) {
         results = results.filter((log) => log.action === filters.action);
@@ -62,32 +64,30 @@ export class AuditLogRepository {
       }
     }
 
-    return results.sort((a, b) => 
-      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    return results.sort(
+      (a, b) =>
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
     );
   }
 
   /**
-   * Find audit logs for a specific user.
+   * 查找特定用戶產生的稽核日誌。
    */
   async findByUserId(userId: string): Promise<AuditLog[]> {
     return devAuditLogs.filter((log) => log.userId === userId);
   }
 
   /**
-   * Find audit logs for a specific member (who was accessed).
+   * 查找與特定會友（被操作對象）相關的稽核日誌。
    */
   async findByTargetMemberId(targetMemberId: string): Promise<AuditLog[]> {
     return devAuditLogs.filter((log) => log.targetMemberId === targetMemberId);
   }
 
   /**
-   * Count logs by user within a time window (for rate limiting).
+   * 計算特定時間窗口內，特定用戶產生的日誌數量（用於速率限制）。
    */
-  async countByUserSince(
-    userId: string,
-    since: Date,
-  ): Promise<number> {
+  async countByUserSince(userId: string, since: Date): Promise<number> {
     const sinceIso = since.toISOString();
     return devAuditLogs.filter(
       (log) => log.userId === userId && log.timestamp >= sinceIso,
@@ -95,14 +95,14 @@ export class AuditLogRepository {
   }
 
   /**
-   * Reset audit logs (for testing).
+   * 重置稽核日誌（用於測試）。
    */
   reset(): void {
     devAuditLogs = [];
   }
 
   /**
-   * Get total count.
+   * 獲取日誌總數。
    */
   async count(): Promise<number> {
     return devAuditLogs.length;

@@ -1,9 +1,9 @@
 /**
- * Member List Composable
- * Handles fetching, filtering, sorting, and pagination of members.
+ * 會友清單 Composable
+ * 處理會友資料的獲取、過濾、排序及分頁邏輯。
  */
-import type { MemberListItem, MemberFilters } from '~/types/member';
-import type { PaginatedResponse } from '~/types/api';
+import type { MemberListItem, MemberFilters } from "~/types/member";
+import type { PaginatedResponse } from "~/types/api";
 
 export function useMemberList() {
   const members = ref<MemberListItem[]>([]);
@@ -18,19 +18,19 @@ export function useMemberList() {
   });
 
   const filters = ref<MemberFilters>({
-    search: '',
-    searchField: 'fullName',
-    status: 'Active',
-    baptismStatus: 'all',
+    search: "",
+    searchField: "fullName",
+    status: "Active",
+    baptismStatus: "all",
     zoneId: undefined,
     groupId: undefined,
     unassigned: false,
   });
 
-  const sortBy = ref('createdAt');
-  const sortOrder = ref<'asc' | 'desc'>('desc');
+  const sortBy = ref("createdAt");
+  const sortOrder = ref<"asc" | "desc">("desc");
 
-  /** Fetch members from API */
+  /** 透過 API 獲取會友清單 */
   async function fetchMembers(): Promise<void> {
     isLoading.value = true;
     error.value = null;
@@ -43,15 +43,18 @@ export function useMemberList() {
         sortOrder: sortOrder.value,
       };
 
-      // Add filters
+      // 加上過濾條件
       if (filters.value.search) {
         query.search = filters.value.search;
         query.searchField = filters.value.searchField;
       }
-      if (filters.value.status && filters.value.status !== 'all') {
+      if (filters.value.status && filters.value.status !== "all") {
         query.status = filters.value.status;
       }
-      if (filters.value.baptismStatus && filters.value.baptismStatus !== 'all') {
+      if (
+        filters.value.baptismStatus &&
+        filters.value.baptismStatus !== "all"
+      ) {
         query.baptismStatus = filters.value.baptismStatus;
       }
       if (filters.value.zoneId) {
@@ -61,64 +64,64 @@ export function useMemberList() {
         query.groupId = filters.value.groupId;
       }
       if (filters.value.unassigned) {
-        query.unassigned = 'true';
+        query.unassigned = "true";
       }
 
       const response = await $fetch<PaginatedResponse<MemberListItem>>(
-        '/api/members',
+        "/api/members",
         { query },
       );
 
       members.value = response.data;
       pagination.value = response.pagination;
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : '載入會友列表失敗';
+      const message = err instanceof Error ? err.message : "載入會友列表失敗";
       error.value = message;
-      console.error('Failed to fetch members:', err);
+      console.error("Failed to fetch members:", err);
     } finally {
       isLoading.value = false;
     }
   }
 
-  /** Change page */
+  /** 切換頁碼 */
   function goToPage(page: number): void {
     pagination.value.page = page;
     fetchMembers();
   }
 
-  /** Change page size */
+  /** 變更每頁顯示筆數 */
   function changePageSize(size: number): void {
     pagination.value.pageSize = size;
     pagination.value.page = 1;
     fetchMembers();
   }
 
-  /** Apply search */
+  /** 執行搜尋 */
   function search(): void {
     pagination.value.page = 1;
     fetchMembers();
   }
 
-  /** Clear search */
+  /** 清除搜尋內容 */
   function clearSearch(): void {
-    filters.value.search = '';
+    filters.value.search = "";
     pagination.value.page = 1;
     fetchMembers();
   }
 
-  /** Apply filters */
+  /** 套用過濾條件 */
   function applyFilters(): void {
     pagination.value.page = 1;
     fetchMembers();
   }
 
-  /** Reset all filters */
+  /** 重置所有過濾條件 */
   function resetFilters(): void {
     filters.value = {
-      search: '',
-      searchField: 'fullName',
-      status: 'Active',
-      baptismStatus: 'all',
+      search: "",
+      searchField: "fullName",
+      status: "Active",
+      baptismStatus: "all",
       zoneId: undefined,
       groupId: undefined,
       unassigned: false,
@@ -127,13 +130,13 @@ export function useMemberList() {
     fetchMembers();
   }
 
-  /** Change sort */
+  /** 變更排序條件 */
   function changeSort(field: string): void {
     if (sortBy.value === field) {
-      sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+      sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
     } else {
       sortBy.value = field;
-      sortOrder.value = 'desc';
+      sortOrder.value = "desc";
     }
     fetchMembers();
   }

@@ -1,6 +1,6 @@
 /**
- * Organization Service
- * Business logic for organization structure queries and member assignment.
+ * 組織服務 (Organization Service)
+ * 處理組織架構查詢與成員分配的業務邏輯。
  */
 import type {
   OrganizationStructure,
@@ -14,14 +14,14 @@ const orgRepo = new OrganizationRepository();
 
 export class OrganizationService {
   /**
-   * Get the full organization structure (zones with groups + functional groups).
+   * 獲取完整的組織架構（包含牧區及小組 + 功能性小組）。
    */
   async getStructure(): Promise<OrganizationStructure> {
     return orgRepo.getStructure();
   }
 
   /**
-   * Get zones with nested groups (ZoneWithGroups[]).
+   * 根據牧區嵌套獲取小組專屬清單 (ZoneWithGroups[])。
    */
   async getZonesWithGroups(): Promise<ZoneWithGroups[]> {
     const structure = await orgRepo.getStructure();
@@ -29,31 +29,31 @@ export class OrganizationService {
   }
 
   /**
-   * Get member counts per group.
+   * 獲取各小組的成員人數。
    */
   async getMemberCounts(): Promise<Record<string, number>> {
     return orgRepo.getMemberCounts();
   }
 
   /**
-   * Get unassigned (pending) members.
+   * 獲取待分配（Pending）的會友。
    */
   async getPendingMembers() {
     return orgRepo.findPendingMembers();
   }
 
   /**
-   * Get members of a specific group.
+   * 獲取特定小組的成員清單。
    */
   async getGroupMembers(groupId: string) {
     if (!groupId) {
-      throw createError({ statusCode: 400, message: "groupId is required" });
+      throw createError({ statusCode: 400, message: "需提供 groupId" });
     }
     return orgRepo.findMembersByGroupId(groupId);
   }
 
   /**
-   * Assign a pending member to a group.
+   * 將待分配成員分配至指定小組。
    */
   async assignMember(
     memberId: string,
@@ -62,14 +62,14 @@ export class OrganizationService {
     if (!memberId || !groupId) {
       throw createError({
         statusCode: 400,
-        message: "memberId and groupId are required",
+        message: "需提供 memberId 與 groupId",
       });
     }
     return orgRepo.assignMemberToGroup(memberId, groupId);
   }
 
   /**
-   * Get all courses.
+   * 獲取所有課程。
    */
   async getCourses(): Promise<Course[]> {
     return orgRepo.findAllCourses();

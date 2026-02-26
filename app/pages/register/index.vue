@@ -57,18 +57,18 @@ const syncFromQuery = () => {
 onMounted(async () => {
   syncFromQuery();
 
-  // Detect LINE LIFF redirect callback
+  // 偵測 LINE LIFF 重定向回呼
   if (route.query.code && route.query.liffClientId) {
     loading.value = true;
     try {
       const result = await firebaseAuth.loginWithLine();
       if (result) {
         if (!result.isNewUser) {
-          // If already registered, go to dashboard
+          // 如果已經註冊，導向儀表板
           navigateTo("/dashboard");
           return;
         }
-        // It's a new user, populate data from profile
+        // 是新用戶，從個人檔案填入資料
         if (result.lineProfile) {
           formData.value.fullName = result.lineProfile.name;
           formData.value.lineId = result.lineProfile.userId;
@@ -89,7 +89,7 @@ onMounted(async () => {
     }
   }
 
-  // Fallback to pending LINE profile (for other navigation scenarios)
+  // 如果缺少查詢參數（LINE 重定向常見情況），則回退到待處理的 LINE 個人檔案
   if (isLine.value && firebaseAuth.pendingLineProfile.value) {
     const profile = firebaseAuth.pendingLineProfile.value;
     if (!formData.value.fullName) formData.value.fullName = profile.name;
@@ -98,11 +98,11 @@ onMounted(async () => {
     if (!socialAvatar.value) socialAvatar.value = profile.picture;
   }
 
-  // Ensure active step is 1 for initial social register landing
+  // 確保初始社交註冊登陸時活動步驟為 1
   activeStep.value = 1;
 });
 
-// Dynamic Options for Step 2
+// 步驟 2 的動態選項
 const availableGroups = computed(() => {
   if (!formData.value.pastoralZone) return [];
   const zone = pastoralZones.find((z) => z.id === formData.value.pastoralZone);
@@ -180,11 +180,11 @@ const onStep2Submit = async (e: any) => {
   loading.value = true;
   try {
     const uid = socialUid.value;
-    if (!uid) throw new Error("Missing user ID");
+    if (!uid) throw new Error("缺少用戶 ID");
 
-    // Profile update logic...
+    // 個人檔案更新邏輯...
 
-    // Update member profile with step 2 data
+    // 使用步驟 2 的資料更新會友個人檔案
     await $fetch(`/api/members/${uid}`, {
       method: "PATCH",
       body: {
@@ -244,7 +244,7 @@ definePageMeta({
     ]"
   >
     <Stepper v-model:value="activeStep" class="flex flex-col h-full">
-      <!-- Header Area -->
+      <!-- 標題區域 -->
       <header :class="['shrink-0 text-center', 'pt-10 px-6 sm:px-8 pb-4']">
         <StepList
           class="!flex !justify-center !gap-2 !mb-6 !bg-transparent !p-0 !border-0 !shadow-none"
@@ -295,7 +295,7 @@ definePageMeta({
       </header>
 
       <StepPanels>
-        <!-- STEP 1: Account Info -->
+        <!-- 步驟 1: 帳號資訊 -->
         <StepPanel
           v-slot="{ activateCallback }"
           :value="1"
@@ -354,13 +354,13 @@ definePageMeta({
           </div>
         </StepPanel>
 
-        <!-- STEP 2: Profile Info -->
+        <!-- 步驟 2: 個人資料 -->
         <StepPanel
           v-slot="{ activateCallback }"
           :value="2"
           class="p-6 sm:p-8 pt-2"
         >
-          <!-- Avatar (Outside Form usually, or handled manually) -->
+          <!-- 大頭貼 (通常在表單外，或手動處理) -->
           <div class="flex flex-col items-center mb-8 shrink-0">
             <FileUpload
               ref="fileUploadRef"
@@ -408,7 +408,7 @@ definePageMeta({
             @submit="onStep2Submit"
             class="space-y-10"
           >
-            <!-- Basic Info -->
+            <!-- 基本資料 -->
             <section class="space-y-4">
               <h2
                 class="text-lg font-bold flex items-center gap-2 mb-6 pl-3 text-slate-800 dark:text-white border-l-4 border-primary"
@@ -422,7 +422,7 @@ definePageMeta({
               </div>
             </section>
 
-            <!-- Contact -->
+            <!-- 聯絡資訊 -->
             <section class="space-y-4">
               <h2
                 class="text-lg font-bold flex items-center gap-2 mb-6 pl-3 text-slate-800 dark:text-white border-l-4 border-primary"
@@ -435,7 +435,7 @@ definePageMeta({
               </div>
             </section>
 
-            <!-- Emergency -->
+            <!-- 緊急聯絡人 -->
             <section class="space-y-4">
               <h2
                 class="text-lg font-bold flex items-center gap-2 mb-6 pl-3 text-slate-800 dark:text-white border-l-4 border-primary"
@@ -448,7 +448,7 @@ definePageMeta({
               </div>
             </section>
 
-            <!-- Faith -->
+            <!-- 信仰狀態 -->
             <section class="space-y-4">
               <h2
                 class="text-lg font-bold flex items-center gap-2 mb-6 pl-3 text-slate-800 dark:text-white border-l-4 border-primary"
@@ -474,7 +474,7 @@ definePageMeta({
               </div>
             </section>
 
-            <!-- Experience -->
+            <!-- 過去經歷 -->
             <section class="space-y-4">
               <h2
                 class="text-lg font-bold flex items-center gap-2 mb-6 pl-3 text-slate-800 dark:text-white border-l-4 border-primary"
@@ -484,7 +484,7 @@ definePageMeta({
               <SmartField v-bind="F.previousCourses" />
             </section>
 
-            <!-- Footer -->
+            <!-- 頁尾 -->
             <footer class="pt-8 pb-4 space-y-4">
               <Button
                 label="完成註冊並開始使用"

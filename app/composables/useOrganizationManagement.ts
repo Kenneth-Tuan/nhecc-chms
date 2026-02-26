@@ -1,6 +1,6 @@
 /**
- * Organization Management Composable (ST006/ST007)
- * Manages tree structure, pending pool, and member assignment.
+ * 組織管理 Composable (ST006/ST007)
+ * 管理樹狀結構、待分配池以及成員分配功能。
  */
 import type { ZoneWithGroups } from "~/types/organization";
 import type { TreeNode } from "primevue/treenode";
@@ -26,7 +26,7 @@ interface GroupMember {
 }
 
 /**
- * Transforms OrganizationStructure into PrimeVue TreeNode[] format.
+ * 將 OrganizationStructure 轉換為 PrimeVue TreeNode[] 格式。
  */
 function buildTreeNodes(
   zones: ZoneWithGroups[],
@@ -69,7 +69,7 @@ function buildTreeNodes(
 }
 
 /**
- * Build PrimeVue TreeNode[] for pending pool (flat list as draggable nodes).
+ * 為待分配池建立 PrimeVue TreeNode[]（將清單轉換為可拖動的小節點）。
  */
 function buildPendingTreeNodes(members: PendingMember[]): TreeNode[] {
   return members.map((m) => ({
@@ -106,10 +106,10 @@ export function useOrganizationManagement() {
   const isLoadingMembers = ref(false);
   const isAssigning = ref(false);
 
-  /** Fetch member counts per group for tree badges */
+  /** 獲取各小組的成員人數以顯示於樹狀圖標記 (Badge) */
   const memberCounts = ref<Record<string, number>>({});
 
-  /** Fetch organization structure and build tree */
+  /** 獲取組織架構並建立樹狀圖 */
   async function loadStructure(): Promise<void> {
     isLoadingTree.value = true;
     try {
@@ -121,7 +121,7 @@ export function useOrganizationManagement() {
       memberCounts.value = counts;
       treeNodes.value = buildTreeNodes(structure, counts);
 
-      // Auto-expand first zone
+      // 自動展開第一個牧區
       const firstZone = structure[0];
       if (firstZone) {
         expandedKeys.value = { [firstZone.id]: true };
@@ -133,7 +133,7 @@ export function useOrganizationManagement() {
     }
   }
 
-  /** Fetch pending (unassigned) members */
+  /** 獲取待分配（未指派小組）的會友 */
   async function loadPendingMembers(): Promise<void> {
     isLoadingPending.value = true;
     try {
@@ -149,7 +149,7 @@ export function useOrganizationManagement() {
     }
   }
 
-  /** Load members for a selected group */
+  /** 載入所選小組的成員清單 */
   async function loadGroupMembers(
     groupId: string,
     groupName: string,
@@ -171,7 +171,7 @@ export function useOrganizationManagement() {
     }
   }
 
-  /** Assign a pending member to a group */
+  /** 將待分配會友指派至特定小組 */
   async function assignMember(
     memberId: string,
     groupId: string,
@@ -186,10 +186,10 @@ export function useOrganizationManagement() {
         },
       );
 
-      // Refresh data after assignment
+      // 指派後重新整理資料
       await Promise.all([loadStructure(), loadPendingMembers()]);
 
-      // Refresh selected group members if the target group is currently selected
+      // 若當前正選取目標小組，則重新整理該小組的成員清單
       const currentGroup = selectedGroup.value;
       if (currentGroup && currentGroup.id === groupId) {
         await loadGroupMembers(
@@ -208,7 +208,7 @@ export function useOrganizationManagement() {
     }
   }
 
-  /** Initialize all data */
+  /** 初始化所有資料 */
   async function initialize(): Promise<void> {
     await Promise.all([loadStructure(), loadPendingMembers()]);
   }

@@ -1,16 +1,16 @@
 /**
- * Audit Log Utilities (ST005)
- * Helper functions for creating audit log entries.
+ * 稽核日誌工具 (ST005)
+ * 用於建立稽核日誌條目的輔助函數。
  */
-import type { H3Event } from 'h3';
-import type { CreateAuditLogPayload, AuditAction } from '~/types/audit';
-import { AuditLogRepository } from '../repositories/audit.repository';
+import type { H3Event } from "h3";
+import type { CreateAuditLogPayload, AuditAction } from "~/types/audit";
+import { AuditLogRepository } from "../repositories/audit.repository";
 
 const auditRepo = new AuditLogRepository();
 
 /**
- * Create an audit log entry (async, non-blocking).
- * According to Q5.1 decision: Async Write - don't block the main flow.
+ * 建立稽核日誌條目 (非同步，不阻塞主流程)。
+ * 根據 Q5.1 決策：非同步寫入 - 不影響主操作流程。
  */
 export async function createAuditLog(
   payload: CreateAuditLogPayload,
@@ -19,14 +19,14 @@ export async function createAuditLog(
     const log = await auditRepo.create(payload);
     return log.id;
   } catch (error) {
-    console.error('Failed to create audit log:', error);
-    // Don't throw - log failures should not block the main operation
-    return '';
+    console.error("建立稽核日誌失敗:", error);
+    // 不拋出錯誤 - 日誌寫入失敗不應中斷主操作
+    return "";
   }
 }
 
 /**
- * Create an audit log for successful reveal operation.
+ * 記錄成功的敏感資料解鎖操作。
  */
 export async function logRevealSuccess(
   event: H3Event,
@@ -36,10 +36,10 @@ export async function logRevealSuccess(
 ): Promise<string> {
   const userContext = event.context.userContext;
   const ipAddress = getRequestIP(event, { xForwardedFor: true });
-  const userAgent = getRequestHeader(event, 'user-agent');
+  const userAgent = getRequestHeader(event, "user-agent");
 
   return await createAuditLog({
-    action: 'REVEAL_SENSITIVE_DATA',
+    action: "REVEAL_SENSITIVE_DATA",
     userId: userContext.userId,
     userName: userContext.fullName,
     targetMemberId,
@@ -51,7 +51,7 @@ export async function logRevealSuccess(
 }
 
 /**
- * Create an audit log for failed reveal attempt (Q1.3 decision: record failures).
+ * 記錄失敗的解鎖嘗試 (Q1.3 決策：記錄失敗案例)。
  */
 export async function logRevealFailure(
   event: H3Event,
@@ -62,10 +62,10 @@ export async function logRevealFailure(
 ): Promise<string> {
   const userContext = event.context.userContext;
   const ipAddress = getRequestIP(event, { xForwardedFor: true });
-  const userAgent = getRequestHeader(event, 'user-agent');
+  const userAgent = getRequestHeader(event, "user-agent");
 
   return await createAuditLog({
-    action: 'REVEAL_ATTEMPT_FAILED',
+    action: "REVEAL_ATTEMPT_FAILED",
     userId: userContext.userId,
     userName: userContext.fullName,
     targetMemberId,
@@ -78,7 +78,7 @@ export async function logRevealFailure(
 }
 
 /**
- * Create a generic audit log entry.
+ * 建立通用的稽核日誌條目。
  */
 export async function logAction(
   action: AuditAction,
@@ -95,7 +95,7 @@ export async function logAction(
 }
 
 /**
- * Get audit logs count for a user within a time window (for rate limiting).
+ * 獲取特定用戶在一定時間範圍內的稽核日誌數量 (用於速率限制)。
  */
 export async function getRevealCountSince(
   userId: string,

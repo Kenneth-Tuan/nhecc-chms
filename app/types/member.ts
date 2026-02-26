@@ -1,17 +1,17 @@
 /**
- * Member-related type definitions (ST001)
+ * 會友相關型別定義 (ST001)
  */
 
-/** Gender enum */
+/** 性別列舉 */
 export type Gender = "Male" | "Female";
 
-/** Membership status */
+/** 會員狀態 */
 export type MemberStatus = "Active" | "Inactive" | "Suspended";
 
-/** Course completion status */
+/** 課程完成狀態 */
 export type CourseCompletionStatus = "Completed" | "Failed" | "InProgress";
 
-/** Member course record */
+/** 會友課程記錄 */
 export interface MemberCourseRecord {
   courseId: string;
   courseName: string;
@@ -19,7 +19,7 @@ export interface MemberCourseRecord {
   status: CourseCompletionStatus;
 }
 
-/** Deletion reason codes for soft delete */
+/** 軟刪除原因代碼 */
 export type DeletionReason =
   | "left_church"
   | "transferred"
@@ -27,32 +27,32 @@ export type DeletionReason =
   | "data_error"
   | "other";
 
-/** Full Member entity (stored in database) */
+/** 完整的會友實體（存儲於資料庫中） */
 export interface Member {
-  // System fields
+  // 系統欄位
   uuid: string;
   createdAt: string;
   updatedAt: string;
   createdBy: string;
   updatedBy: string;
 
-  // Basic info
+  // 基本資訊
   fullName: string;
   gender: Gender;
-  dob: string; // ISO date string
+  dob: string; // ISO 日期字串
 
-  // Contact info (sensitive)
+  // 聯絡資訊（敏感資料）
   email: string;
   mobile: string;
   address?: string;
   lineId?: string;
 
-  // Emergency contact (sensitive)
+  // 緊急聯絡人（敏感資料）
   emergencyContactName: string;
   emergencyContactRelationship: string;
   emergencyContactPhone: string;
 
-  // Church info
+  // 教會資訊
   baptismStatus: boolean;
   baptismDate?: string;
   status: MemberStatus;
@@ -60,24 +60,24 @@ export interface Member {
   groupId?: string | null;
   pastCourses: string[];
 
-  // RBAC (ST002)
+  // 權限控制 (ST002)
   roleIds: string[];
   functionalGroupIds: string[];
 
-  // Avatar
+  // 大頭貼
   avatar?: string;
 
-  // Soft delete metadata (ST004)
+  // 軟刪除中繼資料 (ST004)
   deletionReason?: DeletionReason;
   deletionNotes?: string;
 }
 
-/** Sensitive field metadata attached to API responses */
+/** 附在 API 回應中的敏感欄位中繼資料 */
 export interface SensitiveFieldMeta {
   canReveal: boolean;
 }
 
-/** Member list item (used in DataTable) */
+/** 會友清單項目（用於 DataTable） */
 export interface MemberListItem {
   uuid: string;
   fullName: string;
@@ -99,7 +99,7 @@ export interface MemberListItem {
   baptismStatus: boolean;
 }
 
-/** Member detail (used in Quick View Modal) */
+/** 會友詳情（用於快速檢視彈窗） */
 export interface MemberDetail extends Member {
   age: number;
   zoneName?: string;
@@ -107,7 +107,7 @@ export interface MemberDetail extends Member {
   roleNames: string[];
   courseRecords: MemberCourseRecord[];
 
-  // Sensitive field metadata
+  // 敏感欄位中繼資料
   mobileMeta: SensitiveFieldMeta;
   emailMeta: SensitiveFieldMeta;
   lineIdMeta: SensitiveFieldMeta;
@@ -115,7 +115,7 @@ export interface MemberDetail extends Member {
   emergencyContactPhoneMeta: SensitiveFieldMeta;
 }
 
-/** Filters for member list API */
+/** 會友清單 API 過濾條件 */
 export interface MemberFilters {
   search?: string;
   searchField?: "fullName" | "mobile";
@@ -123,16 +123,16 @@ export interface MemberFilters {
   baptismStatus?: "all" | "baptized" | "notBaptized";
   zoneId?: string | null;
   groupId?: string | null;
-  unassigned?: boolean; // members without group
+  unassigned?: boolean; // 未分配小組的會友
 }
 
-/** Soft delete payload */
+/** 軟刪除請求資料 */
 export interface SoftDeletePayload {
   reason: DeletionReason;
   notes?: string;
 }
 
-/** Create member payload */
+/** 建立會友請求資料 */
 export interface CreateMemberPayload {
   fullName: string;
   gender: Gender;
@@ -155,7 +155,7 @@ export interface CreateMemberPayload {
   avatar?: string;
 }
 
-/** Update member payload (all fields optional, includes deletion metadata) */
+/** 更新會友請求資料（所有欄位皆為可選，包含刪除中繼資料） */
 export type UpdateMemberPayload = Partial<CreateMemberPayload> & {
   deletionReason?: DeletionReason;
   deletionNotes?: string;

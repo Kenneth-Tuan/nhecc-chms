@@ -1,6 +1,6 @@
 /**
- * Member Validation Composable (ST004)
- * Provides real-time field validation for member forms.
+ * 會友驗證 Composable (ST004)
+ * 提供會友表單的即時欄位驗證功能。
  */
 
 interface UniqueCheckResponse {
@@ -14,7 +14,7 @@ export function useMemberValidation() {
   const isCheckingMobile = ref(false);
   const isCheckingEmail = ref(false);
 
-  /** Check mobile number uniqueness (called on blur) */
+  /** 檢查手機號碼是否唯一（於失焦時觸發） */
   async function checkMobileUnique(
     mobile: string,
     excludeUuid?: string,
@@ -49,7 +49,7 @@ export function useMemberValidation() {
     }
   }
 
-  /** Check email and show suggestion warning if duplicate (called on blur) */
+  /** 檢查電子信箱是否重複，若重複則顯示建議警告（於失焦時觸發） */
   async function checkEmailDuplicate(
     email: string,
     excludeUuid?: string,
@@ -80,13 +80,13 @@ export function useMemberValidation() {
     }
   }
 
-  /** Validate date is not in the future */
+  /** 驗證日期不可晚於今天 */
   function validatePastDate(date: string): boolean {
     if (!date) return true;
     return new Date(date) <= new Date();
   }
 
-  /** Reset all validation state */
+  /** 重置所有驗證狀態 */
   function resetValidation(): void {
     mobileError.value = null;
     emailWarning.value = null;

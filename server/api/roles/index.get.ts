@@ -1,16 +1,16 @@
 /**
  * GET /api/roles
- * Returns paginated role list.
+ * 回傳分頁的角色清單。
  */
-import { getQuery } from 'h3';
-import { roleFiltersSchema } from '~/schemas/role.schema';
-import { RoleService } from '../../services/role.service';
-import { requireAbility, validateWithSchema } from '../../utils/validation';
+import { getQuery } from "h3";
+import { roleFiltersSchema } from "~/schemas/role.schema";
+import { RoleService } from "../../services/role.service";
+import { requireAbility, validateWithSchema } from "../../utils/validation";
 
 const roleService = new RoleService();
 
 export default defineEventHandler(async (event) => {
-  requireAbility(event, 'manage', 'System');
+  requireAbility(event, "manage", "System");
 
   const query = getQuery(event);
   const filters = validateWithSchema(roleFiltersSchema, query);

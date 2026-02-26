@@ -1,6 +1,6 @@
 /**
- * Auth composable
- * Provides access to auth store with automatic initialization and CASL ability.
+ * 身份驗證 Composable
+ * 提供對 Auth Store 的存取，並包含自動初始化與 CASL 能力 (Ability) 整合。
  */
 import { useAbility } from "@casl/vue";
 import { useAuthStore } from "~/stores/auth.store";

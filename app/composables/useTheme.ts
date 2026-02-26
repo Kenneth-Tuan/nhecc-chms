@@ -1,6 +1,10 @@
 // app/composables/useTheme.ts
 import { useDark, useToggle } from "@vueuse/core";
 
+/**
+ * 主題切換 Composable
+ * 整合深色模式切換及 View Transition 動畫效果。
+ */
 export const useTheme = () => {
   const isDark = useDark();
   const toggle = useToggle(isDark);
@@ -19,7 +23,7 @@ export const useTheme = () => {
     const y = event.clientY;
     const endRadius = Math.hypot(
       Math.max(x, window.innerWidth - x),
-      Math.max(y, window.innerHeight - y)
+      Math.max(y, window.innerHeight - y),
     );
 
     const transition = document.startViewTransition(() => {
@@ -39,7 +43,7 @@ export const useTheme = () => {
           duration: duration,
           easing: "cubic-bezier(.76,.32,.29,.99)",
           pseudoElement: "::view-transition-new(root)",
-        }
+        },
       );
     });
   };

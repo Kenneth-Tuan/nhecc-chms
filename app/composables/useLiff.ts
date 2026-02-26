@@ -1,3 +1,7 @@
+/**
+ * LINE LIFF 功能 Composable
+ * 處理 LIFF 初始化及 LINE 登入。
+ */
 import liff from "@line/liff";
 
 export interface LineProfile {
@@ -17,6 +21,7 @@ export function useLiff() {
   const initialized = ref(false);
   const error = ref<string | null>(null);
 
+  /** 初始化 LIFF App */
   async function initLiff(): Promise<void> {
     if (initialized.value) return;
     try {
@@ -28,6 +33,7 @@ export function useLiff() {
     }
   }
 
+  /** 執行 LINE 登入流程 */
   async function loginWithLiff(): Promise<LiffLoginResult | null> {
     await initLiff();
 
@@ -49,6 +55,7 @@ export function useLiff() {
     return result;
   }
 
+  /** LINE 登出 */
   function liffLogout(): void {
     if (liff.isLoggedIn()) {
       liff.logout();

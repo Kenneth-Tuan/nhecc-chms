@@ -1,8 +1,8 @@
 /**
  * GET /api/organization/structure
- * Returns the organization structure (zones with groups + functional groups).
+ * 回傳組織架構（包含牧區及小組 + 功能性小組）。
  */
-import { OrganizationService } from '../../services/organization.service';
+import { OrganizationService } from "../../services/organization.service";
 
 const orgService = new OrganizationService();
 

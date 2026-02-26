@@ -1,6 +1,6 @@
 /**
  * GET /api/organization/pending-members
- * Returns members with no zoneId and no groupId (pending pool).
+ * 回傳尚未分配牧區與小組的會友（待分配池）。
  */
 import { OrganizationService } from "../../services/organization.service";
 

@@ -1,6 +1,6 @@
 /**
  * POST /api/auth/register
- * Creates a new Member record linked to a Firebase UID.
+ * 建立與 Firebase UID 關聯的新會友 (Member) 記錄。
  */
 import { MemberRepository } from "../../repositories/member.repository";
 import { getAdminAuth } from "../../utils/firebase-admin";
@@ -37,15 +37,15 @@ export default defineEventHandler(async (event) => {
   );
   const isLineUser = body.uid.startsWith("line_");
 
-  // API Interception: Ensure email matches Google provider if applicable
+  // API 攔截：確保電子信箱在適用情況下與 Google 提供者一致
   if (isGoogleUser && fbUser.email && body.email !== fbUser.email) {
     throw createError({
       statusCode: 400,
-      message: "Cannot change email for Google registration",
+      message: "無法變更 Google 註冊的電子信箱",
     });
   }
 
-  // API Interception: Ensure lineId matches UID for LINE registration
+  // API 攔截：確保 LINE 註冊時 lineId 與 UID 一致
   const finalLineId = isLineUser ? body.uid.replace("line_", "") : undefined;
 
   const member = await memberRepo.create({

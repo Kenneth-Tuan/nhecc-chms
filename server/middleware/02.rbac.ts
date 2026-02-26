@@ -1,6 +1,6 @@
 /**
- * RBAC Middleware
- * Resolves user permissions and injects UserContext + CASL Ability into event.
+ * RBAC 中間件
+ * 解析用戶權限並將 UserContext + CASL Ability 注入事件中。
  */
 import { AuthService } from "../services/auth.service";
 import { buildAbility } from "~/utils/casl/ability";
@@ -13,17 +13,15 @@ export default defineEventHandler(async (event) => {
     return;
   }
 
-  // Skip for auth endpoints
+  // 跳過身份驗證相關端點
   if (url.pathname.startsWith("/api/auth/")) {
     if (url.pathname === "/api/auth/context" && event.context.userId) {
       try {
-        const context = await authService.resolveContext(
-          event.context.userId,
-        );
+        const context = await authService.resolveContext(event.context.userId);
         event.context.userContext = context;
         event.context.ability = buildAbility(context);
       } catch {
-        // Ignore errors for auth context
+        // 忽略身份驗證上下文的錯誤
       }
     }
     return;
