@@ -160,3 +160,11 @@ export type UpdateMemberPayload = Partial<CreateMemberPayload> & {
   deletionReason?: DeletionReason;
   deletionNotes?: string;
 };
+
+/** 個人更新資料請求資料（限本人的 subset） */
+export type UpdateProfileInput = Partial<
+  Omit<
+    CreateMemberPayload,
+    "status" | "zoneId" | "groupId" | "roleIds" | "functionalGroupIds"
+  >
+>;

@@ -65,6 +65,17 @@ export const createMemberSchema = baseMemberSchema.refine(
 /** 更新會友的驗證架構（所有欄位皆為可選，不含進階邏輯驗證） */
 export const updateMemberSchema = baseMemberSchema.partial();
 
+/** 個人資料更新架構（僅限本人可改欄位，排除系統管理欄位） */
+export const updateProfileSchema = baseMemberSchema
+  .omit({
+    status: true,
+    zoneId: true,
+    groupId: true,
+    roleIds: true,
+    functionalGroupIds: true,
+  })
+  .partial();
+
 /** 會友清單過濾條件架構 */
 export const memberFiltersSchema = z.object({
   search: z.string().optional(),
@@ -102,5 +113,6 @@ export const softDeleteSchema = z.object({
 /** 型別推導 */
 export type CreateMemberInput = z.infer<typeof createMemberSchema>;
 export type UpdateMemberInput = z.infer<typeof updateMemberSchema>;
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type MemberFiltersInput = z.infer<typeof memberFiltersSchema>;
 export type SoftDeleteInput = z.infer<typeof softDeleteSchema>;

@@ -12,8 +12,8 @@ const menuItems = [
   { label: "會友管理", icon: "pi pi-users", to: "/dashboard/members" },
   { label: "組織架構", icon: "pi pi-sitemap", to: "/dashboard/organization" },
   { label: "角色管理", icon: "pi pi-shield", to: "/dashboard/roles" },
-  { label: "課程管理", icon: "pi pi-book", to: "/dashboard/courses" },
-  { label: "系統設定", icon: "pi pi-cog", to: "/dashboard/settings" },
+  // { label: "課程管理", icon: "pi pi-book", to: "/dashboard/courses" },
+  // { label: "系統設定", icon: "pi pi-cog", to: "/dashboard/settings" },
 ];
 
 const isActive = (path: string): boolean => {

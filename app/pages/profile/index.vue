@@ -4,11 +4,17 @@
  * 包含個人資訊摘要、管理員入口（若有權限）、以及功能選單。
  */
 
-const user = ref({
-  name: "提摩太弟兄",
-  avatar: null, // 測試用，若有圖片 URL 可填入
-  isAdmin: true, // 模擬管理員權限
-});
+import { useAuthStore } from "~/stores/auth.store";
+
+const authStore = useAuthStore();
+const user = computed(() => ({
+  name: authStore.userContext?.fullName || "載入中...",
+  email: authStore.userContext?.email || "",
+  avatar: authStore.userContext?.avatar || null,
+  isAdmin:
+    authStore.userContext?.scope === "Global" ||
+    authStore.userContext?.scope === "Zone",
+}));
 
 const menuItems = [
   {
@@ -17,7 +23,7 @@ const menuItems = [
     to: "/profile/settings",
   },
   {
-    label: "學習旅程", // 原修課歷史紀錄
+    label: "學習旅程",
     icon: "pi pi-history",
     to: "/profile/learning-journey",
   },
@@ -33,17 +39,26 @@ const menuItems = [
   },
 ];
 
-const handleLogout = () => {
-  // 實作登出邏輯
-  console.log("Logout clicked");
-  navigateTo("/login");
+const { logout } = useFirebaseAuth();
+
+const handleLogout = async () => {
+  try {
+    await logout();
+    navigateTo("/login");
+  } catch (error) {
+    console.error("Logout failed:", error);
+  }
 };
 
 const navigateToAdmin = () => {
-  // 導向管理後台
-  console.log("Navigate to Admin Console");
   navigateTo("/dashboard");
 };
+
+onMounted(() => {
+  if (!authStore.isInitialized) {
+    authStore.loadContext();
+  }
+});
 </script>
 
 <template>

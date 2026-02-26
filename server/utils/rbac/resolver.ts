@@ -40,8 +40,10 @@ export function resolveUserContext(member: Member, roles: Role[]): UserContext {
   return {
     userId: member.uuid,
     fullName: member.fullName,
+    email: member.email,
+    avatar: member.avatar,
     scope,
-    zoneId: member.zoneId,
+    zoneId: member.zoneId || undefined,
     groupIds,
     functionalGroupIds,
     managedGroupIds,

@@ -132,8 +132,14 @@ export class MemberService {
       "emergencyContactPhone",
     ];
 
+    const isSelf = userContext.userId === member.uuid;
+
     const maskedMember = { ...member };
     for (const field of sensitiveFields) {
+      if (isSelf || ability.can("reveal", "Member", field)) {
+        continue;
+      }
+
       const maskFn = getMaskFunction(field);
       if (field === "mobile") {
         maskedMember.mobile = maskFn(member.mobile);

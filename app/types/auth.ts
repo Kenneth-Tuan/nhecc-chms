@@ -11,6 +11,8 @@ import type { AppAbility } from "~/utils/casl/ability";
 export interface UserContext {
   userId: string;
   fullName: string;
+  email?: string;
+  avatar?: string | null;
   scope: DataScope;
   zoneId?: string;
   groupIds: string[];

@@ -6,8 +6,13 @@ import { ZodError } from "zod";
 import {
   createMemberSchema,
   updateMemberSchema,
+  updateProfileSchema,
 } from "~/schemas/member.schema";
-import type { CreateMemberPayload, UpdateMemberPayload } from "~/types/member";
+import type {
+  CreateMemberPayload,
+  UpdateMemberPayload,
+  UpdateProfileInput,
+} from "~/types/member";
 
 interface FormError {
   field: string;
@@ -46,7 +51,7 @@ export function useMemberForm() {
     } catch (error) {
       if (error instanceof ZodError) {
         setFieldErrors(
-          error.errors.map((e) => ({
+          error.issues.map((e) => ({
             field: e.path.join("."),
             message: e.message,
           })),
@@ -65,7 +70,7 @@ export function useMemberForm() {
     } catch (error) {
       if (error instanceof ZodError) {
         setFieldErrors(
-          error.errors.map((e) => ({
+          error.issues.map((e) => ({
             field: e.path.join("."),
             message: e.message,
           })),
@@ -142,6 +147,58 @@ export function useMemberForm() {
     }
   }
 
+  /** 使用「個人資料更新」架構驗證表單資料 */
+  function validateProfileUpdate(data: Record<string, unknown>): boolean {
+    try {
+      updateProfileSchema.parse(data);
+      clearErrors();
+      return true;
+    } catch (error) {
+      if (error instanceof ZodError) {
+        setFieldErrors(
+          error.issues.map((e) => ({
+            field: e.path.join("."),
+            message: e.message,
+          })),
+        );
+      }
+      return false;
+    }
+  }
+
+  /** 提交更新個人資料表單 (本人) */
+  async function submitProfileUpdate(
+    payload: UpdateProfileInput,
+  ): Promise<{ success: boolean; data?: Record<string, unknown> }> {
+    isSubmitting.value = true;
+    clearErrors();
+
+    try {
+      const response = await $fetch<{
+        success: boolean;
+        data: Record<string, unknown>;
+        message: string;
+      }>("/api/auth/me", {
+        method: "PATCH",
+        body: payload,
+      });
+
+      toast.add({
+        severity: "success",
+        summary: "成功",
+        detail: response.message || "個人資料已更新！",
+        life: 3000,
+      });
+
+      return { success: true, data: response.data };
+    } catch (error: unknown) {
+      handleApiError(error);
+      return { success: false };
+    } finally {
+      isSubmitting.value = false;
+    }
+  }
+
   /** 處理 API 錯誤，包含 Toast 提示與欄位對應 */
   function handleApiError(error: unknown): void {
     const apiError = error as {
@@ -174,7 +231,9 @@ export function useMemberForm() {
     clearFieldError,
     validateCreate,
     validateUpdate,
+    validateProfileUpdate,
     submitCreate,
     submitUpdate,
+    submitProfileUpdate,
   };
 }
