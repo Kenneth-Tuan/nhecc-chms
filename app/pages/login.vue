@@ -69,22 +69,7 @@ const handleSocialLogin = async (provider: "google" | "line") => {
         navigateTo("/dashboard");
       }
     } else {
-      const result = await firebaseAuth.loginWithLine();
-      if (!result.uid) return; // LIFF redirect happened
-      if (result.isNewUser) {
-        navigateTo({
-          path: "/register",
-          query: {
-            uid: result.uid,
-            fullName: result.lineProfile?.name || "",
-            avatar: result.lineProfile?.picture || "",
-            lineId: result.lineProfile?.userId || "",
-            social: "line",
-          },
-        });
-      } else {
-        navigateTo("/dashboard");
-      }
+      navigateTo("/liff");
     }
   } catch (e: any) {
     toast.add({

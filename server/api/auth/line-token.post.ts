@@ -39,17 +39,34 @@ export default defineEventHandler(async (event) => {
   }
 
   // 步驟 1：透過 LINE Login v2.1 API 驗證 ID token
-  const verifyRes = await $fetch<LineVerifyResponse>(
-    "https://api.line.me/oauth2/v2.1/verify",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        id_token: idToken,
-        client_id: channelId,
-      }).toString(),
-    },
-  );
+  let verifyRes: LineVerifyResponse;
+  try {
+    verifyRes = await $fetch<LineVerifyResponse>(
+      "https://api.line.me/oauth2/v2.1/verify",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          id_token: idToken,
+          client_id: channelId,
+        }).toString(),
+      },
+    );
+  } catch (err: any) {
+    const errorDescription =
+      err.data?.error_description || err.response?._data?.error_description;
+    if (errorDescription === "IdToken expired.") {
+      throw createError({
+        statusCode: 401,
+        message: "LINE ID Token has expired",
+        data: { reason: "token_expired" },
+      });
+    }
+    throw createError({
+      statusCode: 400,
+      message: "LINE ID Token verification failed",
+    });
+  }
 
   if (!verifyRes.sub) {
     throw createError({ statusCode: 401, message: "Invalid LINE ID token" });
@@ -74,6 +91,7 @@ export default defineEventHandler(async (event) => {
       userId: verifyRes.sub,
       name: verifyRes.name || "",
       picture: verifyRes.picture || "",
+      email: verifyRes.email || "",
     },
   };
 });

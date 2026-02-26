@@ -135,6 +135,7 @@ export const userFieldDefs = {
   maritalStatus: {
     name: "maritalStatus",
     label: "婚姻狀態",
+    icon: "pi pi-heart",
     component: "Select",
     options: maritalOptions,
     placeholder: "請選擇狀態",
@@ -142,30 +143,35 @@ export const userFieldDefs = {
   lineId: {
     name: "lineId",
     label: "Line ID",
+    icon: "pi pi-comment",
     component: "InputText",
     placeholder: "請輸入 Line ID",
   },
   address: {
     name: "address",
     label: "通訊地址",
+    icon: "pi pi-map-marker",
     component: "InputText",
     placeholder: "請輸入通訊地址",
   },
   emergencyContactName: {
     name: "emergencyContactName",
     label: "緊急聯絡人姓名",
+    icon: "pi pi-user-plus",
     component: "InputText",
     placeholder: "聯絡人姓名",
   },
   emergencyContactPhone: {
     name: "emergencyContactPhone",
     label: "緊急聯絡人電話",
+    icon: "pi pi-phone",
     component: "InputText",
     placeholder: "聯絡人電話",
   },
   isBaptized: {
     name: "isBaptized",
     label: "是否已經受洗？",
+    icon: "pi pi-info-circle",
     component: "SelectButton",
     options: [
       { label: "是", value: true },
@@ -175,12 +181,14 @@ export const userFieldDefs = {
   baptismDate: {
     name: "baptismDate",
     label: "受洗日期",
+    icon: "pi pi-calendar",
     component: "DatePicker",
     placeholder: "請選擇日期",
   },
   pastoralZone: {
     name: "pastoralZone",
     label: "歸屬牧區",
+    icon: "pi pi-sitemap",
     component: "Select",
     placeholder: "請選擇牧區",
     extraProps: { optionLabel: "name", optionValue: "id" },
@@ -188,6 +196,7 @@ export const userFieldDefs = {
   homeGroup: {
     name: "homeGroup",
     label: "歸屬小組",
+    icon: "pi pi-users",
     component: "Select",
     placeholder: "請選擇小組",
     extraProps: { optionLabel: "name", optionValue: "id" },
@@ -195,6 +204,7 @@ export const userFieldDefs = {
   previousCourses: {
     name: "previousCourses",
     label: "曾經參與過的福音課程 (可複選，僅供參考)",
+    icon: "pi pi-book",
     component: "Listbox",
     options: courseOptions,
     extraProps: { multiple: true },

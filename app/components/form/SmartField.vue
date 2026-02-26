@@ -29,7 +29,7 @@ if (import.meta.env.DEV) {
   ];
   if (props.component && !validComponents.includes(props.component)) {
     console.warn(
-      `[SmartField] Unknown component: "${props.component}". Fallback to InputText.`
+      `[SmartField] Unknown component: "${props.component}". Fallback to InputText.`,
     );
   }
 }

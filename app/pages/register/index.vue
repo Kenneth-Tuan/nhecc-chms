@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { zodResolver } from "@primevue/forms/resolvers/zod";
+
 import {
   getStep1Schema,
   step2Schema,
   type RegisterFormValues,
-  userFieldDefs as F,
 } from "~/utils/user/formDef";
-import SmartField from "@/components/form/SmartField.vue";
 import { pastoralZones } from "~/data/pastoral-zones.data";
 import { useToast } from "primevue/usetoast";
 import { useAuthStore } from "~/stores/auth.store";
@@ -38,9 +37,12 @@ const formData = ref<Partial<RegisterFormValues>>({
   fullName: (route.query.fullName as string) || "",
   email: (route.query.email as string) || "",
   phone: "",
-  lineId: (route.query.lineId as string) || "",
+  lineId: "",
   gender: "MALE",
   isBaptized: false,
+  baptismDate: new Date(),
+  pastoralZone: "",
+  homeGroup: "",
   previousCourses: [],
 });
 
@@ -49,7 +51,6 @@ const syncFromQuery = () => {
   if (route.query.fullName)
     formData.value.fullName = route.query.fullName as string;
   if (route.query.email) formData.value.email = route.query.email as string;
-  if (route.query.lineId) formData.value.lineId = route.query.lineId as string;
   if (route.query.avatar) formData.value.avatar = route.query.avatar as string;
   if (route.query.uid) socialUid.value = route.query.uid as string;
 };
@@ -57,43 +58,10 @@ const syncFromQuery = () => {
 onMounted(async () => {
   syncFromQuery();
 
-  // 偵測 LINE LIFF 重定向回呼
-  if (route.query.code && route.query.liffClientId) {
-    loading.value = true;
-    try {
-      const result = await firebaseAuth.loginWithLine();
-      if (result) {
-        if (!result.isNewUser) {
-          // 如果已經註冊，導向儀表板
-          navigateTo("/dashboard");
-          return;
-        }
-        // 是新用戶，從個人檔案填入資料
-        if (result.lineProfile) {
-          formData.value.fullName = result.lineProfile.name;
-          formData.value.lineId = result.lineProfile.userId;
-          formData.value.avatar = result.lineProfile.picture;
-          socialAvatar.value = result.lineProfile.picture;
-          socialUid.value = result.uid;
-        }
-      }
-    } catch (e: any) {
-      toast.add({
-        severity: "error",
-        summary: "LINE 驗證失敗",
-        detail: e.message || "無法取得 LINE 個人資訊",
-        life: 4000,
-      });
-    } finally {
-      loading.value = false;
-    }
-  }
-
   // 如果缺少查詢參數（LINE 重定向常見情況），則回退到待處理的 LINE 個人檔案
   if (isLine.value && firebaseAuth.pendingLineProfile.value) {
     const profile = firebaseAuth.pendingLineProfile.value;
     if (!formData.value.fullName) formData.value.fullName = profile.name;
-    if (!formData.value.lineId) formData.value.lineId = profile.userId;
     if (!formData.value.avatar) formData.value.avatar = profile.picture;
     if (!socialAvatar.value) socialAvatar.value = profile.picture;
   }
@@ -208,7 +176,7 @@ const onStep2Submit = async (e: any) => {
     });
 
     await authStore.loadContext();
-    navigateTo("/dashboard");
+    navigateTo("/");
   } catch (err: any) {
     toast.add({
       severity: "error",
@@ -223,7 +191,7 @@ const onStep2Submit = async (e: any) => {
 
 const handleSkip = async () => {
   await authStore.loadContext();
-  navigateTo("/dashboard");
+  navigateTo("/");
 };
 
 definePageMeta({
@@ -307,15 +275,150 @@ definePageMeta({
             @submit="onStep1Submit"
             class="flex-1 flex flex-col space-y-5"
           >
-            <SmartField v-bind="F.fullName" />
-            <SmartField v-bind="F.phone" />
-            <SmartField v-bind="F.email" :disabled="isGoogle" />
-            <SmartField v-if="isLine" v-bind="F.lineId" :disabled="isLine" />
+            <FormField
+              v-slot="$field"
+              name="fullName"
+              class="flex flex-col gap-2"
+            >
+              <label
+                for="fullName"
+                class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+              >
+                <i class="pi pi-user text-slate-400" />
+                <span>
+                  真實姓名
+                  <span class="text-primary">*</span>
+                </span>
+              </label>
+
+              <InputText
+                name="fullName"
+                placeholder="請輸入姓名"
+                :invalid="$field.invalid"
+                fluid
+              />
+
+              <FormSmartFieldError
+                :message="$field.error?.message"
+                :show="$field.invalid"
+              />
+            </FormField>
+
+            <FormField v-slot="$field" name="phone" class="flex flex-col gap-2">
+              <label
+                for="phone"
+                class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+              >
+                <i class="pi pi-phone text-slate-400" />
+                <span>
+                  手機號碼
+                  <span class="text-primary">*</span>
+                </span>
+              </label>
+
+              <InputText
+                name="phone"
+                placeholder="0912-345-678"
+                :invalid="$field.invalid"
+                fluid
+              />
+
+              <FormSmartFieldError
+                :message="$field.error?.message"
+                :show="$field.invalid"
+              />
+            </FormField>
+
+            <FormField v-slot="$field" name="email" class="flex flex-col gap-2">
+              <label
+                for="email"
+                class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+              >
+                <i class="pi pi-envelope text-slate-400" />
+                <span>
+                  電子郵件
+                  <span class="text-primary">*</span>
+                </span>
+              </label>
+
+              <InputText
+                name="email"
+                placeholder="example@email.com"
+                :invalid="$field.invalid"
+                fluid
+                :disabled="isGoogle"
+              />
+
+              <FormSmartFieldError
+                :message="$field.error?.message"
+                :show="$field.invalid"
+              />
+            </FormField>
 
             <template v-if="!isSocialRegister">
               <Divider />
-              <SmartField v-bind="F.password" />
-              <SmartField v-bind="F.confirmPassword" />
+
+              <FormField
+                v-slot="$field"
+                name="password"
+                class="flex flex-col gap-2"
+              >
+                <label
+                  for="password"
+                  class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                >
+                  <i class="pi pi-lock text-slate-400" />
+                  <span>
+                    設定密碼
+                    <span class="text-primary">*</span>
+                  </span>
+                </label>
+
+                <InputText
+                  name="password"
+                  placeholder="請輸入密碼"
+                  :invalid="$field.invalid"
+                  fluid
+                  toggleMask
+                  :feedback="true"
+                />
+
+                <FormSmartFieldError
+                  :message="$field.error?.message"
+                  :show="$field.invalid"
+                />
+              </FormField>
+
+              <FormField
+                v-slot="$field"
+                name="confirmPassword"
+                class="flex flex-col gap-2"
+              >
+                <label
+                  for="confirmPassword"
+                  class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                >
+                  <i class="pi pi-lock text-slate-400" />
+                  <span>
+                    設定密碼
+                    <span class="text-primary">*</span>
+                  </span>
+                </label>
+
+                <InputText
+                  name="confirmPassword"
+                  placeholder="請再次輸入密碼"
+                  :invalid="$field.invalid"
+                  fluid
+                  toggleMask
+                  :feedback="false"
+                />
+
+                <FormSmartFieldError
+                  :message="$field.error?.message"
+                  :show="$field.invalid"
+                />
+              </FormField>
             </template>
 
             <div class="mt-auto pt-6">
@@ -416,9 +519,100 @@ definePageMeta({
                 基本資料
               </h2>
               <div class="grid grid-cols-1 gap-5">
-                <SmartField v-bind="F.gender" />
-                <SmartField v-bind="F.birthDate" />
-                <SmartField v-bind="F.maritalStatus" />
+                <FormField
+                  v-slot="$field"
+                  name="gender"
+                  class="flex flex-col gap-2"
+                >
+                  <label
+                    for="gender"
+                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                  >
+                    <i class="pi pi-user text-slate-400" />
+                    <span>
+                      性別
+                      <span class="text-primary">*</span>
+                    </span>
+                  </label>
+
+                  <SelectButton
+                    name="gender"
+                    optionLabel="label"
+                    optionValue="value"
+                    dataKey="value"
+                    :invalid="$field.invalid"
+                    fluid
+                    :options="genderOptions"
+                  >
+                    <template #option="slotProps">
+                      <i
+                        :class="[slotProps.option.icon, slotProps.option.class]"
+                      ></i>
+                      <span>{{ slotProps.option.label }}</span>
+                    </template>
+                  </SelectButton>
+
+                  <FormSmartFieldError
+                    :message="$field.error?.message"
+                    :show="$field.invalid"
+                  />
+                </FormField>
+
+                <FormField
+                  v-slot="$field"
+                  name="birthDate"
+                  class="flex flex-col gap-2"
+                >
+                  <label
+                    for="birthDate"
+                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                  >
+                    <i class="pi pi-calendar text-slate-400" />
+                    <span>
+                      出生年月日
+                      <span class="text-primary">*</span>
+                    </span>
+                  </label>
+
+                  <DatePicker
+                    name="birthDate"
+                    :invalid="$field.invalid"
+                    fluid
+                  />
+
+                  <FormSmartFieldError
+                    :message="$field.error?.message"
+                    :show="$field.invalid"
+                  />
+                </FormField>
+
+                <FormField
+                  v-slot="$field"
+                  name="maritalStatus"
+                  class="flex flex-col gap-2"
+                >
+                  <label
+                    for="maritalStatus"
+                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                  >
+                    <i class="pi pi-heart text-slate-400" />
+                    <span> 婚姻狀態 </span>
+                  </label>
+
+                  <Select
+                    name="maritalStatus"
+                    :invalid="$field.invalid"
+                    optionLabel="label"
+                    optionValue="value"
+                    fluid
+                    :options="maritalOptions"
+                  />
+
+                  <FormSmartFieldError
+                    :message="$field.error?.message"
+                    :show="$field.invalid"
+                  />
+                </FormField>
               </div>
             </section>
 
@@ -430,8 +624,63 @@ definePageMeta({
                 聯絡資訊
               </h2>
               <div class="grid grid-cols-1 gap-5">
-                <SmartField v-bind="F.lineId" :disabled="isLine" />
-                <SmartField v-bind="F.address" />
+                <FormField
+                  v-slot="$field"
+                  name="lineId"
+                  class="flex flex-col gap-2"
+                >
+                  <label
+                    for="lineId"
+                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                  >
+                    <i class="pi pi-comment text-slate-400" />
+                    <span>
+                      Line ID
+                      <span class="text-primary">*</span>
+                    </span>
+                  </label>
+
+                  <InputText
+                    name="lineId"
+                    placeholder="請輸入 Line ID"
+                    :invalid="$field.invalid"
+                    fluid
+                  />
+
+                  <FormSmartFieldError
+                    :message="$field.error?.message"
+                    :show="$field.invalid"
+                  />
+                </FormField>
+
+                <FormField
+                  v-slot="$field"
+                  name="address"
+                  class="flex flex-col gap-2"
+                >
+                  <label
+                    for="address"
+                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                  >
+                    <i class="pi pi-map-marker text-slate-400" />
+                    <span>
+                      通訊地址
+                      <span class="text-primary">*</span>
+                    </span>
+                  </label>
+
+                  <InputText
+                    name="address"
+                    placeholder="請輸入通訊地址"
+                    :invalid="$field.invalid"
+                    fluid
+                  />
+
+                  <FormSmartFieldError
+                    :message="$field.error?.message"
+                    :show="$field.invalid"
+                  />
+                </FormField>
               </div>
             </section>
 
@@ -443,8 +692,63 @@ definePageMeta({
                 緊急聯絡人
               </h2>
               <div class="grid grid-cols-1 gap-5">
-                <SmartField v-bind="F.emergencyContactName" />
-                <SmartField v-bind="F.emergencyContactPhone" />
+                <FormField
+                  v-slot="$field"
+                  name="emergencyContactName"
+                  class="flex flex-col gap-2"
+                >
+                  <label
+                    for="emergencyContactName"
+                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                  >
+                    <i class="pi pi-map-marker text-slate-400" />
+                    <span>
+                      緊急聯絡人姓名
+                      <span class="text-primary">*</span>
+                    </span>
+                  </label>
+
+                  <InputText
+                    name="emergencyContactName"
+                    placeholder="請輸入緊急聯絡人姓名"
+                    :invalid="$field.invalid"
+                    fluid
+                  />
+
+                  <FormSmartFieldError
+                    :message="$field.error?.message"
+                    :show="$field.invalid"
+                  />
+                </FormField>
+
+                <FormField
+                  v-slot="$field"
+                  name="emergencyContactPhone"
+                  class="flex flex-col gap-2"
+                >
+                  <label
+                    for="emergencyContactPhone"
+                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                  >
+                    <i class="pi pi-phone text-slate-400" />
+                    <span>
+                      緊急聯絡人電話
+                      <span class="text-primary">*</span>
+                    </span>
+                  </label>
+
+                  <InputText
+                    name="emergencyContactPhone"
+                    placeholder="請輸入緊急聯絡人電話"
+                    :invalid="$field.invalid"
+                    fluid
+                  />
+
+                  <FormSmartFieldError
+                    :message="$field.error?.message"
+                    :show="$field.invalid"
+                  />
+                </FormField>
               </div>
             </section>
 
@@ -456,21 +760,131 @@ definePageMeta({
                 信仰狀態
               </h2>
               <div class="grid grid-cols-1 gap-5">
-                <SmartField v-bind="F.isBaptized" />
+                <FormField
+                  v-slot="$field"
+                  name="isBaptized"
+                  class="flex flex-col gap-2"
+                >
+                  <label
+                    for="isBaptized"
+                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                  >
+                    <i class="pi pi-info-circle text-slate-400" />
+                    <span> 是否已經受洗？ </span>
+                  </label>
+
+                  <SelectButton
+                    name="isBaptized"
+                    optionLabel="label"
+                    optionValue="value"
+                    dataKey="value"
+                    :invalid="$field.invalid"
+                    fluid
+                    :options="[
+                      { label: '是', value: true },
+                      { label: '否', value: false },
+                    ]"
+                    ,
+                  >
+                    <template #option="slotProps">
+                      <span>{{ slotProps.option.label }}</span>
+                    </template>
+                  </SelectButton>
+
+                  <FormSmartFieldError
+                    :message="$field.error?.message"
+                    :show="$field.invalid"
+                  />
+                </FormField>
 
                 <div
-                  v-if="formData.isBaptized"
+                  v-if="formData.isBaptized || true"
                   class="animate-fade-in animate-duration-300"
                 >
-                  <SmartField v-bind="F.baptismDate" />
+                  <FormField
+                    v-slot="$field"
+                    name="baptismDate"
+                    class="flex flex-col gap-2"
+                  >
+                    <label
+                      for="baptismDate"
+                      class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                    >
+                      <i class="pi pi-calendar text-slate-400" />
+                      <span> 受洗日期 </span>
+                    </label>
+
+                    <DatePicker
+                      name="baptismDate"
+                      :invalid="$field.invalid"
+                      fluid
+                    />
+
+                    <FormSmartFieldError
+                      :message="$field.error?.message"
+                      :show="$field.invalid"
+                    />
+                  </FormField>
                 </div>
 
-                <SmartField v-bind="F.pastoralZone" :options="pastoralZones" />
-                <SmartField
-                  v-bind="F.homeGroup"
-                  :options="availableGroups"
-                  :disabled="!formData.pastoralZone"
-                />
+                <FormField
+                  v-slot="$field"
+                  name="pastoralZone"
+                  class="flex flex-col gap-2"
+                >
+                  <label
+                    for="pastoralZone"
+                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                  >
+                    <i class="pi pi-sitemap text-slate-400" />
+                    <span> 歸屬牧區 </span>
+                  </label>
+
+                  <Select
+                    name="pastoralZone"
+                    placeholder="請選擇牧區"
+                    :invalid="$field.invalid"
+                    optionLabel="name"
+                    optionValue="id"
+                    fluid
+                    :options="pastoralZones"
+                  />
+
+                  <FormSmartFieldError
+                    :message="$field.error?.message"
+                    :show="$field.invalid"
+                  />
+                </FormField>
+
+                <FormField
+                  v-slot="$field"
+                  name="homeGroup"
+                  class="flex flex-col gap-2"
+                >
+                  <label
+                    for="homeGroup"
+                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                  >
+                    <i class="pi pi-users text-slate-400" />
+                    <span> 歸屬小組 </span>
+                  </label>
+
+                  <Select
+                    name="homeGroup"
+                    placeholder="請選擇小組"
+                    :invalid="$field.invalid"
+                    optionLabel="name"
+                    optionValue="id"
+                    fluid
+                    :options="availableGroups"
+                    :disabled="!formData.pastoralZone"
+                  />
+
+                  <FormSmartFieldError
+                    :message="$field.error?.message"
+                    :show="$field.invalid"
+                  />
+                </FormField>
               </div>
             </section>
 
@@ -481,7 +895,35 @@ definePageMeta({
               >
                 過去經歷
               </h2>
-              <SmartField v-bind="F.previousCourses" />
+
+              <FormField
+                v-slot="$field"
+                name="previousCourses"
+                class="flex flex-col gap-2"
+              >
+                <label
+                  for="previousCourses"
+                  class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                >
+                  <i class="pi pi-book text-slate-400" />
+                  <span> 曾經參與過的福音課程 (可複選，僅供參考) </span>
+                </label>
+
+                <Listbox
+                  name="previousCourses"
+                  optionLabel="label"
+                  optionValue="value"
+                  :invalid="$field.invalid"
+                  fluid
+                  :options="courseOptions"
+                  :multiple="true"
+                />
+
+                <FormSmartFieldError
+                  :message="$field.error?.message"
+                  :show="$field.invalid"
+                />
+              </FormField>
             </section>
 
             <!-- 頁尾 -->

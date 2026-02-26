@@ -8,6 +8,7 @@ export interface LineProfile {
   userId: string;
   name: string;
   picture: string;
+  email: string;
 }
 
 export interface LiffLoginResult {
@@ -47,12 +48,25 @@ export function useLiff() {
       throw new Error("Failed to get LINE ID token");
     }
 
-    const result = await $fetch<LiffLoginResult>("/api/auth/line-token", {
-      method: "POST",
-      body: { idToken },
-    });
+    try {
+      const result = await $fetch<LiffLoginResult>("/api/auth/line-token", {
+        method: "POST",
+        body: { idToken },
+      });
+      return result;
+    } catch (e: any) {
+      // 若後端回傳 Token 過期，則清除 LIFF 登入狀態並重新進行 LIFF 登入
+      const isTokenExpired =
+        e.response?.status === 401 &&
+        e.response?._data?.data?.reason === "token_expired";
 
-    return result;
+      if (isTokenExpired) {
+        liffLogout();
+        liff.login();
+        return null;
+      }
+      throw e;
+    }
   }
 
   /** LINE 登出 */
