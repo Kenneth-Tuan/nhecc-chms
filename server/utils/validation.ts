@@ -1,23 +1,20 @@
 /**
  * Server-side validation utilities
  */
-import { createError, type H3Event } from 'h3';
-import type { ZodSchema, ZodError } from 'zod';
+import { createError, type H3Event } from "h3";
+import type { ZodSchema, ZodError } from "zod";
 
 /**
  * Validate data against a Zod schema.
  * Throws a 400 error with details if validation fails.
  */
-export function validateWithSchema<T>(
-  schema: ZodSchema<T>,
-  data: unknown,
-): T {
+export function validateWithSchema<T>(schema: ZodSchema<T>, data: unknown): T {
   const result = schema.safeParse(data);
   if (!result.success) {
     const formattedErrors = formatZodErrors(result.error);
     throw createError({
       statusCode: 400,
-      message: '輸入資料驗證失敗',
+      message: "輸入資料驗證失敗",
       data: formattedErrors,
     });
   }
@@ -27,12 +24,10 @@ export function validateWithSchema<T>(
 /**
  * Format Zod validation errors into a readable structure.
  */
-function formatZodErrors(
-  error: ZodError,
-): Record<string, string[]> {
+function formatZodErrors(error: ZodError): Record<string, string[]> {
   const errors: Record<string, string[]> = {};
   for (const issue of error.issues) {
-    const path = issue.path.join('.') || '_root';
+    const path = issue.path.join(".") || "_root";
     if (!errors[path]) {
       errors[path] = [];
     }
@@ -47,20 +42,23 @@ function formatZodErrors(
  */
 export function requireAbility(
   event: H3Event,
-  action: import('~/utils/casl/ability').AppAction,
-  subject: import('~/utils/casl/ability').AppSubject,
+  action: import("~/utils/casl/ability").AppAction,
+  subject: any,
 ): void {
   const ability = event.context.ability;
   if (!ability) {
     throw createError({
       statusCode: 401,
-      message: '未認證',
+      message: "未認證",
     });
   }
+
   if (!ability.can(action, subject)) {
+    const subjectName =
+      typeof subject === "string" ? subject : subject.__type || "資料";
     throw createError({
       statusCode: 403,
-      message: `權限不足：需要 ${action} ${subject}`,
+      message: `權限不足：需要 ${action} ${subjectName}`,
     });
   }
 }
@@ -73,7 +71,7 @@ export function getUserContext(event: H3Event) {
   if (!userContext) {
     throw createError({
       statusCode: 401,
-      message: '未認證',
+      message: "未認證",
     });
   }
   return userContext;

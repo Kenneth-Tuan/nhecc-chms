@@ -1,6 +1,6 @@
 /**
  * Member Repository
- * Abstracts data source: DEV uses mock data, PROD uses Firebase.
+ * Data source: Real Firestore implementation.
  */
 import type {
   Member,
@@ -9,50 +9,66 @@ import type {
   UpdateMemberPayload,
   DeletionReason,
 } from "~/types/member";
-import { mockMembers } from "../mockData";
-import { generateId } from "../utils/helpers";
+import { getAdminFirestore } from "../utils/firebase-admin";
 
-/** In-memory store for DEV mode (allows mutations) */
-export let devMembers: Member[] = [...mockMembers];
+const COLLECTION = "members";
 
 export class MemberRepository {
+  private get db() {
+    return getAdminFirestore();
+  }
+
+  private get collection() {
+    return this.db.collection(COLLECTION);
+  }
+
   /**
    * Find all members with optional filters.
    */
   async findAll(filters?: MemberFilters): Promise<Member[]> {
-    let results = [...devMembers];
+    let query: any = this.collection;
 
     if (filters) {
       // Status filter
       if (filters.status && filters.status !== "all") {
-        results = results.filter((m) => m.status === filters.status);
+        query = query.where("status", "==", filters.status);
       }
 
       // Baptism status filter
       if (filters.baptismStatus && filters.baptismStatus !== "all") {
-        if (filters.baptismStatus === "baptized") {
-          results = results.filter((m) => m.baptismStatus === true);
-        } else if (filters.baptismStatus === "notBaptized") {
-          results = results.filter((m) => m.baptismStatus === false);
-        }
+        const isBaptized = filters.baptismStatus === "baptized";
+        query = query.where("baptismStatus", "==", isBaptized);
       }
 
       // Zone filter
       if (filters.zoneId) {
-        results = results.filter((m) => m.zoneId === filters.zoneId);
+        query = query.where("zoneId", "==", filters.zoneId);
       }
 
       // Group filter
       if (filters.groupId) {
-        results = results.filter((m) => m.groupId === filters.groupId);
+        query = query.where("groupId", "==", filters.groupId);
       }
 
       // Unassigned filter (no group)
+      // Note: Firestore doesn't support 'not in' or 'not equal to null' efficiently without specific indexing or structures
+      // For simple unassigned, we might need to fetch and filter in memory if it's complex,
+      // but if we use a specific value for unassigned it's easier.
+      // For now, let's keep it simple.
+    }
+
+    const snapshot = await query.get();
+    let results = snapshot.docs.map((doc: any) => ({
+      ...doc.data(),
+      uuid: doc.id,
+    })) as Member[];
+
+    if (filters) {
       if (filters.unassigned) {
         results = results.filter((m) => !m.groupId);
       }
 
-      // Search filter
+      // Search filter (Firestore doesn't do partial text search well, filtering in-memory for now or until we use Algolia)
       if (filters.search) {
         const searchTerm = filters.search.toLowerCase();
         const searchField = filters.searchField || "fullName";
@@ -62,7 +78,6 @@ export class MemberRepository {
             m.fullName.toLowerCase().includes(searchTerm),
           );
         } else if (searchField === "mobile") {
-          // Exact match for mobile
           results = results.filter((m) => m.mobile === filters.search);
         }
       }
@@ -75,77 +90,107 @@ export class MemberRepository {
    * Find members by zone ID.
    */
   async findByZoneId(zoneId: string): Promise<Member[]> {
-    return devMembers.filter((m) => m.zoneId === zoneId);
+    const snapshot = await this.collection.where("zoneId", "==", zoneId).get();
+    return snapshot.docs.map((doc: any) => ({
+      ...doc.data(),
+      uuid: doc.id,
+    })) as Member[];
   }
 
   /**
    * Find members by group IDs.
    */
   async findByGroupIds(groupIds: string[]): Promise<Member[]> {
-    return devMembers.filter(
-      (m) =>
-        (m.groupId && groupIds.includes(m.groupId)) ||
-        m.functionalGroupIds.some((fgId) => groupIds.includes(fgId)),
-    );
+    if (groupIds.length === 0) return [];
+
+    // Firestore where 'in' limited to 10/30 elements depending on version, usually 10 for 'in'
+    // Split into chunks if necessary, but typically groups are few per query
+    const snapshot = await this.collection
+      .where("groupId", "in", groupIds)
+      .get();
+    return snapshot.docs.map((doc: any) => ({
+      ...doc.data(),
+      uuid: doc.id,
+    })) as Member[];
   }
 
   /**
    * Find a single member by UUID.
    */
   async findById(uuid: string): Promise<Member | undefined> {
-    return devMembers.find((m) => m.uuid === uuid);
+    const doc = await this.collection.doc(uuid).get();
+    if (!doc.exists) return undefined;
+    return { ...doc.data(), uuid: doc.id } as Member;
   }
 
   /**
    * Check if a mobile number already exists (excluding given uuid).
    */
   async isMobileExists(mobile: string, excludeUuid?: string): Promise<boolean> {
-    return devMembers.some(
-      (m) => m.mobile === mobile && m.uuid !== excludeUuid,
-    );
+    const query = this.collection.where("mobile", "==", mobile);
+    const snapshot = await query.get();
+    if (snapshot.empty) return false;
+    if (excludeUuid) {
+      return snapshot.docs.some((doc) => doc.id !== excludeUuid);
+    }
+    return true;
   }
 
   /**
    * Check if an email already exists (excluding given uuid).
    */
   async isEmailExists(email: string, excludeUuid?: string): Promise<boolean> {
-    return devMembers.some((m) => m.email === email && m.uuid !== excludeUuid);
+    const query = this.collection.where("email", "==", email);
+    const snapshot = await query.get();
+    if (snapshot.empty) return false;
+    if (excludeUuid) {
+      return snapshot.docs.some((doc) => doc.id !== excludeUuid);
+    }
+    return true;
   }
 
   /**
    * Create a new member.
    */
-  async create(payload: CreateMemberPayload & { uuid?: string }): Promise<Member> {
+  async create(
+    payload: CreateMemberPayload & { uuid?: string },
+  ): Promise<Member> {
     const now = new Date().toISOString();
-    const newMember: Member = {
-      uuid: payload.uuid || generateId(),
+    const docId = payload.uuid;
+
+    const memberData: any = {
       createdAt: now,
       updatedAt: now,
       createdBy: "system",
       updatedBy: "system",
       fullName: payload.fullName,
       gender: payload.gender,
-      dob: payload.dob,
+      dob: payload.dob || null,
       email: payload.email,
-      mobile: payload.mobile,
-      address: payload.address,
-      lineId: payload.lineId,
-      emergencyContactName: payload.emergencyContactName,
-      emergencyContactRelationship: payload.emergencyContactRelationship,
-      emergencyContactPhone: payload.emergencyContactPhone,
-      baptismStatus: payload.baptismStatus,
-      baptismDate: payload.baptismDate,
+      mobile: payload.mobile || "",
+      address: payload.address || "",
+      lineId: payload.lineId || "",
+      emergencyContactName: payload.emergencyContactName || "",
+      emergencyContactRelationship: payload.emergencyContactRelationship || "",
+      emergencyContactPhone: payload.emergencyContactPhone || "",
+      baptismStatus: payload.baptismStatus || false,
+      baptismDate: payload.baptismDate || null,
       status: payload.status || "Active",
-      zoneId: payload.zoneId,
-      groupId: payload.groupId,
+      zoneId: payload.zoneId || null,
+      groupId: payload.groupId || null,
       pastCourses: payload.pastCourses || [],
       roleIds: payload.roleIds || ["general"],
       functionalGroupIds: payload.functionalGroupIds || [],
-      avatar: payload.avatar,
+      avatar: payload.avatar || null,
     };
 
-    devMembers.push(newMember);
-    return newMember;
+    if (docId) {
+      await this.collection.doc(docId).set(memberData);
+      return { ...memberData, uuid: docId };
+    } else {
+      const docRef = await this.collection.add(memberData);
+      return { ...memberData, uuid: docRef.id };
+    }
   }
 
   /**
@@ -155,18 +200,19 @@ export class MemberRepository {
     uuid: string,
     payload: UpdateMemberPayload,
   ): Promise<Member | undefined> {
-    const index = devMembers.findIndex((m) => m.uuid === uuid);
-    if (index === -1) return undefined;
+    const docRef = this.collection.doc(uuid);
+    const doc = await docRef.get();
+    if (!doc.exists) return undefined;
 
-    const updated: Member = {
-      ...devMembers[index],
+    const updateData = {
       ...payload,
       updatedAt: new Date().toISOString(),
       updatedBy: "system",
     };
 
-    devMembers[index] = updated;
-    return updated;
+    await docRef.update(updateData);
+    const updated = await docRef.get();
+    return { ...updated.data(), uuid: updated.id } as Member;
   }
 
   /**
@@ -176,18 +222,19 @@ export class MemberRepository {
     uuid: string,
     deletion?: { reason: string; notes?: string },
   ): Promise<boolean> {
-    const index = devMembers.findIndex((m) => m.uuid === uuid);
-    if (index === -1) return false;
+    const docRef = this.collection.doc(uuid);
+    const doc = await docRef.get();
+    if (!doc.exists) return false;
 
-    devMembers[index] = {
-      ...devMembers[index],
+    const updateData: any = {
       status: "Inactive",
       updatedAt: new Date().toISOString(),
-      ...(deletion?.reason && {
-        deletionReason: deletion.reason as DeletionReason,
-      }),
-      ...(deletion?.notes && { deletionNotes: deletion.notes }),
     };
+
+    if (deletion?.reason) updateData.deletionReason = deletion.reason;
+    if (deletion?.notes) updateData.deletionNotes = deletion.notes;
+
+    await docRef.update(updateData);
     return true;
   }
 
@@ -195,13 +242,16 @@ export class MemberRepository {
    * Get count of members with a specific role.
    */
   async countByRoleId(roleId: string): Promise<number> {
-    return devMembers.filter((m) => m.roleIds.includes(roleId)).length;
+    // Note: This can be expensive if there are many members.
+    // For now fine, but typically you'd use a counter or aggregation.
+    const snapshot = await this.collection
+      .where("roleIds", "array-contains", roleId)
+      .get();
+    return snapshot.size;
   }
 
   /**
-   * Reset to initial mock data (for testing).
+   * Reset - No-op for real Firestore as we don't want to wipe data easily.
    */
-  reset(): void {
-    devMembers = [...mockMembers];
-  }
+  reset(): void {}
 }

@@ -25,20 +25,27 @@ export const baseUserSchema = z.object({
 });
 
 // Step 1: Account Schema (Register Basic)
-export const step1Schema = baseUserSchema
-  .pick({
+export const getStep1Schema = (isSocial: boolean = false) => {
+  const base = baseUserSchema.pick({
     fullName: true,
     phone: true,
     email: true,
-  })
-  .extend({
-    password: z.string().min(6, "密碼長度至少 6 碼"),
-    confirmPassword: z.string().min(6, "請再次輸入密碼"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "兩次輸入的密碼不一致",
-    path: ["confirmPassword"],
   });
+
+  if (isSocial) return base;
+
+  return base
+    .extend({
+      password: z.string().min(6, "密碼長度至少 6 碼"),
+      confirmPassword: z.string().min(6, "請再次輸入密碼"),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: "兩次輸入的密碼不一致",
+      path: ["confirmPassword"],
+    });
+};
+
+export const step1Schema = getStep1Schema(false);
 
 // Step 2: Profile Schema (Additional Info)
 // For the registration second step where we only show these fields

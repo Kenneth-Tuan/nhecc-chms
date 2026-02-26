@@ -1,4 +1,5 @@
 import { getAdminAuth } from "../../utils/firebase-admin";
+import { MemberRepository } from "../../repositories/member.repository";
 
 const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000;
 const FIVE_DAYS_SEC = 5 * 24 * 60 * 60;
@@ -24,5 +25,9 @@ export default defineEventHandler(async (event) => {
     sameSite: "lax",
   });
 
-  return { uid: decodedToken.uid };
+  const memberRepo = new MemberRepository();
+  const existingMember = await memberRepo.findById(decodedToken.uid);
+  const isNewUser = !existingMember;
+
+  return { uid: decodedToken.uid, isNewUser };
 });

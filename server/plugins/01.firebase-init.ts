@@ -5,13 +5,16 @@ export default defineNitroPlugin(() => {
 
   const credentialJson = process.env.NUXT_FIREBASE_ADMIN_CREDENTIAL;
   if (!credentialJson) {
-    console.warn("[Firebase Admin] NUXT_FIREBASE_ADMIN_CREDENTIAL not set, skipping init");
+    console.warn(
+      "[Firebase Admin] NUXT_FIREBASE_ADMIN_CREDENTIAL not set, skipping init",
+    );
     return;
   }
 
   try {
     const serviceAccount = JSON.parse(credentialJson);
     initializeApp({ credential: cert(serviceAccount) });
+    console.log("[Firebase Admin] Initialized successfully");
   } catch (e) {
     console.error("[Firebase Admin] Failed to initialize:", e);
   }

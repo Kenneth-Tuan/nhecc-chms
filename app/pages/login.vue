@@ -26,7 +26,7 @@ const handleLogin = async () => {
   try {
     await firebaseAuth.loginWithEmail(
       formData.value.account,
-      formData.value.password
+      formData.value.password,
     );
     navigateTo("/dashboard");
   } catch (e: any) {
@@ -34,10 +34,10 @@ const handleLogin = async () => {
       e.code === "auth/invalid-credential"
         ? "帳號或密碼錯誤"
         : e.code === "auth/user-not-found"
-        ? "找不到此帳號"
-        : e.code === "auth/wrong-password"
-        ? "密碼錯誤"
-        : "登入失敗，請稍後再試";
+          ? "找不到此帳號"
+          : e.code === "auth/wrong-password"
+            ? "密碼錯誤"
+            : "登入失敗，請稍後再試";
     toast.add({
       severity: "error",
       summary: "登入失敗",
@@ -78,6 +78,7 @@ const handleSocialLogin = async (provider: "google" | "line") => {
             uid: result.uid,
             fullName: result.lineProfile?.name || "",
             avatar: result.lineProfile?.picture || "",
+            lineId: result.lineProfile?.userId || "",
             social: "line",
           },
         });

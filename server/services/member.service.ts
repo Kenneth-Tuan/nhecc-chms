@@ -21,6 +21,7 @@ import { RoleRepository } from "../repositories/role.repository";
 import { getMaskFunction } from "../utils/rbac/masking";
 import { calculateAge, paginateArray } from "../utils/helpers";
 import { createError } from "h3";
+import { getAdminAuth } from "../utils/firebase-admin";
 
 const memberRepo = new MemberRepository();
 const orgRepo = new OrganizationRepository();
@@ -245,6 +246,32 @@ export class MemberService {
     const existing = await memberRepo.findById(uuid);
     if (!existing) {
       throw createError({ statusCode: 404, message: "找不到該會友" });
+    }
+
+    // Check for immutable fields based on social login provider
+    const auth = getAdminAuth();
+    try {
+      const fbUser = await auth.getUser(uuid);
+      const isGoogleUser = fbUser.providerData.some(
+        (p: any) => p.providerId === "google.com",
+      );
+      const isLineUser = uuid.startsWith("line_");
+
+      if (isGoogleUser && payload.email && payload.email !== existing.email) {
+        throw createError({
+          statusCode: 400,
+          message: "Google 用戶不允許變更電子信箱",
+        });
+      }
+
+      if (isLineUser && payload.lineId && payload.lineId !== existing.lineId) {
+        throw createError({
+          statusCode: 400,
+          message: "LINE 用戶不允許變更 LINE ID",
+        });
+      }
+    } catch {
+      // If Firebase user not found or other auth error, continue with standard logic
     }
 
     // Check mobile uniqueness if changed

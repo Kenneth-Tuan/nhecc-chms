@@ -32,7 +32,10 @@ export default defineEventHandler(async (event) => {
   const channelId = config.lineChannelId as string;
 
   if (!channelId) {
-    throw createError({ statusCode: 500, message: "LINE Channel ID not configured" });
+    throw createError({
+      statusCode: 500,
+      message: "LINE Channel ID not configured",
+    });
   }
 
   // Step 1: Verify ID token via LINE Login v2.1 API
@@ -69,6 +72,7 @@ export default defineEventHandler(async (event) => {
     customToken,
     isNewUser,
     lineProfile: {
+      userId: verifyRes.sub,
       name: verifyRes.name || "",
       picture: verifyRes.picture || "",
     },

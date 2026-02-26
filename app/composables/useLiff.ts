@@ -1,6 +1,7 @@
 import liff from "@line/liff";
 
 export interface LineProfile {
+  userId: string;
   name: string;
   picture: string;
 }

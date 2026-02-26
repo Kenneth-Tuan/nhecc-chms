@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import {
-  step1Schema,
+  getStep1Schema,
   step2Schema,
   type RegisterFormValues,
   userFieldDefs as F,
@@ -20,33 +20,86 @@ const toast = useToast();
 const activeStep = ref(1);
 const loading = ref(false);
 
-// Social login state from query params (Google/LINE redirect)
+const isGoogle = computed(() => route.query.social === "google");
+const isLine = computed(
+  () =>
+    route.query.social === "line" ||
+    !!firebaseAuth.pendingLineProfile.value ||
+    (!!route.query.code && !!route.query.liffClientId),
+);
+const isSocialRegister = computed(() => isGoogle.value || isLine.value);
 const socialUid = ref(route.query.uid as string | undefined);
-const isSocialRegister = computed(() => !!socialUid.value);
+
+const currentStep1Schema = computed(() =>
+  getStep1Schema(isSocialRegister.value),
+);
 
 const formData = ref<Partial<RegisterFormValues>>({
   fullName: (route.query.fullName as string) || "",
   email: (route.query.email as string) || "",
+  phone: "",
+  lineId: (route.query.lineId as string) || "",
   gender: "MALE",
   isBaptized: false,
   previousCourses: [],
 });
 
-// Pre-fill avatar from social login (LINE or Google)
 const socialAvatar = ref((route.query.avatar as string) || "");
-onMounted(() => {
-  // Also check pendingLineProfile from composable state
-  if (!socialAvatar.value && firebaseAuth.pendingLineProfile.value?.picture) {
-    socialAvatar.value = firebaseAuth.pendingLineProfile.value.picture;
-  }
-  if (socialAvatar.value) {
-    formData.value.avatar = socialAvatar.value;
+const syncFromQuery = () => {
+  if (route.query.fullName)
+    formData.value.fullName = route.query.fullName as string;
+  if (route.query.email) formData.value.email = route.query.email as string;
+  if (route.query.lineId) formData.value.lineId = route.query.lineId as string;
+  if (route.query.avatar) formData.value.avatar = route.query.avatar as string;
+  if (route.query.uid) socialUid.value = route.query.uid as string;
+};
+
+onMounted(async () => {
+  syncFromQuery();
+
+  // Detect LINE LIFF redirect callback
+  if (route.query.code && route.query.liffClientId) {
+    loading.value = true;
+    try {
+      const result = await firebaseAuth.loginWithLine();
+      if (result) {
+        if (!result.isNewUser) {
+          // If already registered, go to dashboard
+          navigateTo("/dashboard");
+          return;
+        }
+        // It's a new user, populate data from profile
+        if (result.lineProfile) {
+          formData.value.fullName = result.lineProfile.name;
+          formData.value.lineId = result.lineProfile.userId;
+          formData.value.avatar = result.lineProfile.picture;
+          socialAvatar.value = result.lineProfile.picture;
+          socialUid.value = result.uid;
+        }
+      }
+    } catch (e: any) {
+      toast.add({
+        severity: "error",
+        summary: "LINE 驗證失敗",
+        detail: e.message || "無法取得 LINE 個人資訊",
+        life: 4000,
+      });
+    } finally {
+      loading.value = false;
+    }
   }
 
-  // Social login: skip step 1, go directly to profile completion
-  if (isSocialRegister.value) {
-    activeStep.value = 2;
+  // Fallback to pending LINE profile (for other navigation scenarios)
+  if (isLine.value && firebaseAuth.pendingLineProfile.value) {
+    const profile = firebaseAuth.pendingLineProfile.value;
+    if (!formData.value.fullName) formData.value.fullName = profile.name;
+    if (!formData.value.lineId) formData.value.lineId = profile.userId;
+    if (!formData.value.avatar) formData.value.avatar = profile.picture;
+    if (!socialAvatar.value) socialAvatar.value = profile.picture;
   }
+
+  // Ensure active step is 1 for initial social register landing
+  activeStep.value = 1;
 });
 
 // Dynamic Options for Step 2
@@ -79,10 +132,16 @@ const onStep1Submit = async (e: any) => {
 
   loading.value = true;
   try {
-    const uid = await firebaseAuth.registerWithEmail(
-      formData.value.email!,
-      (e.values as any).password
-    );
+    let uid = socialUid.value;
+
+    if (!isSocialRegister.value) {
+      uid = await firebaseAuth.registerWithEmail(
+        formData.value.email!,
+        (e.values as any).password,
+      );
+    }
+
+    if (!uid) throw new Error("缺少用戶識別碼 (Missing User ID)");
 
     await $fetch("/api/auth/register", {
       method: "POST",
@@ -123,19 +182,7 @@ const onStep2Submit = async (e: any) => {
     const uid = socialUid.value;
     if (!uid) throw new Error("Missing user ID");
 
-    // If this is a social register, create the Member record first
-    if (isSocialRegister.value && route.query.social) {
-      await $fetch("/api/auth/register", {
-        method: "POST",
-        body: {
-          uid,
-          fullName: formData.value.fullName || route.query.fullName || "",
-          phone: formData.value.phone || "",
-          email: formData.value.email || route.query.email || "",
-          avatar: formData.value.avatar,
-        },
-      });
-    }
+    // Profile update logic...
 
     // Update member profile with step 2 data
     await $fetch(`/api/members/${uid}`, {
@@ -175,22 +222,6 @@ const onStep2Submit = async (e: any) => {
 };
 
 const handleSkip = async () => {
-  if (socialUid.value && isSocialRegister.value && route.query.social) {
-    try {
-      await $fetch("/api/auth/register", {
-        method: "POST",
-        body: {
-          uid: socialUid.value,
-          fullName: formData.value.fullName || route.query.fullName || "",
-          phone: "",
-          email: formData.value.email || route.query.email || "",
-          avatar: formData.value.avatar,
-        },
-      });
-    } catch {
-      // Member might already exist, ignore
-    }
-  }
   await authStore.loadContext();
   navigateTo("/dashboard");
 };
@@ -272,18 +303,20 @@ definePageMeta({
         >
           <Form
             :initial-values="formData"
-            :resolver="zodResolver(step1Schema)"
+            :resolver="zodResolver(currentStep1Schema)"
             @submit="onStep1Submit"
             class="flex-1 flex flex-col space-y-5"
           >
             <SmartField v-bind="F.fullName" />
             <SmartField v-bind="F.phone" />
-            <SmartField v-bind="F.email" />
+            <SmartField v-bind="F.email" :disabled="isGoogle" />
+            <SmartField v-if="isLine" v-bind="F.lineId" :disabled="isLine" />
 
-            <Divider />
-
-            <SmartField v-bind="F.password" />
-            <SmartField v-bind="F.confirmPassword" />
+            <template v-if="!isSocialRegister">
+              <Divider />
+              <SmartField v-bind="F.password" />
+              <SmartField v-bind="F.confirmPassword" />
+            </template>
 
             <div class="mt-auto pt-6">
               <Button
@@ -397,7 +430,7 @@ definePageMeta({
                 聯絡資訊
               </h2>
               <div class="grid grid-cols-1 gap-5">
-                <SmartField v-bind="F.lineId" />
+                <SmartField v-bind="F.lineId" :disabled="isLine" />
                 <SmartField v-bind="F.address" />
               </div>
             </section>

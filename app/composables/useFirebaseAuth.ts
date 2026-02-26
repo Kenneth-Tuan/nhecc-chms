@@ -20,16 +20,21 @@ export function useFirebaseAuth() {
   const error = ref<string | null>(null);
   const pendingLineProfile = ref<LineProfile | null>(null);
 
-  async function createSessionCookie(idToken: string): Promise<void> {
-    await $fetch("/api/auth/session", {
-      method: "POST",
-      body: { idToken },
-    });
+  async function createSessionCookie(
+    idToken: string,
+  ): Promise<{ uid: string; isNewUser: boolean }> {
+    return await $fetch<{ uid: string; isNewUser: boolean }>(
+      "/api/auth/session",
+      {
+        method: "POST",
+        body: { idToken },
+      },
+    );
   }
 
   async function loginWithEmail(
     email: string,
-    password: string
+    password: string,
   ): Promise<{ isNewUser: boolean }> {
     loading.value = true;
     error.value = null;
@@ -37,7 +42,7 @@ export function useFirebaseAuth() {
       const credential = await signInWithEmailAndPassword(
         auth,
         email,
-        password
+        password,
       );
       const idToken = await credential.user.getIdToken();
       await createSessionCookie(idToken);
@@ -53,7 +58,7 @@ export function useFirebaseAuth() {
 
   async function registerWithEmail(
     email: string,
-    password: string
+    password: string,
   ): Promise<string> {
     loading.value = true;
     error.value = null;
@@ -61,7 +66,7 @@ export function useFirebaseAuth() {
       const credential = await createUserWithEmailAndPassword(
         auth,
         email,
-        password
+        password,
       );
       const idToken = await credential.user.getIdToken();
       await createSessionCookie(idToken);
@@ -87,19 +92,16 @@ export function useFirebaseAuth() {
       const provider = new GoogleAuthProvider();
       const credential = await signInWithPopup(auth, provider);
       const idToken = await credential.user.getIdToken();
-      await createSessionCookie(idToken);
+      const result = await createSessionCookie(idToken);
+      const isNewUser = result.isNewUser;
 
-      const isNew =
-        credential.user.metadata.creationTime ===
-        credential.user.metadata.lastSignInTime;
-
-      if (!isNew) {
+      if (!isNewUser) {
         await authStore.loadContext();
       }
 
       return {
         uid: credential.user.uid,
-        isNewUser: isNew,
+        isNewUser: isNewUser,
         displayName: credential.user.displayName,
         email: credential.user.email,
         photoURL: credential.user.photoURL,
