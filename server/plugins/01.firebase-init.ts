@@ -5,6 +5,7 @@ export default defineNitroPlugin(() => {
 
   const config = useRuntimeConfig();
   const credentialJson = config.firebaseAdminCredential;
+
   if (!credentialJson) {
     console.warn(
       "[Firebase Admin] NUXT_FIREBASE_ADMIN_CREDENTIAL not set, skipping init",
@@ -13,8 +14,7 @@ export default defineNitroPlugin(() => {
   }
 
   try {
-    const serviceAccount = JSON.parse(credentialJson);
-    initializeApp({ credential: cert(serviceAccount) });
+    initializeApp({ credential: cert(credentialJson) });
     console.log("[Firebase Admin] Initialized successfully");
   } catch (e) {
     console.error("[Firebase Admin] Failed to initialize:", e);

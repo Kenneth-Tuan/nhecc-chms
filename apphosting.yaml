@@ -40,6 +40,11 @@ env:
   # See https://firebase.google.com/docs/app-hosting/configure#secret-parameters
   # - variable: API_KEY
   #   secret: myApiKeySecret
+  # ---------------------
+  # google cloud secret set up method:
+  # https://console.cloud.google.com/security/secret-manager/secret/myLineChannelId/permissions?cloudshell=true&hl=zh-TW&project=nhecc-chms
+  # 在上述網址中，開啟 google cloud shell，然後執行以下指令：
+  # firebase apphosting:secrets:set [secret] --project nhecc-chms
   - variable: NUXT_LINE_CHANNEL_ID
     secret: myLineChannelId
     availability: ["RUNTIME"] # 私有變數通常只需要 RUNTIME
