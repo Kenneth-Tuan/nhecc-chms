@@ -14,9 +14,35 @@ env:
   # Configure environment variables.
   # See https://firebase.google.com/docs/app-hosting/configure#user-defined-environment.
 
+  - variable: NUXT_LINE_LIFF_ID
+    value: 1657169336-QIkgPlem
+    availability: ["BUILD", "RUNTIME"]
+  - variable: NUXT_PUBLIC_FIREBASE_API_KEY
+    value: AIzaSyDlbWuq9Q_nyTPl-r_ad6ax8_BHWaCODEg
+    availability: ["BUILD", "RUNTIME"]
+  - variable: NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: nhecc-chms.firebaseapp.com
+    availability: ["BUILD", "RUNTIME"]
+  - variable: NUXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: nhecc-chms
+    availability: ["BUILD", "RUNTIME"]
+  - variable: NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: nhecc-chms.firebasestorage.app
+    availability: ["BUILD", "RUNTIME"]
+  - variable: NUXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: 385985904234
+    availability: ["BUILD", "RUNTIME"]
+  - variable: NUXT_PUBLIC_FIREBASE_APP_ID
+    value: 1:385985904234:web:124818407717114048541
+    availability: ["BUILD", "RUNTIME"]
+
   # Configure secrets
   # See https://firebase.google.com/docs/app-hosting/configure#secret-parameters
   # - variable: API_KEY
   #   secret: myApiKeySecret
-  - variable: NUXT_LINE_LIFF_ID
-    value: 1657169336-QIkgPlem
+  - variable: NUXT_LINE_CHANNEL_ID
+    secret: myLineChannelId
+    availability: ["RUNTIME"] # 私有變數通常只需要 RUNTIME
+  - variable: NUXT_FIREBASE_ADMIN_CREDENTIAL
+    secret: myFirebaseAdminCredential
+    availability: ["RUNTIME"]
