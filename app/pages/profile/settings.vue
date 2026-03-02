@@ -5,10 +5,6 @@
  */
 import type { MemberDetail, UpdateProfileInput } from "~/types/member";
 
-definePageMeta({
-  middleware: ["auth"],
-});
-
 const router = useRouter();
 const toast = useToast();
 

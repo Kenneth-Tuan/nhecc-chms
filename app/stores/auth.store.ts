@@ -35,12 +35,20 @@ export const useAuthStore = defineStore("auth", () => {
   async function loadContext(): Promise<void> {
     isLoading.value = true;
     try {
-      const response = await $fetch<AuthContextResponse>("/api/auth/context");
+      // 在伺服器端執行時，需要手動轉發 Cookie 標頭
+      const headers = useRequestHeaders(["cookie"]) as HeadersInit;
+
+      const response = await $fetch<AuthContextResponse>("/api/auth/context", {
+        headers,
+      });
+
       userContext.value = response.user;
       ability.update(unpackRules(response.rules));
       isInitialized.value = true;
     } catch (error) {
       console.error("Failed to load auth context:", error);
+      $reset();
+      isInitialized.value = true;
     } finally {
       isLoading.value = false;
     }
