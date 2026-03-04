@@ -32,6 +32,11 @@ export const useAuthStore = defineStore("auth", () => {
     () => scopeLabels[userContext.value?.scope || "Self"] || "個人",
   );
 
+  const isAdmin = computed(() => {
+    const scope = userContext.value?.scope;
+    return scope === "Global" || scope === "Zone" || scope === "Group";
+  });
+
   async function loadContext(): Promise<void> {
     isLoading.value = true;
     try {
@@ -67,6 +72,7 @@ export const useAuthStore = defineStore("auth", () => {
     currentUserName,
     currentScope,
     currentScopeLabel,
+    isAdmin,
     loadContext,
     $reset,
   };

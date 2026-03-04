@@ -7,14 +7,29 @@ const route = useRoute();
 const auth = useAuth();
 const firebaseAuth = useFirebaseAuth();
 
-const menuItems = [
-  { label: "首頁", icon: "pi pi-home", to: "/dashboard" },
-  { label: "會友管理", icon: "pi pi-users", to: "/dashboard/members" },
-  { label: "組織架構", icon: "pi pi-sitemap", to: "/dashboard/organization" },
-  { label: "角色管理", icon: "pi pi-shield", to: "/dashboard/roles" },
-  // { label: "課程管理", icon: "pi pi-book", to: "/dashboard/courses" },
-  // { label: "系統設定", icon: "pi pi-cog", to: "/dashboard/settings" },
-];
+const menuItems = computed(() =>
+  [
+    { label: "首頁", icon: "pi pi-home", to: "/dashboard", show: true },
+    {
+      label: "會友管理",
+      icon: "pi pi-users",
+      to: "/dashboard/members",
+      show: auth.can("view", "Member"),
+    },
+    {
+      label: "組織架構",
+      icon: "pi pi-sitemap",
+      to: "/dashboard/organization",
+      show: auth.can("view", "Organization"),
+    },
+    {
+      label: "角色管理",
+      icon: "pi pi-shield",
+      to: "/dashboard/roles",
+      show: auth.can("manage", "System"),
+    },
+  ].filter((item) => item.show),
+);
 
 const isActive = (path: string): boolean => {
   if (path === "/dashboard") return route.path === "/dashboard";
@@ -41,7 +56,8 @@ async function handleLogout(): Promise<void> {
     >
       <!-- Logo -->
       <div
-        class="flex items-center justify-start p-5 border-b border-slate-100 dark:border-slate-800/50"
+        class="flex items-center justify-start p-5 border-b border-slate-100 dark:border-slate-800/50 cursor-pointer"
+        @click="navigateTo('/')"
       >
         <div class="flex items-center justify-center mr-3 w-10 h-10">
           <img

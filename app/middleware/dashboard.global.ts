@@ -17,4 +17,12 @@ export default defineNuxtRouteMiddleware((to) => {
       query: { redirect: to.fullPath },
     });
   }
+
+  // 檢查管理者權限
+  if (store.isInitialized && store.userContext && !store.isAdmin) {
+    return navigateTo({
+      path: "/",
+      query: { error: "unauthorized" },
+    });
+  }
 });

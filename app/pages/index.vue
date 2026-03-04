@@ -1,4 +1,6 @@
 <script setup>
+import { useRoute } from "vue-router";
+import { useToast } from "primevue/usetoast";
 import {
   dailyVerse,
   quickActions,
@@ -11,9 +13,12 @@ const seeAllNews = () => {
   navigateTo({ id: "news" });
 };
 
-const navigateTo = (navItem) => {
+const navigateToPlace = (navItem) => {
   console.log("Navigate to:", navItem.id);
 };
+
+const route = useRoute();
+const toast = useToast();
 
 // Scroll Logic for Church News
 const churchNewsContainer = ref(null);
@@ -49,6 +54,19 @@ const scroll = (direction) => {
 onMounted(() => {
   checkScroll();
   window.addEventListener("resize", checkScroll);
+
+  if (route.query.error === "unauthorized") {
+    toast.add({
+      severity: "warn",
+      summary: "無權限限制",
+      detail: "您沒有管理者權限，無法存取該頁面。",
+      life: 4000,
+    });
+    // Remove the query param
+    const newQuery = { ...route.query };
+    delete newQuery.error;
+    navigateTo({ path: route.path, query: newQuery }, { replace: true });
+  }
 });
 
 onUnmounted(() => {

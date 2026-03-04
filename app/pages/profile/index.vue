@@ -11,9 +11,7 @@ const user = computed(() => ({
   name: authStore.userContext?.fullName || "載入中...",
   email: authStore.userContext?.email || "",
   avatar: authStore.userContext?.avatar || null,
-  isAdmin:
-    authStore.userContext?.scope === "Global" ||
-    authStore.userContext?.scope === "Zone",
+  isAdmin: authStore.isAdmin,
 }));
 
 const menuItems = [
@@ -22,21 +20,21 @@ const menuItems = [
     icon: "pi pi-user",
     to: "/profile/settings",
   },
-  {
-    label: "學習旅程",
-    icon: "pi pi-history",
-    to: "/profile/learning-journey",
-  },
-  {
-    label: "修改密碼",
-    icon: "pi pi-lock",
-    to: "/profile/change-password",
-  },
-  {
-    label: "幫助與支援",
-    icon: "pi pi-question-circle",
-    to: "/support",
-  },
+  // {
+  //   label: "學習旅程",
+  //   icon: "pi pi-history",
+  //   to: "/profile/learning-journey",
+  // },
+  // {
+  //   label: "修改密碼",
+  //   icon: "pi pi-lock",
+  //   to: "/profile/change-password",
+  // },
+  // {
+  //   label: "幫助與支援",
+  //   icon: "pi pi-question-circle",
+  //   to: "/support",
+  // },
 ];
 
 const { logout } = useFirebaseAuth();

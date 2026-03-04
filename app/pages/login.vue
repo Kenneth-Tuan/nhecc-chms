@@ -6,6 +6,7 @@
 import { useToast } from "primevue/usetoast";
 
 import { useFirebaseAuth } from "~/composables/useFirebaseAuth";
+import { useAuthStore } from "~/stores/auth.store";
 
 const firebaseAuth = useFirebaseAuth();
 const toast = useToast();
@@ -28,7 +29,12 @@ const handleLogin = async () => {
       formData.value.account,
       formData.value.password,
     );
-    navigateTo("/dashboard");
+    const authStore = useAuthStore();
+    if (authStore.isAdmin) {
+      navigateTo("/dashboard");
+    } else {
+      navigateTo("/");
+    }
   } catch (e: any) {
     const msg =
       e.code === "auth/invalid-credential"
@@ -66,7 +72,12 @@ const handleSocialLogin = async (provider: "google" | "line") => {
           },
         });
       } else {
-        navigateTo("/dashboard");
+        const authStore = useAuthStore();
+        if (authStore.isAdmin) {
+          navigateTo("/dashboard");
+        } else {
+          navigateTo("/");
+        }
       }
     } else {
       navigateTo("/liff");

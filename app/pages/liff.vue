@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useFirebaseAuth } from "~/composables/useFirebaseAuth";
+import { useAuthStore } from "~/stores/auth.store";
 import { useToast } from "primevue/usetoast";
 
 const firebaseAuth = useFirebaseAuth();
@@ -25,7 +26,12 @@ onMounted(async () => {
         },
       });
     } else {
-      navigateTo("/");
+      const authStore = useAuthStore();
+      if (authStore.isAdmin) {
+        navigateTo("/dashboard");
+      } else {
+        navigateTo("/");
+      }
     }
   } catch (err: any) {
     toast.add({

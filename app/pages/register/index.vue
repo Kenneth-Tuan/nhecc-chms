@@ -177,7 +177,11 @@ const onStep2Submit = async (e: any) => {
     });
 
     await authStore.loadContext();
-    navigateTo("/");
+    if (authStore.isAdmin) {
+      navigateTo("/dashboard");
+    } else {
+      navigateTo("/");
+    }
   } catch (err: any) {
     toast.add({
       severity: "error",
@@ -192,7 +196,11 @@ const onStep2Submit = async (e: any) => {
 
 const handleSkip = async () => {
   await authStore.loadContext();
-  navigateTo("/");
+  if (authStore.isAdmin) {
+    navigateTo("/dashboard");
+  } else {
+    navigateTo("/");
+  }
 };
 
 definePageMeta({
