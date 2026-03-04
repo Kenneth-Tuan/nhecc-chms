@@ -1,6 +1,6 @@
 n# 開發路線圖 (Stories Roadmap)
 
-**Last Updated**: 2026-02-11  
+**Last Updated**: 2026-03-04  
 **Total Stories**: 27
 
 本文件列出所有 User Stories 的開發順序與依賴關係。
@@ -34,11 +34,11 @@ n# 開發路線圖 (Stories Roadmap)
 
 **目標**: 建立牧區/小組管理功能
 
-| Story ID | Story Name          | Priority  | Status    | 依賴項              |
-| -------- | ------------------- | --------- | --------- | ------------------- |
-| ST006    | 牧區與小組管理      | Must Have | 🔲 規劃中 | ST001, ST002        |
-| ST007    | 組織架構三 Tab 介面 | Must Have | 🔲 規劃中 | ST001, ST002, ST006 |
-| ST008    | 成員調度與待處理池  | Must Have | 🔲 規劃中 | ST001-ST007         |
+| Story ID | Story Name          | Priority  | Status  | 依賴項              |
+| -------- | ------------------- | --------- | ------- | ------------------- |
+| ST006    | 牧區與小組管理      | Must Have | ✅ 完成 | ST001, ST002        |
+| ST007    | 組織架構三 Tab 介面 | Must Have | ✅ 完成 | ST001, ST002, ST006 |
+| ST008    | 成員調度與待處理池  | Must Have | ✅ 完成 | ST001-ST007         |
 
 ---
 
@@ -48,8 +48,8 @@ n# 開發路線圖 (Stories Roadmap)
 
 | Story ID | Story Name         | Priority    | Status    | 依賴項              |
 | -------- | ------------------ | ----------- | --------- | ------------------- |
-| ST009    | 角色指派介面       | Must Have   | 🔲 規劃中 | ST001, ST002, ST004 |
-| ST010    | 帳號安全與密碼管理 | Should Have | 🔲 規劃中 | ST001, ST002        |
+| ST009    | 角色指派介面       | Must Have   | ✅ 完成   | ST001, ST002, ST004 |
+| ST010    | 帳號安全與密碼管理 | Should Have | 🚧 進行中 | ST001, ST002        |
 
 ---
 
@@ -59,7 +59,7 @@ n# 開發路線圖 (Stories Roadmap)
 
 | Story ID | Story Name   | Priority    | Status    | 依賴項                 |
 | -------- | ------------ | ----------- | --------- | ---------------------- |
-| ST011    | 全域戰情室   | Should Have | 🔲 規劃中 | ST001-ST006            |
+| ST011    | 全域戰情室   | Should Have | 🚧 進行中 | ST001-ST006            |
 | ST012    | 小組長儀表板 | Should Have | 🔲 規劃中 | ST001-ST003            |
 | ST013    | 牧區戰情室   | Should Have | 🔲 規劃中 | ST001-ST006            |
 | ST014    | 教學概況     | Should Have | 🔲 規劃中 | ST001, ST002, (ST015+) |
@@ -135,13 +135,13 @@ n# 開發路線圖 (Stories Roadmap)
 
 - 🎯 ST004, ST005
 
-### Sprint 5-6: Organization (2-3 週)
+### Sprint 5-6: Organization (2-3 週) ✅
 
-- 🎯 ST006, ST007, ST008
+- ✅ ST006, ST007, ST008
 
 ### Sprint 7: Role Management (1-2 週)
 
-- 🎯 ST009, ST010
+- 🎯 ST009(✅), ST010(🚧)
 
 ### Sprint 8-9: Dashboard (2-3 週)
 
