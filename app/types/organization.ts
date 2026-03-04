@@ -33,7 +33,7 @@ export interface Zone {
 export interface Group {
   id: string;
   name: string;
-  type: GroupType;
+  groupType: GroupType;
   zoneId?: string;
   leaderId?: string; // deprecated
   leaderName?: string; // deprecated

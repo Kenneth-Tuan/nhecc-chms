@@ -35,51 +35,26 @@ const {
   fetchLeaderCandidates,
 } = useOrganizationManagement();
 
+import AssignDialog from "./_components/AssignDialog.vue";
+import ZoneDialog from "./_components/ZoneDialog.vue";
+import GroupDialog from "./_components/GroupDialog.vue";
+import PendingMemberCard from "./_components/PendingMemberCard.vue";
+import GroupMemberCard from "./_components/GroupMemberCard.vue";
+
 // Zone dialog state
 const showZoneDialog = ref(false);
-const zoneForm = ref<{
-  id?: string;
-  name: string;
-  leaders?: { id: string; name: string }[];
-}>({ name: "", leaders: [] });
+const zoneInitialData = ref<any>(null);
 const zoneLeaderCandidates = ref<{ id: string; name: string }[]>([]);
-const filteredZoneLeaderCandidates = ref<{ id: string; name: string }[]>([]);
 
 // Group dialog state
 const showGroupDialog = ref(false);
-const groupForm = ref<{
-  id?: string;
-  name: string;
-  zoneId: string;
-  leaders?: { id: string; name: string }[];
-}>({ name: "", zoneId: "", leaders: [] });
+const groupInitialData = ref<any>(null);
+const activeZoneId = ref<string>("");
 const groupLeaderCandidates = ref<{ id: string; name: string }[]>([]);
-const filteredGroupLeaderCandidates = ref<{ id: string; name: string }[]>([]);
 
 // Assignment dialog state
 const showAssignDialog = ref(false);
 const assignTarget = ref<{ uuid: string; fullName: string } | null>(null);
-const assignSelectedZone = ref<string | null>(null);
-const assignSelectedGroup = ref<string | null>(null);
-
-// Computed: available zones from tree
-const availableZones = computed(() =>
-  treeNodes.value.map((z) => ({
-    label: z.label,
-    value: z.key as string,
-  })),
-);
-
-// Computed: available groups for selected zone
-const availableGroups = computed(() => {
-  if (!assignSelectedZone.value) return [];
-  const zone = treeNodes.value.find((z) => z.key === assignSelectedZone.value);
-  if (!zone?.children) return [];
-  return zone.children.map((g) => ({
-    label: g.label,
-    value: g.key as string,
-  }));
-});
 
 /** Handle tree node select — show group members */
 function onNodeSelect(node: TreeNode): void {
@@ -133,19 +108,15 @@ async function onNodeDrop(event: any): Promise<void> {
 /** Open assignment dialog (click-based assignment) */
 function openAssignDialog(member: { uuid: string; fullName: string }): void {
   assignTarget.value = member;
-  assignSelectedZone.value = null;
-  assignSelectedGroup.value = null;
   showAssignDialog.value = true;
 }
 
 /** Confirm click-based assignment */
-async function confirmAssign(): Promise<void> {
-  if (!assignTarget.value || !assignSelectedGroup.value) return;
-
-  const result = await assignMember(
-    assignTarget.value.uuid,
-    assignSelectedGroup.value,
-  );
+async function handleConfirmAssign(
+  targetId: string,
+  groupId: string,
+): Promise<void> {
+  const result = await assignMember(targetId, groupId);
   toast.add({
     severity: result.success ? "success" : "error",
     summary: result.success ? "分配成功" : "分配失敗",
@@ -157,59 +128,14 @@ async function confirmAssign(): Promise<void> {
     showAssignDialog.value = false;
   }
 }
-
-/** Format date for display */
-function formatDate(dateStr: string): string {
-  if (!dateStr) return "";
-  return new Date(dateStr).toLocaleDateString("zh-TW", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-}
-
-/** Status label map */
-function statusSeverity(
-  status: string,
-): "success" | "warn" | "danger" | "secondary" {
-  const map: Record<string, "success" | "warn" | "danger" | "secondary"> = {
-    Active: "success",
-    Inactive: "secondary",
-    Suspended: "warn",
-    Deleted: "danger",
-  };
-  return map[status] || "secondary";
-}
-
-const statusLabel: Record<string, string> = {
-  Active: "活躍",
-  Inactive: "停用",
-  Suspended: "請假中",
-  Deleted: "已刪除",
-};
-
 async function openZoneDialog(zone?: any): Promise<void> {
   zoneLeaderCandidates.value = await fetchLeaderCandidates("zone");
-  if (zone) {
-    zoneForm.value = {
-      ...zone,
-      leaders: zone.leaders ? [...zone.leaders] : [],
-    };
-  } else {
-    zoneForm.value = { name: "", leaders: [] };
-  }
+  zoneInitialData.value = zone || null;
   showZoneDialog.value = true;
 }
 
-function searchZoneLeaders(event: any) {
-  const query = event.query.toLowerCase();
-  filteredZoneLeaderCandidates.value = zoneLeaderCandidates.value.filter((c) =>
-    c.name.toLowerCase().includes(query),
-  );
-}
-
-async function handleSaveZone() {
-  const result = await saveZone(zoneForm.value);
+async function onSaveZone(data: any) {
+  const result = await saveZone(data);
   toast.add({
     severity: result.success ? "success" : "error",
     summary: result.success ? "儲存成功" : "儲存失敗",
@@ -231,30 +157,17 @@ async function handleDeleteZone(zoneId: string) {
 }
 
 async function openGroupDialog(zoneId: string, group?: any): Promise<void> {
+  activeZoneId.value = zoneId;
   groupLeaderCandidates.value = await fetchLeaderCandidates("group", {
     zoneId,
     groupId: group?.id,
   });
-  if (group) {
-    groupForm.value = {
-      ...group,
-      leaders: group.leaders ? [...group.leaders] : [],
-    };
-  } else {
-    groupForm.value = { name: "", zoneId, leaders: [] };
-  }
+  groupInitialData.value = group || null;
   showGroupDialog.value = true;
 }
 
-function searchGroupLeaders(event: any) {
-  const query = event.query.toLowerCase();
-  filteredGroupLeaderCandidates.value = groupLeaderCandidates.value.filter(
-    (c) => c.name.toLowerCase().includes(query),
-  );
-}
-
-async function handleSaveGroup() {
-  const result = await saveGroup(groupForm.value);
+async function onSaveGroup(data: any) {
+  const result = await saveGroup(data);
   toast.add({
     severity: result.success ? "success" : "error",
     summary: result.success ? "儲存成功" : "儲存失敗",
@@ -512,39 +425,10 @@ onMounted(() => {
                 @nodeDrop="onNodeDrop"
               >
                 <template #pending-member="slotProps">
-                  <div
-                    class="inline-flex items-center gap-3 px-3 py-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm hover:border-primary/50 cursor-grab select-none transition-all active:cursor-grabbing w-full"
-                  >
-                    <Avatar
-                      :label="slotProps.node.data.fullName?.charAt(0)"
-                      shape="circle"
-                      size="normal"
-                      :class="
-                        slotProps.node.data.gender === 'Male'
-                          ? '!bg-blue-100 !text-blue-600'
-                          : '!bg-pink-100 !text-pink-600'
-                      "
-                    />
-                    <div class="min-w-0 flex-1">
-                      <p
-                        class="font-bold text-sm text-slate-800 dark:text-slate-200"
-                      >
-                        {{ slotProps.node.data.fullName }}
-                      </p>
-                      <p class="text-[10px] text-slate-400 truncate">
-                        加入: {{ formatDate(slotProps.node.data.createdAt) }}
-                      </p>
-                    </div>
-                    <Button
-                      icon="pi pi-arrow-right"
-                      text
-                      rounded
-                      size="small"
-                      class="!ml-1"
-                      v-tooltip.top="'點擊分配'"
-                      @click.stop="openAssignDialog(slotProps.node.data)"
-                    />
-                  </div>
+                  <PendingMemberCard
+                    :member="slotProps.node.data"
+                    @assign="openAssignDialog"
+                  />
                 </template>
               </Tree>
             </div>
@@ -605,64 +489,7 @@ onMounted(() => {
                 <!-- Empty state handled by check above -->
 
                 <template #group-member="slotProps">
-                  <div
-                    class="inline-flex items-center gap-3 px-3 py-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm hover:border-primary/50 cursor-grab select-none transition-all active:cursor-grabbing w-full"
-                  >
-                    <Avatar
-                      :label="slotProps.node.data.fullName?.charAt(0)"
-                      shape="circle"
-                      size="normal"
-                      :class="
-                        slotProps.node.data.gender === 'Male'
-                          ? '!bg-blue-100 !text-blue-600'
-                          : '!bg-pink-100 !text-pink-600'
-                      "
-                    />
-                    <div
-                      class="grid grid-cols-12 gap-4 flex-1 items-center w-full min-w-0"
-                    >
-                      <!-- Name -->
-                      <div class="col-span-12 sm:col-span-3">
-                        <p
-                          class="font-bold text-sm text-slate-800 dark:text-slate-200"
-                        >
-                          {{ slotProps.node.data.fullName }}
-                        </p>
-                      </div>
-
-                      <!-- Role -->
-                      <div class="col-span-12 sm:col-span-2 hidden sm:block">
-                        <span class="text-sm text-slate-600">{{
-                          slotProps.node.data.roleLabel
-                        }}</span>
-                      </div>
-
-                      <!-- Mobile -->
-                      <div class="col-span-12 sm:col-span-3 hidden md:block">
-                        <span class="text-sm text-slate-500">{{
-                          slotProps.node.data.mobile
-                        }}</span>
-                      </div>
-
-                      <!-- Date -->
-                      <div class="col-span-12 sm:col-span-2 hidden lg:block">
-                        <span class="text-sm text-slate-500">{{
-                          formatDate(slotProps.node.data.createdAt)
-                        }}</span>
-                      </div>
-
-                      <!-- Status -->
-                      <div class="col-span-12 sm:col-span-2 flex justify-end">
-                        <Tag
-                          :value="
-                            statusLabel[slotProps.node.data.status] ||
-                            slotProps.node.data.status
-                          "
-                          :severity="statusSeverity(slotProps.node.data.status)"
-                        />
-                      </div>
-                    </div>
-                  </div>
+                  <GroupMemberCard :member="slotProps.node.data" />
                 </template>
               </Tree>
             </div>
@@ -671,189 +498,31 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- Assignment Dialog -->
-    <Dialog
+    <!-- Dialogs -->
+    <AssignDialog
       v-model:visible="showAssignDialog"
-      :modal="true"
-      :closable="true"
-      :style="{ width: '450px', maxWidth: '95vw' }"
-      header="分配會友"
-    >
-      <div v-if="assignTarget" class="space-y-4">
-        <!-- Member Info -->
-        <div
-          class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg"
-        >
-          <Avatar
-            :label="assignTarget.fullName?.charAt(0)"
-            shape="circle"
-            size="large"
-            class="!bg-primary/10 !text-primary"
-          />
-          <div>
-            <p class="font-bold text-slate-800 dark:text-slate-200">
-              {{ assignTarget.fullName }}
-            </p>
-            <p class="text-xs text-slate-400">待分配</p>
-          </div>
-        </div>
+      :assign-target="assignTarget"
+      :tree-nodes="treeNodes"
+      :is-assigning="isAssigning"
+      @confirm="handleConfirmAssign"
+    />
 
-        <!-- Zone Select -->
-        <div>
-          <label
-            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
-          >
-            牧區 <span class="text-red-500">*</span>
-          </label>
-          <Select
-            v-model="assignSelectedZone"
-            :options="availableZones"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="請選擇牧區"
-            class="w-full"
-            @change="assignSelectedGroup = null"
-          />
-        </div>
-
-        <!-- Group Select -->
-        <div>
-          <label
-            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
-          >
-            小組 <span class="text-red-500">*</span>
-          </label>
-          <Select
-            v-model="assignSelectedGroup"
-            :options="availableGroups"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="請先選擇牧區"
-            class="w-full"
-            :disabled="!assignSelectedZone"
-          />
-        </div>
-      </div>
-
-      <template #footer>
-        <div class="flex justify-end gap-2">
-          <Button label="取消" outlined @click="showAssignDialog = false" />
-          <Button
-            label="確定分配"
-            icon="pi pi-check"
-            :loading="isAssigning"
-            :disabled="!assignSelectedGroup"
-            @click="confirmAssign"
-          />
-        </div>
-      </template>
-    </Dialog>
-
-    <!-- Zone Dialog -->
-    <Dialog
+    <ZoneDialog
       v-model:visible="showZoneDialog"
-      :modal="true"
-      :closable="true"
-      :style="{ width: '400px', maxWidth: '95vw' }"
-      :header="zoneForm.id ? '編輯牧區' : '新增牧區'"
-    >
-      <div class="space-y-4 pt-2">
-        <div>
-          <label
-            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
-          >
-            牧區名稱 <span class="text-red-500">*</span>
-          </label>
-          <InputText
-            v-model="zoneForm.name"
-            class="w-full"
-            placeholder="例如：學生牧區"
-          />
-        </div>
-        <div>
-          <label
-            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
-          >
-            牧區長
-          </label>
-          <AutoComplete
-            v-model="zoneForm.leaders"
-            :suggestions="filteredZoneLeaderCandidates"
-            @complete="searchZoneLeaders"
-            optionLabel="name"
-            multiple
-            class="w-full"
-            placeholder="請搜尋並選擇牧區長"
-            :pt="{ inputMultiple: { class: 'w-full' } }"
-          />
-        </div>
-      </div>
-      <template #footer>
-        <div class="flex justify-end gap-2">
-          <Button label="取消" outlined @click="showZoneDialog = false" />
-          <Button
-            label="儲存"
-            icon="pi pi-check"
-            :loading="isSavingZone"
-            :disabled="!zoneForm.name"
-            @click="handleSaveZone"
-          />
-        </div>
-      </template>
-    </Dialog>
+      :initial-data="zoneInitialData"
+      :candidates="zoneLeaderCandidates"
+      :is-saving="isSavingZone"
+      @save="onSaveZone"
+    />
 
-    <!-- Group Dialog -->
-    <Dialog
+    <GroupDialog
       v-model:visible="showGroupDialog"
-      :modal="true"
-      :closable="true"
-      :style="{ width: '400px', maxWidth: '95vw' }"
-      :header="groupForm.id ? '編輯小組' : '新增小組'"
-    >
-      <div class="space-y-4 pt-2">
-        <div>
-          <label
-            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
-          >
-            小組名稱 <span class="text-red-500">*</span>
-          </label>
-          <InputText
-            v-model="groupForm.name"
-            class="w-full"
-            placeholder="例如：恩典小組"
-          />
-        </div>
-        <div>
-          <label
-            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
-          >
-            小組長
-          </label>
-          <AutoComplete
-            v-model="groupForm.leaders"
-            :suggestions="filteredGroupLeaderCandidates"
-            @complete="searchGroupLeaders"
-            optionLabel="name"
-            multiple
-            class="w-full"
-            placeholder="請搜尋並選擇小組長"
-            :pt="{ inputMultiple: { class: 'w-full' } }"
-          />
-        </div>
-      </div>
-      <template #footer>
-        <div class="flex justify-end gap-2">
-          <Button label="取消" outlined @click="showGroupDialog = false" />
-          <Button
-            label="儲存"
-            icon="pi pi-check"
-            :loading="isSavingGroup"
-            :disabled="!groupForm.name"
-            @click="handleSaveGroup"
-          />
-        </div>
-      </template>
-    </Dialog>
+      :zone-id="activeZoneId"
+      :initial-data="groupInitialData"
+      :candidates="groupLeaderCandidates"
+      :is-saving="isSavingGroup"
+      @save="onSaveGroup"
+    />
   </div>
 </template>
 

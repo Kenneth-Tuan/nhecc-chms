@@ -2,6 +2,7 @@
  * 會友驗證 Composable (ST004)
  * 提供會友表單的即時欄位驗證功能。
  */
+import dayjs from "dayjs";
 
 interface UniqueCheckResponse {
   isUnique: boolean;
@@ -83,7 +84,7 @@ export function useMemberValidation() {
   /** 驗證日期不可晚於今天 */
   function validatePastDate(date: string): boolean {
     if (!date) return true;
-    return new Date(date) <= new Date();
+    return dayjs(date).startOf("day").isBefore(dayjs().endOf("day"));
   }
 
   /** 重置所有驗證狀態 */

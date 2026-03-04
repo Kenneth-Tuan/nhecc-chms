@@ -162,7 +162,7 @@ onMounted(() => {
                 text
                 rounded
                 size="small"
-                @click="router.push(`/dashboard/roles/${data.id}/edit`)"
+                @click="router.push(`/dashboard/roles/edit/${data.id}`)"
               />
               <Button
                 v-if="!data.isSystem"

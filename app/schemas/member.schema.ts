@@ -4,6 +4,8 @@
  */
 import { z } from "zod";
 
+import dayjs from "dayjs";
+
 /** 台灣手機格式：09XXXXXXXX */
 const mobileSchema = z
   .string()
@@ -22,7 +24,10 @@ const memberStatusSchema = z.enum(["Active", "Inactive", "Suspended"]);
 const pastDateSchema = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, "日期格式不正確")
-  .refine((val) => new Date(val) <= new Date(), "日期不可為未來日期");
+  .refine(
+    (val) => dayjs(val).startOf("day").isBefore(dayjs().endOf("day")),
+    "日期不可為未來日期",
+  );
 
 /** 基礎會友物件架構（未含進階邏輯驗證） */
 const baseMemberSchema = z.object({

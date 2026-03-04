@@ -4,6 +4,7 @@
  * 供一般用戶（無管理權限者）修改個人基本資料。
  */
 import type { MemberDetail, UpdateProfileInput } from "~/types/member";
+import dayjs from "dayjs";
 
 const router = useRouter();
 const toast = useToast();
@@ -71,20 +72,7 @@ const courseOptions = [
   { label: "門徒訓練班", value: "course_3" },
 ];
 
-const maxDate = new Date();
-const dobDate = computed({
-  get: () => (form.value.dob ? new Date(form.value.dob) : null),
-  set: (val: Date | null) => {
-    form.value.dob = val ? val.toISOString().split("T")[0] : "";
-  },
-});
-
-const baptismDateComputed = computed({
-  get: () => (form.value.baptismDate ? new Date(form.value.baptismDate) : null),
-  set: (val: Date | null) => {
-    form.value.baptismDate = val ? val.toISOString().split("T")[0] : "";
-  },
-});
+const maxDate = dayjs().toDate();
 
 const displayAvatar = computed(() => {
   if (avatarPreview.value) return avatarPreview.value;
@@ -282,8 +270,9 @@ onMounted(loadProfile);
           <div class="flex flex-col gap-2">
             <label class="text-base font-semibold">出生日期</label>
             <DatePicker
-              v-model="dobDate"
+              v-model="form.dob"
               dateFormat="yy-mm-dd"
+              updateModelType="string"
               :maxDate="maxDate"
               class="w-full"
               inputClass="w-full !py-3 !px-4 !text-lg !rounded-xl"
@@ -382,8 +371,9 @@ onMounted(loadProfile);
           >
             <label class="text-base font-semibold">受洗日期</label>
             <DatePicker
-              v-model="baptismDateComputed"
+              v-model="form.baptismDate"
               dateFormat="yy-mm-dd"
+              updateModelType="string"
               :maxDate="maxDate"
               class="w-full"
               inputClass="w-full !py-3 !px-4 !text-lg !rounded-xl"

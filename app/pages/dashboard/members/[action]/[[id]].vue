@@ -1,9 +1,14 @@
 <script setup lang="ts">
 /**
- * Edit Member Page (ST004)
+ * Create/Edit Member Page (ST004)
  */
-import type { MemberDetail, UpdateMemberPayload } from "~/types/member";
+import type {
+  MemberDetail,
+  CreateMemberPayload,
+  UpdateMemberPayload,
+} from "~/types/member";
 import { useOrganizationStore } from "~/stores/organization.store";
+import dayjs from "dayjs";
 
 definePageMeta({
   layout: "dashboard",
@@ -13,15 +18,26 @@ const route = useRoute();
 const router = useRouter();
 const toast = useToast();
 const orgStore = useOrganizationStore();
-const memberUuid = route.params.id as string;
+
+const action = route.params.action as string;
+const isEdit = action === "edit";
+const memberUuid = route.params.id as string | undefined;
+
+// Validate route
+if (isEdit && !memberUuid) {
+  router.push("/dashboard/members");
+}
 
 const {
   isSubmitting,
   fieldErrors,
   clearFieldError,
+  validateCreate,
   validateUpdate,
+  submitCreate,
   submitUpdate,
 } = useMemberForm();
+
 const {
   avatarPreview,
   avatarFile,
@@ -33,6 +49,7 @@ const {
   removeAvatar,
   initFromExisting,
 } = useAvatarUpload();
+
 const {
   mobileError,
   emailWarning,
@@ -42,7 +59,7 @@ const {
   checkEmailDuplicate,
 } = useMemberValidation();
 
-const isLoading = ref(true);
+const isLoading = ref(isEdit);
 const member = ref<MemberDetail | null>(null);
 const zoneGroupMismatch = ref(false);
 
@@ -63,7 +80,7 @@ const form = ref({
   status: "Active" as "Active" | "Inactive" | "Suspended",
   zoneId: null as string | null,
   groupId: null as string | null,
-  roleId: null as string | null,
+  roleIds: [] as string[],
   pastCourses: [] as string[],
   existingAvatar: null as string | null,
 });
@@ -119,24 +136,12 @@ const courseOptions = computed(() =>
 );
 
 // Date helpers
-const maxDate = new Date();
-const dobDate = computed({
-  get: () => (form.value.dob ? new Date(form.value.dob) : null),
-  set: (val: Date | null) => {
-    form.value.dob = val ? val.toISOString().split("T")[0] || "" : "";
-  },
-});
-const baptismDateValue = computed({
-  get: () => (form.value.baptismDate ? new Date(form.value.baptismDate) : null),
-  set: (val: Date | null) => {
-    form.value.baptismDate = val ? val.toISOString().split("T")[0] || "" : "";
-  },
-});
+const maxDate = dayjs().toDate();
 
 // Avatar display logic
 const displayAvatar = computed(() => {
   if (avatarPreview.value) return avatarPreview.value;
-  if (shouldRemoveAvatar.value) return undefined;
+  if (isEdit && shouldRemoveAvatar.value) return undefined;
   return form.value.existingAvatar || undefined;
 });
 
@@ -145,166 +150,255 @@ const hasAvatar = computed(() => !!displayAvatar.value);
 // Mobile blur handler
 async function onMobileBlur(): Promise<void> {
   if (form.value.mobile) {
-    await checkMobileUnique(form.value.mobile, memberUuid);
+    if (isEdit && memberUuid) {
+      await checkMobileUnique(form.value.mobile, memberUuid);
+    } else {
+      await checkMobileUnique(form.value.mobile);
+    }
   }
 }
 
 // Email blur handler
 async function onEmailBlur(): Promise<void> {
   if (form.value.email) {
-    await checkEmailDuplicate(form.value.email, memberUuid);
+    if (isEdit && memberUuid) {
+      await checkEmailDuplicate(form.value.email, memberUuid);
+    } else {
+      await checkEmailDuplicate(form.value.email);
+    }
   }
 }
 
 // Form submission
 async function handleSubmit(): Promise<void> {
-  const payload: UpdateMemberPayload = {
-    fullName: form.value.fullName?.trim() || "",
-    gender: form.value.gender as "Male" | "Female",
-    dob: form.value.dob,
-    emergencyContactName: form.value.emergencyContactName?.trim() || "",
-    emergencyContactRelationship: form.value.emergencyContactRelationship,
-    baptismStatus: form.value.baptismStatus,
-    baptismDate: form.value.baptismStatus
-      ? form.value.baptismDate || undefined
-      : undefined,
-    status: form.value.status,
-    zoneId: form.value.zoneId || null,
-    groupId: form.value.groupId || null,
-    roleIds: form.value.roleId ? [form.value.roleId] : [],
-    pastCourses: form.value.pastCourses,
-  };
+  if (isEdit && memberUuid) {
+    const payload: UpdateMemberPayload = {
+      fullName: form.value.fullName?.trim() || "",
+      gender: form.value.gender as "Male" | "Female",
+      dob: form.value.dob,
+      emergencyContactName: form.value.emergencyContactName?.trim() || "",
+      emergencyContactRelationship: form.value.emergencyContactRelationship,
+      baptismStatus: form.value.baptismStatus,
+      baptismDate: form.value.baptismStatus
+        ? form.value.baptismDate || undefined
+        : undefined,
+      status: form.value.status,
+      zoneId: form.value.zoneId || null,
+      groupId: form.value.groupId || null,
+      roleIds: form.value.roleIds,
+      pastCourses: form.value.pastCourses,
+    };
 
-  // Only include sensitive fields if they have been updated (i.e. not masked with *)
-  if (form.value.email && !form.value.email.includes("*")) {
-    payload.email = form.value.email.trim();
-  }
-  if (form.value.mobile && !form.value.mobile.includes("*")) {
-    payload.mobile = form.value.mobile.trim().replace(/-/g, "");
-  }
-  if (form.value.address && !form.value.address.includes("*")) {
-    payload.address = form.value.address.trim();
-  }
-  if (form.value.lineId && !form.value.lineId.includes("*")) {
-    payload.lineId = form.value.lineId.trim();
-  }
-  if (
-    form.value.emergencyContactPhone &&
-    !form.value.emergencyContactPhone.includes("*")
-  ) {
-    payload.emergencyContactPhone = form.value.emergencyContactPhone
-      .trim()
-      .replace(/-/g, "");
-  }
+    if (form.value.email && !form.value.email.includes("*")) {
+      payload.email = form.value.email.trim();
+    }
+    if (form.value.mobile && !form.value.mobile.includes("*")) {
+      payload.mobile = form.value.mobile.trim().replace(/-/g, "");
+    }
+    if (form.value.address && !form.value.address.includes("*")) {
+      payload.address = form.value.address.trim();
+    }
+    if (form.value.lineId && !form.value.lineId.includes("*")) {
+      payload.lineId = form.value.lineId.trim();
+    }
+    if (
+      form.value.emergencyContactPhone &&
+      !form.value.emergencyContactPhone.includes("*")
+    ) {
+      payload.emergencyContactPhone = form.value.emergencyContactPhone
+        .trim()
+        .replace(/-/g, "");
+    }
 
-  // Frontend validation
-  if (!validateUpdate(payload)) {
-    toast.add({
-      severity: "error",
-      summary: "表單驗證失敗",
-      detail: "請檢查紅色標記的欄位",
-      life: 5000,
-    });
-    return;
-  }
-
-  // Check mobile uniqueness
-  if (mobileError.value) {
-    toast.add({
-      severity: "error",
-      summary: "錯誤",
-      detail: "手機號碼已被使用，請更換",
-      life: 3000,
-    });
-    return;
-  }
-
-  // Handle avatar changes
-  if (avatarFile.value) {
-    try {
-      const avatarUrl = await uploadAvatar(memberUuid);
-      if (avatarUrl) {
-        payload.avatar = avatarUrl;
-      }
-    } catch {
+    if (!validateUpdate(payload)) {
       toast.add({
         severity: "error",
-        summary: "頭像上傳失敗",
-        detail: "請稍後再試",
+        summary: "表單驗證失敗",
+        detail: "請檢查紅色標記的欄位",
         life: 5000,
       });
       return;
     }
-  } else if (shouldRemoveAvatar.value) {
-    payload.avatar = undefined;
-  }
 
-  const result = await submitUpdate(memberUuid, payload);
-  if (result.success) {
-    router.push("/dashboard/members");
+    if (mobileError.value) {
+      toast.add({
+        severity: "error",
+        summary: "錯誤",
+        detail: "手機號碼已被使用，請更換",
+        life: 3000,
+      });
+      return;
+    }
+
+    if (avatarFile.value) {
+      try {
+        const avatarUrl = await uploadAvatar(memberUuid);
+        if (avatarUrl) {
+          payload.avatar = avatarUrl;
+        }
+      } catch {
+        toast.add({
+          severity: "error",
+          summary: "頭像上傳失敗",
+          detail: "請稍後再試",
+          life: 5000,
+        });
+        return;
+      }
+    } else if (shouldRemoveAvatar.value) {
+      payload.avatar = undefined;
+    }
+
+    const result = await submitUpdate(memberUuid, payload);
+    if (result.success) {
+      router.push("/dashboard/members");
+    }
+  } else {
+    // Create flow
+    const payload: CreateMemberPayload = {
+      fullName: form.value.fullName.trim(),
+      gender: form.value.gender as "Male" | "Female",
+      dob: form.value.dob,
+      email: form.value.email.trim(),
+      mobile: form.value.mobile.trim().replace(/-/g, ""),
+      address: form.value.address?.trim() || undefined,
+      lineId: form.value.lineId?.trim() || undefined,
+      emergencyContactName: form.value.emergencyContactName.trim(),
+      emergencyContactRelationship: form.value.emergencyContactRelationship,
+      emergencyContactPhone: form.value.emergencyContactPhone
+        .trim()
+        .replace(/-/g, ""),
+      baptismStatus: form.value.baptismStatus,
+      baptismDate: form.value.baptismStatus
+        ? form.value.baptismDate || undefined
+        : undefined,
+      status: form.value.status,
+      zoneId: form.value.zoneId || undefined,
+      groupId: form.value.groupId || undefined,
+      roleIds: form.value.roleIds,
+      pastCourses: form.value.pastCourses,
+    };
+
+    if (!validateCreate(payload as any)) {
+      toast.add({
+        severity: "error",
+        summary: "表單驗證失敗",
+        detail: "請檢查紅色標記的欄位",
+        life: 5000,
+      });
+      return;
+    }
+
+    if (mobileError.value) {
+      toast.add({
+        severity: "error",
+        summary: "錯誤",
+        detail: "手機號碼已被使用，請更換",
+        life: 3000,
+      });
+      return;
+    }
+
+    if (avatarFile.value) {
+      try {
+        const tempUuid = crypto.randomUUID();
+        const avatarUrl = await uploadAvatar(tempUuid);
+        if (avatarUrl) {
+          payload.avatar = avatarUrl;
+        }
+      } catch {
+        toast.add({
+          severity: "error",
+          summary: "頭像上傳失敗",
+          detail: "請稍後再試",
+          life: 5000,
+        });
+        return;
+      }
+    }
+
+    const result = await submitCreate(payload);
+    if (result.success && result.data) {
+      router.push("/dashboard/members");
+    }
   }
 }
 
-// Load member data and reference data
+// Load data
 async function loadData(): Promise<void> {
-  isLoading.value = true;
-  try {
-    const [memberData] = await Promise.all([
-      $fetch<MemberDetail>(`/api/members/${memberUuid}`),
-      orgStore.fetchStructure(),
-      orgStore.fetchCourses(),
-      orgStore.fetchRoles(),
-    ]);
+  if (isEdit && memberUuid) {
+    isLoading.value = true;
+    try {
+      const [memberData] = await Promise.all([
+        $fetch<MemberDetail>(`/api/members/${memberUuid}`),
+        orgStore.fetchStructure(),
+        orgStore.fetchCourses(),
+        orgStore.fetchRoles(),
+      ]);
 
-    member.value = memberData;
+      member.value = memberData;
 
-    // Pre-fill form
-    form.value = {
-      fullName: memberData.fullName,
-      gender: memberData.gender,
-      dob: memberData.dob,
-      email: memberData.email,
-      mobile: memberData.mobile,
-      address: memberData.address || "",
-      lineId: memberData.lineId || "",
-      emergencyContactName: memberData.emergencyContactName,
-      emergencyContactRelationship: memberData.emergencyContactRelationship,
-      emergencyContactPhone: memberData.emergencyContactPhone,
-      baptismStatus: memberData.baptismStatus,
-      baptismDate: memberData.baptismDate || "",
-      status: memberData.status,
-      zoneId: memberData.zoneId || null,
-      groupId: memberData.groupId || null,
-      roleId: memberData.roleIds?.[0] || null,
-      pastCourses: memberData.pastCourses || [],
-      existingAvatar: memberData.avatar || null,
-    };
+      form.value = {
+        fullName: memberData.fullName,
+        gender: memberData.gender,
+        dob: memberData.dob,
+        email: memberData.email,
+        mobile: memberData.mobile,
+        address: memberData.address || "",
+        lineId: memberData.lineId || "",
+        emergencyContactName: memberData.emergencyContactName,
+        emergencyContactRelationship: memberData.emergencyContactRelationship,
+        emergencyContactPhone: memberData.emergencyContactPhone,
+        baptismStatus: memberData.baptismStatus,
+        baptismDate: memberData.baptismDate || "",
+        status: memberData.status,
+        zoneId: memberData.zoneId || null,
+        groupId: memberData.groupId || null,
+        roleIds: memberData.roleIds || [],
+        pastCourses: memberData.pastCourses || [],
+        existingAvatar: memberData.avatar || null,
+      };
 
-    // Initialize avatar preview
-    if (memberData.avatar) {
-      initFromExisting(memberData.avatar);
-    }
-
-    // Check zone-group mismatch
-    if (memberData.zoneId && memberData.groupId) {
-      const group = orgStore.groups.find((g) => g.id === memberData.groupId);
-      if (
-        group &&
-        group.type === "Pastoral" &&
-        group.zoneId !== memberData.zoneId
-      ) {
-        zoneGroupMismatch.value = true;
+      if (memberData.avatar) {
+        initFromExisting(memberData.avatar);
       }
+
+      if (memberData.zoneId && memberData.groupId) {
+        const group = orgStore.groups.find((g) => g.id === memberData.groupId);
+        if (
+          group &&
+          group.groupType === "Pastoral" &&
+          group.zoneId !== memberData.zoneId
+        ) {
+          zoneGroupMismatch.value = true;
+        }
+      }
+    } catch {
+      toast.add({
+        severity: "error",
+        summary: "錯誤",
+        detail: "載入會友資料失敗",
+        life: 3000,
+      });
+      router.push("/dashboard/members");
+    } finally {
+      isLoading.value = false;
     }
-  } catch {
-    toast.add({
-      severity: "error",
-      summary: "錯誤",
-      detail: "載入會友資料失敗",
-      life: 3000,
-    });
-    router.push("/dashboard/members");
-  } finally {
+  } else {
+    try {
+      await Promise.all([
+        orgStore.fetchStructure(),
+        orgStore.fetchCourses(),
+        orgStore.fetchRoles(),
+      ]);
+    } catch {
+      toast.add({
+        severity: "warn",
+        summary: "提示",
+        detail: "部分參考資料載入失敗，請稍後重試",
+        life: 3000,
+      });
+    }
     isLoading.value = false;
   }
 }
@@ -320,9 +414,11 @@ onMounted(() => {
     <div class="flex items-center gap-3 mb-6">
       <Button icon="pi pi-arrow-left" text rounded @click="router.back()" />
       <div>
-        <h1 class="text-2xl font-bold">編輯會友資料</h1>
+        <h1 class="text-2xl font-bold">
+          {{ isEdit ? "編輯會友資料" : "新增會友" }}
+        </h1>
         <p class="text-sm text-slate-500 mt-1">
-          {{ member?.fullName || "載入中..." }}
+          {{ isEdit ? member?.fullName || "載入中..." : "填寫會友基本資料" }}
         </p>
       </div>
     </div>
@@ -334,7 +430,11 @@ onMounted(() => {
 
     <form v-else @submit.prevent="handleSubmit" class="space-y-6">
       <!-- Zone-Group Mismatch Warning -->
-      <Message v-if="zoneGroupMismatch" severity="warn" :closable="false">
+      <Message
+        v-if="isEdit && zoneGroupMismatch"
+        severity="warn"
+        :closable="false"
+      >
         此會友的牧區與小組資料不匹配，請重新選擇牧區與小組。
       </Message>
 
@@ -365,7 +465,7 @@ onMounted(() => {
                 accept="image/jpeg,image/png"
                 :maxFileSize="2000000"
                 :auto="false"
-                chooseLabel="更換圖片"
+                :chooseLabel="hasAvatar ? '更換圖片' : '選擇圖片'"
                 @select="onAvatarSelect"
               />
               <Button
@@ -438,8 +538,9 @@ onMounted(() => {
               >出生年月日 <span class="text-red-500">*</span></label
             >
             <DatePicker
-              v-model="dobDate"
+              v-model="form.dob"
               dateFormat="yy-mm-dd"
+              updateModelType="string"
               :maxDate="maxDate"
               showIcon
               placeholder="選擇日期"
@@ -628,8 +729,9 @@ onMounted(() => {
           <div v-if="form.baptismStatus" class="flex flex-col gap-2">
             <label class="text-sm font-medium">受洗日期</label>
             <DatePicker
-              v-model="baptismDateValue"
+              v-model="form.baptismDate"
               dateFormat="yy-mm-dd"
+              updateModelType="string"
               :maxDate="maxDate"
               showIcon
               placeholder="選擇日期（選填）"
@@ -672,13 +774,13 @@ onMounted(() => {
           <!-- Role -->
           <div class="flex flex-col gap-2">
             <label class="text-sm font-medium">角色</label>
-            <Select
-              v-model="form.roleId"
+            <MultiSelect
+              v-model="form.roleIds"
               :options="roleOptions"
               optionLabel="label"
               optionValue="value"
               placeholder="請選擇角色（選填）"
-              showClear
+              display="chip"
               :loading="orgStore.isLoadingRoles"
             />
           </div>
@@ -732,7 +834,7 @@ onMounted(() => {
           @click="router.back()"
         />
         <Button
-          label="儲存變更"
+          :label="isEdit ? '儲存變更' : '建立會友'"
           icon="pi pi-check"
           type="submit"
           :loading="isSubmitting || isUploading"

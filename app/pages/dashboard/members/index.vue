@@ -2,10 +2,10 @@
 /**
  * Member List Page (ST003 + ST004 Integration)
  */
-import type { MemberListItem, MemberDetail } from '~/types/member';
+import type { MemberListItem, MemberDetail } from "~/types/member";
 
 definePageMeta({
-  layout: 'dashboard',
+  layout: "dashboard",
 });
 
 const auth = useAuth();
@@ -42,7 +42,12 @@ async function openQuickView(member: MemberListItem): Promise<void> {
     const detail = await $fetch<MemberDetail>(`/api/members/${member.uuid}`);
     selectedMember.value = detail;
   } catch {
-    toast.add({ severity: 'error', summary: '錯誤', detail: '載入會友詳情失敗', life: 3000 });
+    toast.add({
+      severity: "error",
+      summary: "錯誤",
+      detail: "載入會友詳情失敗",
+      life: 3000,
+    });
     showQuickView.value = false;
   } finally {
     isLoadingDetail.value = false;
@@ -70,7 +75,7 @@ function onMemberDeleted(): void {
 
 // Edit navigation (ST004)
 function editMember(member: MemberListItem): void {
-  router.push(`/dashboard/members/${member.uuid}/edit`);
+  router.push(`/dashboard/members/edit/${member.uuid}`);
 }
 
 // Page size options
@@ -115,14 +120,23 @@ onMounted(() => {
     <!-- Search result hint -->
     <div v-if="filters.search && !isLoading" class="mb-3">
       <p class="text-sm text-slate-500">
-        找到 <strong>{{ pagination.totalItems }}</strong> 筆符合「<strong>{{ filters.search }}</strong>」的資料
+        找到 <strong>{{ pagination.totalItems }}</strong> 筆符合「<strong>{{
+          filters.search
+        }}</strong
+        >」的資料
       </p>
     </div>
 
     <!-- Error -->
     <Message v-if="error" severity="error" :closable="false" class="mb-4">
       {{ error }}
-      <Button label="重試" size="small" text class="ml-2" @click="fetchMembers" />
+      <Button
+        label="重試"
+        size="small"
+        text
+        class="ml-2"
+        @click="fetchMembers"
+      />
     </Message>
 
     <!-- Table -->
@@ -138,16 +152,25 @@ onMounted(() => {
     />
 
     <!-- Pagination -->
-    <div v-if="pagination.totalPages > 0" class="flex flex-col sm:flex-row items-center justify-between mt-4 gap-3">
+    <div
+      v-if="pagination.totalPages > 0"
+      class="flex flex-col sm:flex-row items-center justify-between mt-4 gap-3"
+    >
       <div class="flex items-center gap-2 text-sm text-slate-500">
         <span>
           顯示 {{ (pagination.page - 1) * pagination.pageSize + 1 }}–{{
-            Math.min(pagination.page * pagination.pageSize, pagination.totalItems)
-          }} 筆，共 {{ pagination.totalItems }} 筆
+            Math.min(
+              pagination.page * pagination.pageSize,
+              pagination.totalItems,
+            )
+          }}
+          筆，共 {{ pagination.totalItems }} 筆
         </span>
         <Select
           :modelValue="pagination.pageSize"
-          :options="pageSizeOptions.map((s) => ({ label: `${s} 筆/頁`, value: s }))"
+          :options="
+            pageSizeOptions.map((s) => ({ label: `${s} 筆/頁`, value: s }))
+          "
           optionLabel="label"
           optionValue="value"
           size="small"

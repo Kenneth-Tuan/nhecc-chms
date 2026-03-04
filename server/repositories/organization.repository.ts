@@ -141,7 +141,7 @@ export class OrganizationRepository {
     try {
       const docRef = await this.db.collection("groups").add({
         ...data,
-        type: data.type || "Pastoral",
+        groupType: data.groupType || "Pastoral",
         status: data.status || "Active",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -206,11 +206,13 @@ export class OrganizationRepository {
     const zonesWithGroups: ZoneWithGroups[] = zones.map((zone) => ({
       ...zone,
       groups: allGroups.filter(
-        (g) => g.zoneId === zone.id && g.type === "Pastoral",
+        (g) => g.zoneId === zone.id && g.groupType === "Pastoral",
       ),
     }));
 
-    const functionalGroups = allGroups.filter((g) => g.type === "Functional");
+    const functionalGroups = allGroups.filter(
+      (g) => g.groupType === "Functional",
+    );
 
     return {
       zones: zonesWithGroups,
@@ -251,7 +253,7 @@ export class OrganizationRepository {
     const snapshot = await this.db
       .collection("members")
       .where("status", "==", "Active")
-      .where("zoneId", "==", null)
+      .where("groupId", "==", null)
       .get();
 
     return snapshot.docs.map((doc: any) => {

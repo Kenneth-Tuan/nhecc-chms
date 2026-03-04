@@ -58,7 +58,7 @@ export function useZoneGroupCascade() {
       return;
     }
     filteredGroups.value = allGroups.value.filter(
-      (group) => group.type === "Pastoral" && group.zoneId === zoneId,
+      (group) => group.groupType === "Pastoral" && group.zoneId === zoneId,
     );
   }
 
@@ -82,7 +82,7 @@ export function useZoneGroupCascade() {
 
     const group = allGroups.value.find((g) => g.id === groupId);
     if (!group) return true;
-    if (group.type === "Functional") return false;
+    if (group.groupType === "Functional") return false;
 
     return group.zoneId !== zoneId;
   }

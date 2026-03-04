@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { zodResolver } from "@primevue/forms/resolvers/zod";
+import dayjs from "dayjs";
 
 import {
   getStep1Schema,
@@ -40,7 +41,7 @@ const formData = ref<Partial<RegisterFormValues>>({
   lineId: "",
   gender: "MALE",
   isBaptized: false,
-  baptismDate: new Date(),
+  baptismDate: dayjs().toDate(),
   pastoralZone: "",
   homeGroup: "",
   previousCourses: [],
@@ -158,7 +159,7 @@ const onStep2Submit = async (e: any) => {
       body: {
         gender: formData.value.gender === "MALE" ? "Male" : "Female",
         dob: formData.value.birthDate
-          ? new Date(formData.value.birthDate).toISOString().split("T")[0]
+          ? dayjs(formData.value.birthDate).format("YYYY-MM-DD")
           : "",
         lineId: formData.value.lineId,
         address: formData.value.address,
@@ -166,7 +167,7 @@ const onStep2Submit = async (e: any) => {
         emergencyContactPhone: formData.value.emergencyContactPhone,
         baptismStatus: formData.value.isBaptized,
         baptismDate: formData.value.baptismDate
-          ? new Date(formData.value.baptismDate).toISOString().split("T")[0]
+          ? dayjs(formData.value.baptismDate).format("YYYY-MM-DD")
           : undefined,
         zoneId: formData.value.pastoralZone,
         groupId: formData.value.homeGroup,
