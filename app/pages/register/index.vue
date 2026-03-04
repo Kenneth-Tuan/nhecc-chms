@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { zodResolver } from "@primevue/forms/resolvers/zod";
 import dayjs from "dayjs";
 
 import {
@@ -7,7 +6,7 @@ import {
   step2Schema,
   type RegisterFormValues,
 } from "~/utils/user/formDef";
-import { pastoralZones } from "~/data/pastoral-zones.data";
+import { useOrganizationStore } from "~/stores/organization.store";
 import { useToast } from "primevue/usetoast";
 import { useAuthStore } from "~/stores/auth.store";
 import { useFirebaseAuth } from "~/composables/useFirebaseAuth";
@@ -16,6 +15,7 @@ const route = useRoute();
 const firebaseAuth = useFirebaseAuth();
 const authStore = useAuthStore();
 const toast = useToast();
+const orgStore = useOrganizationStore();
 
 const activeStep = ref(1);
 const loading = ref(false);
@@ -34,18 +34,23 @@ const currentStep1Schema = computed(() =>
   getStep1Schema(isSocialRegister.value),
 );
 
-const formData = ref<Partial<RegisterFormValues>>({
+const formData = ref<any>({
   fullName: (route.query.fullName as string) || "",
   email: (route.query.email as string) || "",
   phone: "",
   lineId: "",
-  gender: "MALE",
+  gender: "Male",
   isBaptized: false,
   baptismDate: dayjs().toDate(),
   pastoralZone: "",
   homeGroup: "",
   previousCourses: [],
+  password: "",
+  confirmPassword: "",
 });
+
+const errors1 = ref<Record<string, string>>({});
+const errors2 = ref<Record<string, string>>({});
 
 const socialAvatar = ref((route.query.avatar as string) || "");
 const syncFromQuery = () => {
@@ -58,6 +63,7 @@ const syncFromQuery = () => {
 
 onMounted(async () => {
   syncFromQuery();
+  orgStore.fetchStructure();
 
   // 如果缺少查詢參數（LINE 重定向常見情況），則回退到待處理的 LINE 個人檔案
   if (isLine.value && firebaseAuth.pendingLineProfile.value) {
@@ -68,36 +74,30 @@ onMounted(async () => {
   }
 
   // 確保初始社交註冊登陸時活動步驟為 1
-  activeStep.value = 1;
+  activeStep.value = 2;
 });
 
 // 步驟 2 的動態選項
 const availableGroups = computed(() => {
   if (!formData.value.pastoralZone) return [];
-  const zone = pastoralZones.find((z) => z.id === formData.value.pastoralZone);
-  return zone ? zone.groups : [];
+  return orgStore.getGroupsByZone(formData.value.pastoralZone);
 });
 
-/** File Upload Logic **/
-const fileUploadRef = ref();
-const onFileSelect = (event: any) => {
-  const file = event.files[0];
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    // @ts-ignore
-    formData.value.avatar = e.target?.result as string;
-  };
-  reader.readAsDataURL(file);
-};
-const triggerFileUpload = () => {
-  fileUploadRef.value.choose();
-};
+const avatarUploadRef = ref();
 
 /** Form Handlers **/
-const onStep1Submit = async (e: any) => {
-  if (!e.valid) return;
-
-  formData.value = { ...formData.value, ...e.values };
+const onStep1Submit = async () => {
+  const result = currentStep1Schema.value.safeParse(formData.value);
+  if (!result.success) {
+    const newErrors: Record<string, string> = {};
+    result.error.issues.forEach((issue: any) => {
+      const key = issue.path[0] as string;
+      if (key && !newErrors[key]) newErrors[key] = issue.message;
+    });
+    errors1.value = newErrors;
+    return;
+  }
+  errors1.value = {};
 
   loading.value = true;
   try {
@@ -106,7 +106,7 @@ const onStep1Submit = async (e: any) => {
     if (!isSocialRegister.value) {
       uid = await firebaseAuth.registerWithEmail(
         formData.value.email!,
-        (e.values as any).password,
+        formData.value.password,
       );
     }
 
@@ -141,15 +141,44 @@ const onStep1Submit = async (e: any) => {
   }
 };
 
-const onStep2Submit = async (e: any) => {
-  if (!e.valid) return;
-
-  formData.value = { ...formData.value, ...e.values };
+const onStep2Submit = async () => {
+  const result = step2Schema.safeParse(formData.value);
+  if (!result.success) {
+    const newErrors: Record<string, string> = {};
+    result.error.issues.forEach((issue: any) => {
+      const key = issue.path[0] as string;
+      if (key && !newErrors[key]) newErrors[key] = issue.message;
+    });
+    errors2.value = newErrors;
+    return;
+  }
+  errors2.value = {};
 
   loading.value = true;
   try {
     const uid = socialUid.value;
     if (!uid) throw new Error("缺少用戶 ID");
+
+    const avatarFile = avatarUploadRef.value?.avatarFile;
+    const shouldRemoveAvatar = avatarUploadRef.value?.shouldRemoveAvatar;
+
+    if (avatarFile) {
+      try {
+        const avatarUrl = await avatarUploadRef.value.uploadAvatar(uid);
+        if (avatarUrl) {
+          formData.value.avatar = avatarUrl;
+        }
+      } catch (err: any) {
+        toast.add({
+          severity: "error",
+          summary: "頭像上傳失敗",
+          detail: err.message,
+        });
+        return;
+      }
+    } else if (shouldRemoveAvatar) {
+      formData.value.avatar = undefined;
+    }
 
     // 個人檔案更新邏輯...
 
@@ -157,7 +186,7 @@ const onStep2Submit = async (e: any) => {
     await $fetch(`/api/members/${uid}`, {
       method: "PATCH",
       body: {
-        gender: formData.value.gender === "MALE" ? "Male" : "Female",
+        gender: formData.value.gender,
         dob: formData.value.birthDate
           ? dayjs(formData.value.birthDate).format("YYYY-MM-DD")
           : "",
@@ -278,17 +307,11 @@ definePageMeta({
           :value="1"
           class="p-6 sm:p-8 pt-2"
         >
-          <Form
-            :initial-values="formData"
-            :resolver="zodResolver(currentStep1Schema)"
-            @submit="onStep1Submit"
+          <form
+            @submit.prevent="onStep1Submit"
             class="flex-1 flex flex-col space-y-5"
           >
-            <FormField
-              v-slot="$field"
-              name="fullName"
-              class="flex flex-col gap-2"
-            >
+            <div class="flex flex-col gap-2">
               <label
                 for="fullName"
                 class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
@@ -301,19 +324,21 @@ definePageMeta({
               </label>
 
               <InputText
+                v-model="formData.fullName"
                 name="fullName"
                 placeholder="請輸入姓名"
-                :invalid="$field.invalid"
+                :invalid="!!(errors1.fullName || errors2.fullName)"
                 fluid
               />
 
-              <FormSmartFieldError
-                :message="$field.error?.message"
-                :show="$field.invalid"
-              />
-            </FormField>
+              <small
+                class="text-red-500 text-xs mt-1"
+                v-if="errors1.fullName || errors2.fullName"
+                >{{ errors1.fullName || errors2.fullName }}</small
+              >
+            </div>
 
-            <FormField v-slot="$field" name="phone" class="flex flex-col gap-2">
+            <div class="flex flex-col gap-2">
               <label
                 for="phone"
                 class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
@@ -326,19 +351,21 @@ definePageMeta({
               </label>
 
               <InputText
+                v-model="formData.phone"
                 name="phone"
                 placeholder="0912-345-678"
-                :invalid="$field.invalid"
+                :invalid="!!(errors1.phone || errors2.phone)"
                 fluid
               />
 
-              <FormSmartFieldError
-                :message="$field.error?.message"
-                :show="$field.invalid"
-              />
-            </FormField>
+              <small
+                class="text-red-500 text-xs mt-1"
+                v-if="errors1.phone || errors2.phone"
+                >{{ errors1.phone || errors2.phone }}</small
+              >
+            </div>
 
-            <FormField v-slot="$field" name="email" class="flex flex-col gap-2">
+            <div class="flex flex-col gap-2">
               <label
                 for="email"
                 class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
@@ -351,27 +378,25 @@ definePageMeta({
               </label>
 
               <InputText
+                v-model="formData.email"
                 name="email"
                 placeholder="example@email.com"
-                :invalid="$field.invalid"
+                :invalid="!!(errors1.email || errors2.email)"
                 fluid
                 :disabled="isGoogle"
               />
 
-              <FormSmartFieldError
-                :message="$field.error?.message"
-                :show="$field.invalid"
-              />
-            </FormField>
+              <small
+                class="text-red-500 text-xs mt-1"
+                v-if="errors1.email || errors2.email"
+                >{{ errors1.email || errors2.email }}</small
+              >
+            </div>
 
             <template v-if="!isSocialRegister">
               <Divider />
 
-              <FormField
-                v-slot="$field"
-                name="password"
-                class="flex flex-col gap-2"
-              >
+              <div class="flex flex-col gap-2">
                 <label
                   for="password"
                   class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
@@ -384,25 +409,23 @@ definePageMeta({
                 </label>
 
                 <InputText
+                  v-model="formData.password"
                   name="password"
                   placeholder="請輸入密碼"
-                  :invalid="$field.invalid"
+                  :invalid="!!(errors1.password || errors2.password)"
                   fluid
                   toggleMask
                   :feedback="true"
                 />
 
-                <FormSmartFieldError
-                  :message="$field.error?.message"
-                  :show="$field.invalid"
-                />
-              </FormField>
+                <small
+                  class="text-red-500 text-xs mt-1"
+                  v-if="errors1.password || errors2.password"
+                  >{{ errors1.password || errors2.password }}</small
+                >
+              </div>
 
-              <FormField
-                v-slot="$field"
-                name="confirmPassword"
-                class="flex flex-col gap-2"
-              >
+              <div class="flex flex-col gap-2">
                 <label
                   for="confirmPassword"
                   class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
@@ -415,19 +438,25 @@ definePageMeta({
                 </label>
 
                 <InputText
+                  v-model="formData.confirmPassword"
                   name="confirmPassword"
                   placeholder="請再次輸入密碼"
-                  :invalid="$field.invalid"
+                  :invalid="
+                    !!(errors1.confirmPassword || errors2.confirmPassword)
+                  "
                   fluid
                   toggleMask
                   :feedback="false"
                 />
 
-                <FormSmartFieldError
-                  :message="$field.error?.message"
-                  :show="$field.invalid"
-                />
-              </FormField>
+                <small
+                  class="text-red-500 text-xs mt-1"
+                  v-if="errors1.confirmPassword || errors2.confirmPassword"
+                  >{{
+                    errors1.confirmPassword || errors2.confirmPassword
+                  }}</small
+                >
+              </div>
             </template>
 
             <div class="mt-auto pt-6">
@@ -450,7 +479,7 @@ definePageMeta({
                 >
               </p>
             </div>
-          </Form>
+          </form>
 
           <div
             class="pt-8 mt-4 text-center border-t border-slate-50 dark:border-slate-800/50"
@@ -472,54 +501,15 @@ definePageMeta({
           :value="2"
           class="p-6 sm:p-8 pt-2"
         >
-          <!-- 大頭貼 (通常在表單外，或手動處理) -->
-          <div class="flex flex-col items-center mb-8 shrink-0">
-            <FileUpload
-              ref="fileUploadRef"
-              mode="basic"
-              name="avatar"
-              accept="image/*"
-              customUpload
-              auto
-              :maxFileSize="1000000"
-              class="hidden"
-              @select="onFileSelect"
-            />
-            <div
-              class="relative cursor-pointer transition-transform hover:scale-105"
-              @click="triggerFileUpload"
-            >
-              <Avatar
-                :image="formData.avatar || undefined"
-                :icon="formData.avatar ? undefined : 'pi pi-user'"
-                class="w-24 h-24 !bg-slate-100 dark:!bg-slate-800 !border-2 !border-slate-50 dark:!border-slate-800 shadow-inner"
-                size="xlarge"
-                shape="circle"
-                :style="
-                  !formData.avatar ? { fontSize: '3rem', color: '#cbd5e1' } : {}
-                "
-                :pt="{
-                  image: { class: 'object-cover w-full h-full rounded-full' },
-                }"
-              />
-              <div
-                class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 bg-primary text-white shadow-md border-2 border-white dark:border-slate-900 rounded-full"
-              >
-                <i class="pi pi-camera text-sm"></i>
-              </div>
-            </div>
-            <span
-              class="text-xs font-bold uppercase tracking-widest mt-3 text-slate-400"
-              >上傳大頭貼</span
-            >
-          </div>
-
-          <Form
-            :initial-values="formData"
-            :resolver="zodResolver(step2Schema)"
-            @submit="onStep2Submit"
-            class="space-y-10"
-          >
+          <!-- 大頭貼 -->
+          <ProfileAvatarUpload
+            ref="avatarUploadRef"
+            :full-name="formData.fullName"
+            :existing-avatar="formData.avatar"
+            plain
+            class="mb-8"
+          />
+          <form @submit.prevent="onStep2Submit" class="space-y-10">
             <!-- 基本資料 -->
             <section class="space-y-4">
               <h2
@@ -528,11 +518,7 @@ definePageMeta({
                 基本資料
               </h2>
               <div class="grid grid-cols-1 gap-5">
-                <FormField
-                  v-slot="$field"
-                  name="gender"
-                  class="flex flex-col gap-2"
-                >
+                <div class="flex flex-col gap-2">
                   <label
                     for="gender"
                     class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
@@ -545,11 +531,12 @@ definePageMeta({
                   </label>
 
                   <SelectButton
+                    v-model="formData.gender"
                     name="gender"
                     optionLabel="label"
                     optionValue="value"
                     dataKey="value"
-                    :invalid="$field.invalid"
+                    :invalid="!!(errors1.gender || errors2.gender)"
                     fluid
                     :options="genderOptions"
                   >
@@ -561,17 +548,14 @@ definePageMeta({
                     </template>
                   </SelectButton>
 
-                  <FormSmartFieldError
-                    :message="$field.error?.message"
-                    :show="$field.invalid"
-                  />
-                </FormField>
+                  <small
+                    class="text-red-500 text-xs mt-1"
+                    v-if="errors1.gender || errors2.gender"
+                    >{{ errors1.gender || errors2.gender }}</small
+                  >
+                </div>
 
-                <FormField
-                  v-slot="$field"
-                  name="birthDate"
-                  class="flex flex-col gap-2"
-                >
+                <div class="flex flex-col gap-2">
                   <label
                     for="birthDate"
                     class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
@@ -584,22 +568,20 @@ definePageMeta({
                   </label>
 
                   <DatePicker
+                    v-model="formData.birthDate"
                     name="birthDate"
-                    :invalid="$field.invalid"
+                    :invalid="!!(errors1.birthDate || errors2.birthDate)"
                     fluid
                   />
 
-                  <FormSmartFieldError
-                    :message="$field.error?.message"
-                    :show="$field.invalid"
-                  />
-                </FormField>
+                  <small
+                    class="text-red-500 text-xs mt-1"
+                    v-if="errors1.birthDate || errors2.birthDate"
+                    >{{ errors1.birthDate || errors2.birthDate }}</small
+                  >
+                </div>
 
-                <FormField
-                  v-slot="$field"
-                  name="maritalStatus"
-                  class="flex flex-col gap-2"
-                >
+                <div class="flex flex-col gap-2">
                   <label
                     for="maritalStatus"
                     class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
@@ -609,19 +591,23 @@ definePageMeta({
                   </label>
 
                   <Select
+                    v-model="formData.maritalStatus"
                     name="maritalStatus"
-                    :invalid="$field.invalid"
+                    :invalid="
+                      !!(errors1.maritalStatus || errors2.maritalStatus)
+                    "
                     optionLabel="label"
                     optionValue="value"
                     fluid
                     :options="maritalOptions"
                   />
 
-                  <FormSmartFieldError
-                    :message="$field.error?.message"
-                    :show="$field.invalid"
-                  />
-                </FormField>
+                  <small
+                    class="text-red-500 text-xs mt-1"
+                    v-if="errors1.maritalStatus || errors2.maritalStatus"
+                    >{{ errors1.maritalStatus || errors2.maritalStatus }}</small
+                  >
+                </div>
               </div>
             </section>
 
@@ -633,11 +619,7 @@ definePageMeta({
                 聯絡資訊
               </h2>
               <div class="grid grid-cols-1 gap-5">
-                <FormField
-                  v-slot="$field"
-                  name="lineId"
-                  class="flex flex-col gap-2"
-                >
+                <div class="flex flex-col gap-2">
                   <label
                     for="lineId"
                     class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
@@ -650,23 +632,21 @@ definePageMeta({
                   </label>
 
                   <InputText
+                    v-model="formData.lineId"
                     name="lineId"
                     placeholder="請輸入 Line ID"
-                    :invalid="$field.invalid"
+                    :invalid="!!(errors1.lineId || errors2.lineId)"
                     fluid
                   />
 
-                  <FormSmartFieldError
-                    :message="$field.error?.message"
-                    :show="$field.invalid"
-                  />
-                </FormField>
+                  <small
+                    class="text-red-500 text-xs mt-1"
+                    v-if="errors1.lineId || errors2.lineId"
+                    >{{ errors1.lineId || errors2.lineId }}</small
+                  >
+                </div>
 
-                <FormField
-                  v-slot="$field"
-                  name="address"
-                  class="flex flex-col gap-2"
-                >
+                <div class="flex flex-col gap-2">
                   <label
                     for="address"
                     class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
@@ -679,17 +659,19 @@ definePageMeta({
                   </label>
 
                   <InputText
+                    v-model="formData.address"
                     name="address"
                     placeholder="請輸入通訊地址"
-                    :invalid="$field.invalid"
+                    :invalid="!!(errors1.address || errors2.address)"
                     fluid
                   />
 
-                  <FormSmartFieldError
-                    :message="$field.error?.message"
-                    :show="$field.invalid"
-                  />
-                </FormField>
+                  <small
+                    class="text-red-500 text-xs mt-1"
+                    v-if="errors1.address || errors2.address"
+                    >{{ errors1.address || errors2.address }}</small
+                  >
+                </div>
               </div>
             </section>
 
@@ -701,11 +683,7 @@ definePageMeta({
                 緊急聯絡人
               </h2>
               <div class="grid grid-cols-1 gap-5">
-                <FormField
-                  v-slot="$field"
-                  name="emergencyContactName"
-                  class="flex flex-col gap-2"
-                >
+                <div class="flex flex-col gap-2">
                   <label
                     for="emergencyContactName"
                     class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
@@ -718,23 +696,32 @@ definePageMeta({
                   </label>
 
                   <InputText
+                    v-model="formData.emergencyContactName"
                     name="emergencyContactName"
                     placeholder="請輸入緊急聯絡人姓名"
-                    :invalid="$field.invalid"
+                    :invalid="
+                      !!(
+                        errors1.emergencyContactName ||
+                        errors2.emergencyContactName
+                      )
+                    "
                     fluid
                   />
 
-                  <FormSmartFieldError
-                    :message="$field.error?.message"
-                    :show="$field.invalid"
-                  />
-                </FormField>
+                  <small
+                    class="text-red-500 text-xs mt-1"
+                    v-if="
+                      errors1.emergencyContactName ||
+                      errors2.emergencyContactName
+                    "
+                    >{{
+                      errors1.emergencyContactName ||
+                      errors2.emergencyContactName
+                    }}</small
+                  >
+                </div>
 
-                <FormField
-                  v-slot="$field"
-                  name="emergencyContactPhone"
-                  class="flex flex-col gap-2"
-                >
+                <div class="flex flex-col gap-2">
                   <label
                     for="emergencyContactPhone"
                     class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
@@ -747,17 +734,30 @@ definePageMeta({
                   </label>
 
                   <InputText
+                    v-model="formData.emergencyContactPhone"
                     name="emergencyContactPhone"
                     placeholder="請輸入緊急聯絡人電話"
-                    :invalid="$field.invalid"
+                    :invalid="
+                      !!(
+                        errors1.emergencyContactPhone ||
+                        errors2.emergencyContactPhone
+                      )
+                    "
                     fluid
                   />
 
-                  <FormSmartFieldError
-                    :message="$field.error?.message"
-                    :show="$field.invalid"
-                  />
-                </FormField>
+                  <small
+                    class="text-red-500 text-xs mt-1"
+                    v-if="
+                      errors1.emergencyContactPhone ||
+                      errors2.emergencyContactPhone
+                    "
+                    >{{
+                      errors1.emergencyContactPhone ||
+                      errors2.emergencyContactPhone
+                    }}</small
+                  >
+                </div>
               </div>
             </section>
 
@@ -769,11 +769,7 @@ definePageMeta({
                 信仰狀態
               </h2>
               <div class="grid grid-cols-1 gap-5">
-                <FormField
-                  v-slot="$field"
-                  name="isBaptized"
-                  class="flex flex-col gap-2"
-                >
+                <div class="flex flex-col gap-2">
                   <label
                     for="isBaptized"
                     class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
@@ -783,11 +779,12 @@ definePageMeta({
                   </label>
 
                   <SelectButton
+                    v-model="formData.isBaptized"
                     name="isBaptized"
                     optionLabel="label"
                     optionValue="value"
                     dataKey="value"
-                    :invalid="$field.invalid"
+                    :invalid="!!(errors1.isBaptized || errors2.isBaptized)"
                     fluid
                     :options="[
                       { label: '是', value: true },
@@ -800,21 +797,18 @@ definePageMeta({
                     </template>
                   </SelectButton>
 
-                  <FormSmartFieldError
-                    :message="$field.error?.message"
-                    :show="$field.invalid"
-                  />
-                </FormField>
+                  <small
+                    class="text-red-500 text-xs mt-1"
+                    v-if="errors1.isBaptized || errors2.isBaptized"
+                    >{{ errors1.isBaptized || errors2.isBaptized }}</small
+                  >
+                </div>
 
                 <div
-                  v-if="formData.isBaptized || true"
+                  v-if="formData.isBaptized"
                   class="animate-fade-in animate-duration-300"
                 >
-                  <FormField
-                    v-slot="$field"
-                    name="baptismDate"
-                    class="flex flex-col gap-2"
-                  >
+                  <div class="flex flex-col gap-2">
                     <label
                       for="baptismDate"
                       class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
@@ -824,23 +818,21 @@ definePageMeta({
                     </label>
 
                     <DatePicker
+                      v-model="formData.baptismDate"
                       name="baptismDate"
-                      :invalid="$field.invalid"
+                      :invalid="!!(errors1.baptismDate || errors2.baptismDate)"
                       fluid
                     />
 
-                    <FormSmartFieldError
-                      :message="$field.error?.message"
-                      :show="$field.invalid"
-                    />
-                  </FormField>
+                    <small
+                      class="text-red-500 text-xs mt-1"
+                      v-if="errors1.baptismDate || errors2.baptismDate"
+                      >{{ errors1.baptismDate || errors2.baptismDate }}</small
+                    >
+                  </div>
                 </div>
 
-                <FormField
-                  v-slot="$field"
-                  name="pastoralZone"
-                  class="flex flex-col gap-2"
-                >
+                <div class="flex flex-col gap-2">
                   <label
                     for="pastoralZone"
                     class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
@@ -850,26 +842,25 @@ definePageMeta({
                   </label>
 
                   <Select
+                    v-model="formData.pastoralZone"
                     name="pastoralZone"
                     placeholder="請選擇牧區"
-                    :invalid="$field.invalid"
+                    :invalid="!!(errors1.pastoralZone || errors2.pastoralZone)"
                     optionLabel="name"
                     optionValue="id"
                     fluid
-                    :options="pastoralZones"
+                    :options="orgStore.zones"
+                    :loading="orgStore.isLoadingStructure"
                   />
 
-                  <FormSmartFieldError
-                    :message="$field.error?.message"
-                    :show="$field.invalid"
-                  />
-                </FormField>
+                  <small
+                    class="text-red-500 text-xs mt-1"
+                    v-if="errors1.pastoralZone || errors2.pastoralZone"
+                    >{{ errors1.pastoralZone || errors2.pastoralZone }}</small
+                  >
+                </div>
 
-                <FormField
-                  v-slot="$field"
-                  name="homeGroup"
-                  class="flex flex-col gap-2"
-                >
+                <div class="flex flex-col gap-2">
                   <label
                     for="homeGroup"
                     class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
@@ -879,21 +870,24 @@ definePageMeta({
                   </label>
 
                   <Select
+                    v-model="formData.homeGroup"
                     name="homeGroup"
                     placeholder="請選擇小組"
-                    :invalid="$field.invalid"
+                    :invalid="!!(errors1.homeGroup || errors2.homeGroup)"
                     optionLabel="name"
                     optionValue="id"
                     fluid
                     :options="availableGroups"
                     :disabled="!formData.pastoralZone"
+                    :loading="orgStore.isLoadingStructure"
                   />
 
-                  <FormSmartFieldError
-                    :message="$field.error?.message"
-                    :show="$field.invalid"
-                  />
-                </FormField>
+                  <small
+                    class="text-red-500 text-xs mt-1"
+                    v-if="errors1.homeGroup || errors2.homeGroup"
+                    >{{ errors1.homeGroup || errors2.homeGroup }}</small
+                  >
+                </div>
               </div>
             </section>
 
@@ -905,11 +899,7 @@ definePageMeta({
                 過去經歷
               </h2>
 
-              <FormField
-                v-slot="$field"
-                name="previousCourses"
-                class="flex flex-col gap-2"
-              >
+              <div class="flex flex-col gap-2">
                 <label
                   for="previousCourses"
                   class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
@@ -919,20 +909,26 @@ definePageMeta({
                 </label>
 
                 <Listbox
+                  v-model="formData.previousCourses"
                   name="previousCourses"
                   optionLabel="label"
                   optionValue="value"
-                  :invalid="$field.invalid"
+                  :invalid="
+                    !!(errors1.previousCourses || errors2.previousCourses)
+                  "
                   fluid
                   :options="courseOptions"
                   :multiple="true"
                 />
 
-                <FormSmartFieldError
-                  :message="$field.error?.message"
-                  :show="$field.invalid"
-                />
-              </FormField>
+                <small
+                  class="text-red-500 text-xs mt-1"
+                  v-if="errors1.previousCourses || errors2.previousCourses"
+                  >{{
+                    errors1.previousCourses || errors2.previousCourses
+                  }}</small
+                >
+              </div>
             </section>
 
             <!-- 頁尾 -->
@@ -951,7 +947,7 @@ definePageMeta({
                 @click="handleSkip"
               />
             </footer>
-          </Form>
+          </form>
         </StepPanel>
       </StepPanels>
     </Stepper>

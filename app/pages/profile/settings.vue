@@ -17,17 +17,7 @@ const {
   submitProfileUpdate,
 } = useMemberForm();
 
-const {
-  avatarPreview,
-  avatarFile,
-  isUploading,
-  avatarError,
-  shouldRemoveAvatar,
-  onAvatarSelect,
-  uploadAvatar,
-  removeAvatar,
-  initFromExisting,
-} = useAvatarUpload();
+const avatarUploadRef = ref();
 
 const isLoading = ref(true);
 const memberDetail = ref<MemberDetail | null>(null);
@@ -49,36 +39,7 @@ const form = ref<UpdateProfileInput & { existingAvatar?: string | null }>({
   existingAvatar: null,
 });
 
-// Options
-const genderOptions = [
-  { label: "男", value: "Male" },
-  { label: "女", value: "Female" },
-];
-
-const relationshipOptions = [
-  { label: "父子", value: "父子" },
-  { label: "母女", value: "母女" },
-  { label: "父女", value: "父女" },
-  { label: "母子", value: "母子" },
-  { label: "配偶", value: "配偶" },
-  { label: "兄弟姊妹", value: "兄弟姊妹" },
-  { label: "子女", value: "子女" },
-  { label: "其他", value: "其他" },
-];
-
-const courseOptions = [
-  { label: "受洗造就班", value: "course_1" },
-  { label: "初信造就班", value: "course_2" },
-  { label: "門徒訓練班", value: "course_3" },
-];
-
 const maxDate = dayjs().toDate();
-
-const displayAvatar = computed(() => {
-  if (avatarPreview.value) return avatarPreview.value;
-  if (shouldRemoveAvatar.value) return undefined;
-  return form.value.existingAvatar || undefined;
-});
 
 // Load Profile Data
 async function loadProfile() {
@@ -106,7 +67,7 @@ async function loadProfile() {
     };
 
     if (data.avatar) {
-      initFromExisting(data.avatar);
+      avatarUploadRef.value?.initFromExisting(data.avatar);
     }
   } catch (error) {
     console.error("Failed to load profile:", error);
@@ -129,16 +90,21 @@ async function handleSave() {
     ...form.value,
   };
 
+  const avatarFile = avatarUploadRef.value?.avatarFile;
+  const shouldRemoveAvatar = avatarUploadRef.value?.shouldRemoveAvatar;
+
   // Avatar Logic
-  if (avatarFile.value && memberDetail.value?.uuid) {
+  if (avatarFile && memberDetail.value?.uuid) {
     try {
-      const avatarUrl = await uploadAvatar(memberDetail.value.uuid);
+      const avatarUrl = await avatarUploadRef.value?.uploadAvatar(
+        memberDetail.value.uuid,
+      );
       if (avatarUrl) payload.avatar = avatarUrl;
     } catch {
       toast.add({ severity: "error", summary: "錯誤", detail: "頭像上傳失敗" });
       return;
     }
-  } else if (shouldRemoveAvatar.value) {
+  } else if (shouldRemoveAvatar) {
     payload.avatar = undefined;
   }
 
@@ -158,7 +124,7 @@ async function handleSave() {
   }
 }
 
-const hasAvatar = computed(() => !!displayAvatar.value);
+const isUploading = computed(() => avatarUploadRef.value?.isUploading || false);
 
 onMounted(loadProfile);
 </script>
@@ -195,43 +161,11 @@ onMounted(loadProfile);
       class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500"
     >
       <!-- Avatar Section (Modern UI) -->
-      <section
-        class="flex flex-col items-center p-8 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-100 dark:border-slate-800"
-      >
-        <div class="relative group cursor-pointer" @click="() => {}">
-          <Avatar
-            :image="displayAvatar"
-            :label="!displayAvatar ? form.fullName?.charAt(0) : undefined"
-            shape="circle"
-            class="!w-32 !h-32 !text-4xl shadow-xl ring-4 ring-white dark:ring-slate-800"
-            :class="[!displayAvatar ? '!bg-primary-100 !text-primary' : '']"
-          />
-          <div class="absolute bottom-0 right-0 flex gap-1">
-            <FileUpload
-              mode="basic"
-              chooseIcon="pi pi-camera"
-              class="!rounded-full p-button-sm shadow-lg !p-0 !w-10 !h-10 !flex !items-center !justify-center"
-              @select="onAvatarSelect"
-              customUpload
-              auto
-              :maxFileSize="2000000"
-            />
-          </div>
-        </div>
-        <div class="mt-4 text-center">
-          <p class="font-bold text-slate-700 dark:text-slate-200">更新頭像</p>
-          <p class="text-xs text-slate-500 mt-1">建議尺寸 500x500，上限 2MB</p>
-          <Button
-            v-if="hasAvatar"
-            label="移除當前頭像"
-            severity="danger"
-            text
-            size="small"
-            class="mt-2"
-            @click="removeAvatar"
-          />
-        </div>
-      </section>
+      <ProfileAvatarUpload
+        ref="avatarUploadRef"
+        :full-name="form.fullName"
+        :existing-avatar="form.existingAvatar"
+      />
 
       <!-- Personal Info -->
       <div class="space-y-6">

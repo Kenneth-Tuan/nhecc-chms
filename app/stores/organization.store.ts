@@ -2,15 +2,15 @@
  * Organization Store (ST004)
  * Caches organization structure (zones/groups) and courses data with TTL.
  */
-import { defineStore } from 'pinia';
-import type { Zone, Group, Course, ZoneWithGroups } from '~/types/organization';
-import type { Role } from '~/types/role';
+import { defineStore } from "pinia";
+import type { Zone, Group, Course, ZoneWithGroups } from "~/types/organization";
+import type { Role } from "~/types/role";
 
 const STRUCTURE_CACHE_TTL = 10 * 60 * 1000; // 10 minutes
 const COURSES_CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 const ROLES_CACHE_TTL = 10 * 60 * 1000; // 10 minutes
 
-export const useOrganizationStore = defineStore('organization', () => {
+export const useOrganizationStore = defineStore("organization", () => {
   const zones = ref<Zone[]>([]);
   const groups = ref<Group[]>([]);
   const courses = ref<Course[]>([]);
@@ -26,20 +26,26 @@ export const useOrganizationStore = defineStore('organization', () => {
 
   /** Check if structure cache is valid */
   function isStructureCacheValid(): boolean {
-    return structureFetchedAt.value > 0
-      && Date.now() - structureFetchedAt.value < STRUCTURE_CACHE_TTL;
+    return (
+      structureFetchedAt.value > 0 &&
+      Date.now() - structureFetchedAt.value < STRUCTURE_CACHE_TTL
+    );
   }
 
   /** Check if courses cache is valid */
   function isCoursesCacheValid(): boolean {
-    return coursesFetchedAt.value > 0
-      && Date.now() - coursesFetchedAt.value < COURSES_CACHE_TTL;
+    return (
+      coursesFetchedAt.value > 0 &&
+      Date.now() - coursesFetchedAt.value < COURSES_CACHE_TTL
+    );
   }
 
   /** Check if roles cache is valid */
   function isRolesCacheValid(): boolean {
-    return rolesFetchedAt.value > 0
-      && Date.now() - rolesFetchedAt.value < ROLES_CACHE_TTL;
+    return (
+      rolesFetchedAt.value > 0 &&
+      Date.now() - rolesFetchedAt.value < ROLES_CACHE_TTL
+    );
   }
 
   /** Fetch organization structure (zones + groups) */
@@ -48,9 +54,10 @@ export const useOrganizationStore = defineStore('organization', () => {
 
     isLoadingStructure.value = true;
     try {
-      const response = await $fetch<{ zones: ZoneWithGroups[]; functionalGroups: Group[] }>(
-        '/api/organization/structure',
-      );
+      const response = await $fetch<{
+        zones: ZoneWithGroups[];
+        functionalGroups: Group[];
+      }>("/api/organization/structure");
 
       zones.value = response.zones.map((z) => ({
         id: z.id,
@@ -77,7 +84,7 @@ export const useOrganizationStore = defineStore('organization', () => {
       groups.value = allGroups;
       structureFetchedAt.value = Date.now();
     } catch (error) {
-      console.error('Failed to fetch organization structure:', error);
+      console.error("Failed to fetch organization structure:", error);
       throw error;
     } finally {
       isLoadingStructure.value = false;
@@ -90,11 +97,11 @@ export const useOrganizationStore = defineStore('organization', () => {
 
     isLoadingCourses.value = true;
     try {
-      const response = await $fetch<{ data: Course[] }>('/api/courses');
+      const response = await $fetch<{ data: Course[] }>("/api/courses");
       courses.value = response.data || [];
       coursesFetchedAt.value = Date.now();
     } catch (error) {
-      console.error('Failed to fetch courses:', error);
+      console.error("Failed to fetch courses:", error);
       // Non-critical: don't throw, courses are optional
       courses.value = [];
     } finally {
@@ -108,11 +115,11 @@ export const useOrganizationStore = defineStore('organization', () => {
 
     isLoadingRoles.value = true;
     try {
-      const response = await $fetch<{ data: Role[] }>('/api/roles');
+      const response = await $fetch<{ data: Role[] }>("/api/roles");
       roles.value = response.data || [];
       rolesFetchedAt.value = Date.now();
     } catch (error) {
-      console.error('Failed to fetch roles:', error);
+      console.error("Failed to fetch roles:", error);
       roles.value = [];
     } finally {
       isLoadingRoles.value = false;
@@ -122,7 +129,7 @@ export const useOrganizationStore = defineStore('organization', () => {
   /** Get groups filtered by zone ID */
   function getGroupsByZone(zoneId: string): Group[] {
     return groups.value.filter(
-      (g) => g.type === 'Pastoral' && g.zoneId === zoneId,
+      (g) => g.groupType === "Pastoral" && g.zoneId === zoneId,
     );
   }
 

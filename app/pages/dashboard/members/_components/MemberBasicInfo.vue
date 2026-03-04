@@ -3,7 +3,8 @@
  * Member Basic Info Component
  * Tab 1 content for Quick View Modal.
  */
-import type { MemberDetail } from '~/types/member';
+import type { MemberDetail } from "~/types/member";
+import MemberRevealButton from "./MemberRevealButton.vue";
 
 const props = defineProps<{
   member: MemberDetail;
@@ -13,20 +14,26 @@ const auth = useAuth();
 
 const { revealAll, isRevealing: isRevealingAll } = useRevealSensitiveData();
 
-const genderLabel = computed(() => props.member.gender === 'Male' ? '男' : '女');
-const genderIcon = computed(() => props.member.gender === 'Male' ? 'pi pi-mars' : 'pi pi-venus');
-const genderColor = computed(() => props.member.gender === 'Male' ? 'text-blue-500' : 'text-pink-500');
+const genderLabel = computed(() =>
+  props.member.gender === "Male" ? "男" : "女",
+);
+const genderIcon = computed(() =>
+  props.member.gender === "Male" ? "pi pi-mars" : "pi pi-venus",
+);
+const genderColor = computed(() =>
+  props.member.gender === "Male" ? "text-blue-500" : "text-pink-500",
+);
 
 const statusSeverity: Record<string, string> = {
-  Active: 'success',
-  Inactive: 'secondary',
-  Suspended: 'danger',
+  Active: "success",
+  Inactive: "secondary",
+  Suspended: "danger",
 };
 
 const statusLabel: Record<string, string> = {
-  Active: '啟用',
-  Inactive: '停用',
-  Suspended: '停權',
+  Active: "啟用",
+  Inactive: "停用",
+  Suspended: "停權",
 };
 
 // Show "Reveal All" dialog
@@ -51,7 +58,7 @@ async function confirmRevealAll(): Promise<void> {
       <p class="font-bold text-lg text-center">{{ member.fullName }}</p>
       <Tag
         :value="statusLabel[member.status]"
-        :severity="(statusSeverity[member.status] as any)"
+        :severity="statusSeverity[member.status] as any"
         class="!text-xs"
       />
       <!-- Role Tags -->
@@ -82,7 +89,9 @@ async function confirmRevealAll(): Promise<void> {
     <div class="flex-1 space-y-5">
       <!-- Basic Info -->
       <div>
-        <h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-2">
+        <h3
+          class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-2"
+        >
           <i class="pi pi-user" />
           基本資訊
         </h3>
@@ -100,14 +109,18 @@ async function confirmRevealAll(): Promise<void> {
           </div>
           <div>
             <p class="text-xs text-slate-400">出生年月日（年齡）</p>
-            <p class="text-sm font-medium">{{ member.dob }} （{{ member.age }} 歲）</p>
+            <p class="text-sm font-medium">
+              {{ member.dob }} （{{ member.age }} 歲）
+            </p>
           </div>
         </div>
       </div>
 
       <!-- Contact Info (sensitive) -->
       <div>
-        <h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-2">
+        <h3
+          class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-2"
+        >
           <i class="pi pi-phone" />
           聯絡資訊
         </h3>
@@ -153,7 +166,9 @@ async function confirmRevealAll(): Promise<void> {
 
       <!-- Emergency Contact (sensitive) -->
       <div>
-        <h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-2">
+        <h3
+          class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-2"
+        >
           <i class="pi pi-exclamation-triangle" />
           緊急聯絡人
         </h3>
@@ -164,7 +179,9 @@ async function confirmRevealAll(): Promise<void> {
           </div>
           <div>
             <p class="text-xs text-slate-400">關係</p>
-            <p class="text-sm font-medium">{{ member.emergencyContactRelationship }}</p>
+            <p class="text-sm font-medium">
+              {{ member.emergencyContactRelationship }}
+            </p>
           </div>
           <div>
             <p class="text-xs text-slate-400">電話</p>
@@ -180,7 +197,9 @@ async function confirmRevealAll(): Promise<void> {
 
       <!-- Church Info -->
       <div>
-        <h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-2">
+        <h3
+          class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-2"
+        >
           <i class="pi pi-building" />
           教會資訊
         </h3>
@@ -190,11 +209,13 @@ async function confirmRevealAll(): Promise<void> {
             <p class="text-sm font-medium flex items-center gap-1">
               <i
                 :class="[
-                  member.baptismStatus ? 'pi pi-check-circle text-green-500' : 'pi pi-minus-circle text-slate-300',
+                  member.baptismStatus
+                    ? 'pi pi-check-circle text-green-500'
+                    : 'pi pi-minus-circle text-slate-300',
                   'text-sm',
                 ]"
               />
-              {{ member.baptismStatus ? '已受洗' : '未受洗' }}
+              {{ member.baptismStatus ? "已受洗" : "未受洗" }}
             </p>
           </div>
           <div v-if="member.baptismDate">
@@ -203,11 +224,13 @@ async function confirmRevealAll(): Promise<void> {
           </div>
           <div>
             <p class="text-xs text-slate-400">牧區</p>
-            <p class="text-sm font-medium">{{ member.zoneName || '未分配' }}</p>
+            <p class="text-sm font-medium">{{ member.zoneName || "未分配" }}</p>
           </div>
           <div>
             <p class="text-xs text-slate-400">小組</p>
-            <p class="text-sm font-medium">{{ member.groupName || '待分發' }}</p>
+            <p class="text-sm font-medium">
+              {{ member.groupName || "待分發" }}
+            </p>
           </div>
         </div>
       </div>
@@ -229,8 +252,18 @@ async function confirmRevealAll(): Promise<void> {
         </p>
       </div>
       <template #footer>
-        <Button label="取消" severity="secondary" outlined @click="showRevealAllDialog = false" />
-        <Button label="確認顯示" severity="warn" :loading="isRevealingAll" @click="confirmRevealAll" />
+        <Button
+          label="取消"
+          severity="secondary"
+          outlined
+          @click="showRevealAllDialog = false"
+        />
+        <Button
+          label="確認顯示"
+          severity="warn"
+          :loading="isRevealingAll"
+          @click="confirmRevealAll"
+        />
       </template>
     </Dialog>
   </div>

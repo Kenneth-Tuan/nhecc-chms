@@ -5,6 +5,8 @@
  * Responsive: Modal on desktop, bottom sheet on mobile.
  */
 import type { MemberDetail } from "~/types/member";
+import MemberBasicInfo from "./MemberBasicInfo.vue";
+import MemberCourseRecords from "./MemberCourseRecords.vue";
 
 const props = defineProps<{
   visible: boolean;

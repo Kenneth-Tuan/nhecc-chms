@@ -86,6 +86,7 @@ onMounted(() => {
         <div
           :class="[
             'relative mb-4 rounded-full p-1',
+            '!w-28 !h-28',
             'bg-white dark:bg-slate-800 shadow-sm',
           ]"
         >
@@ -96,7 +97,7 @@ onMounted(() => {
             shape="circle"
             :class="[
               '!text-5xl', // font
-              '!w-28 !h-28', // scaling
+              'w-full h-full',
               '!bg-primary-50 dark:!bg-slate-700', // colors
               '!text-primary-300 dark:!text-slate-400', // etc
             ]"

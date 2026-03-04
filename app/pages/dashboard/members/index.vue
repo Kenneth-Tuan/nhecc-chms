@@ -3,6 +3,10 @@
  * Member List Page (ST003 + ST004 Integration)
  */
 import type { MemberListItem, MemberDetail } from "~/types/member";
+import MemberListFilters from "./_components/MemberListFilters.vue";
+import MemberListTable from "./_components/MemberListTable.vue";
+import MemberQuickViewModal from "./_components/MemberQuickViewModal.vue";
+import MemberDeleteDialog from "./_components/MemberDeleteDialog.vue";
 
 definePageMeta({
   layout: "dashboard",

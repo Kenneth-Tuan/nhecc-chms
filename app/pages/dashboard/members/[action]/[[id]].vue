@@ -38,17 +38,8 @@ const {
   submitUpdate,
 } = useMemberForm();
 
-const {
-  avatarPreview,
-  avatarFile,
-  isUploading,
-  avatarError,
-  shouldRemoveAvatar,
-  onAvatarSelect,
-  uploadAvatar,
-  removeAvatar,
-  initFromExisting,
-} = useAvatarUpload();
+const avatarUploadRef = ref();
+const isUploading = computed(() => avatarUploadRef.value?.isUploading || false);
 
 const {
   mobileError,
@@ -95,30 +86,6 @@ function onZoneChange(): void {
   form.value.groupId = null;
 }
 
-// Option lists
-const genderOptions = [
-  { label: "男", value: "Male" },
-  { label: "女", value: "Female" },
-];
-
-const relationshipOptions = [
-  { label: "父子", value: "父子" },
-  { label: "母女", value: "母女" },
-  { label: "父女", value: "父女" },
-  { label: "母子", value: "母子" },
-  { label: "配偶", value: "配偶" },
-  { label: "兄弟姊妹", value: "兄弟姊妹" },
-  { label: "子女", value: "子女" },
-  { label: "朋友", value: "朋友" },
-  { label: "其他", value: "其他" },
-];
-
-const statusOptions = [
-  { label: "啟用", value: "Active" },
-  { label: "停用", value: "Inactive" },
-  { label: "停權", value: "Suspended" },
-];
-
 const zoneOptions = computed(() =>
   orgStore.zones.map((z) => ({ label: z.name, value: z.id })),
 );
@@ -137,15 +104,6 @@ const courseOptions = computed(() =>
 
 // Date helpers
 const maxDate = dayjs().toDate();
-
-// Avatar display logic
-const displayAvatar = computed(() => {
-  if (avatarPreview.value) return avatarPreview.value;
-  if (isEdit && shouldRemoveAvatar.value) return undefined;
-  return form.value.existingAvatar || undefined;
-});
-
-const hasAvatar = computed(() => !!displayAvatar.value);
 
 // Mobile blur handler
 async function onMobileBlur(): Promise<void> {
@@ -230,9 +188,12 @@ async function handleSubmit(): Promise<void> {
       return;
     }
 
-    if (avatarFile.value) {
+    const avatarFile = avatarUploadRef.value?.avatarFile;
+    const shouldRemoveAvatar = avatarUploadRef.value?.shouldRemoveAvatar;
+
+    if (avatarFile) {
       try {
-        const avatarUrl = await uploadAvatar(memberUuid);
+        const avatarUrl = await avatarUploadRef.value?.uploadAvatar(memberUuid);
         if (avatarUrl) {
           payload.avatar = avatarUrl;
         }
@@ -245,7 +206,7 @@ async function handleSubmit(): Promise<void> {
         });
         return;
       }
-    } else if (shouldRemoveAvatar.value) {
+    } else if (shouldRemoveAvatar) {
       payload.avatar = undefined;
     }
 
@@ -299,10 +260,11 @@ async function handleSubmit(): Promise<void> {
       return;
     }
 
-    if (avatarFile.value) {
+    const avatarFile = avatarUploadRef.value?.avatarFile;
+    if (avatarFile) {
       try {
         const tempUuid = crypto.randomUUID();
-        const avatarUrl = await uploadAvatar(tempUuid);
+        const avatarUrl = await avatarUploadRef.value?.uploadAvatar(tempUuid);
         if (avatarUrl) {
           payload.avatar = avatarUrl;
         }
@@ -360,7 +322,7 @@ async function loadData(): Promise<void> {
       };
 
       if (memberData.avatar) {
-        initFromExisting(memberData.avatar);
+        avatarUploadRef.value?.initFromExisting(memberData.avatar);
       }
 
       if (memberData.zoneId && memberData.groupId) {
@@ -448,44 +410,13 @@ onMounted(() => {
         </h2>
 
         <!-- Avatar -->
-        <div class="mb-6">
-          <label class="block text-sm font-medium mb-2">大頭貼</label>
-          <div class="flex items-center gap-4">
-            <Avatar
-              :image="displayAvatar"
-              :label="
-                !displayAvatar ? form.fullName?.charAt(0) || '?' : undefined
-              "
-              shape="circle"
-              class="!w-24 !h-24 !text-3xl !bg-primary-100 dark:!bg-primary-900/30 !text-primary shrink-0"
-            />
-            <div class="flex flex-col gap-2">
-              <FileUpload
-                mode="basic"
-                accept="image/jpeg,image/png"
-                :maxFileSize="2000000"
-                :auto="false"
-                :chooseLabel="hasAvatar ? '更換圖片' : '選擇圖片'"
-                @select="onAvatarSelect"
-              />
-              <Button
-                v-if="hasAvatar"
-                icon="pi pi-trash"
-                label="移除"
-                severity="danger"
-                text
-                size="small"
-                @click="removeAvatar"
-              />
-            </div>
-          </div>
-          <small class="text-slate-500 mt-1 block"
-            >支援 JPG、PNG 格式，大小上限 2MB</small
-          >
-          <small v-if="avatarError" class="text-red-500 mt-1 block">{{
-            avatarError
-          }}</small>
-        </div>
+        <ProfileAvatarUpload
+          ref="avatarUploadRef"
+          :full-name="form.fullName"
+          :existing-avatar="form.existingAvatar"
+          plain
+          class="mb-6 !p-0 !bg-transparent !border-0"
+        />
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Full Name -->
