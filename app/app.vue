@@ -1,4 +1,6 @@
 <script setup>
+const { isLoading } = useGlobalLoading();
+
 useHead({
   meta: [
     { charset: "utf-8" },
@@ -25,4 +27,21 @@ useSeoMeta({
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
+
+  <!-- 避免使用 watch：使用 v-if 在開啟時進行渲染，動態拉取隨機經文與 Lottie -->
+  <Transition name="fade">
+    <AppGlobalLoading v-if="isLoading" />
+  </Transition>
 </template>
+
+<style>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

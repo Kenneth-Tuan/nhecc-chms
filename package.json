@@ -25,6 +25,7 @@
     "dayjs": "^1.11.19",
     "firebase": "^12.9.0",
     "firebase-admin": "^13.6.1",
+    "lottie-web": "^5.13.0",
     "nuxt": "^4.2.2",
     "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",
