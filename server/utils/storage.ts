@@ -1,61 +1,9 @@
 /**
  * 儲存服務工具 (ST004)
- * 處理大頭貼檔案管理與清理操作。
- * 開發模式 (DEV)：操作記憶體內模擬狀態。
- * 正式模式 (PROD)：使用 Firebase Storage (待實作)。
+ * 處理大頭貼檔案管理與清理操作，透過 Firebase Storage 進行。
  */
-
-/** 開發模式下的追蹤大頭貼檔案 */
-const devAvatarStore = new Map<
-  string,
-  { url: string; memberUuid: string; createdAt: Date }
->();
-
-/**
- * 註冊大頭貼檔案 URL 以供追蹤。
- */
-export function trackAvatarFile(url: string, memberUuid: string): void {
-  devAvatarStore.set(url, {
-    url,
-    memberUuid,
-    createdAt: new Date(),
-  });
-}
-
-/**
- * 根據 URL 刪除單一頭像檔案。
- * 開發模式：從記憶體追蹤器中移除。
- * 正式模式：調用 Firebase Storage 的 deleteObject。
- */
-export async function deleteAvatarFile(avatarUrl: string): Promise<void> {
-  if (!avatarUrl) return;
-
-  // 開發模式：從追蹤器移除
-  devAvatarStore.delete(avatarUrl);
-
-  // 正式模式應為：
-  // const storage = getStorage();
-  // const fileRef = ref(storage, getPathFromUrl(avatarUrl));
-  // await deleteObject(fileRef);
-}
-
-/**
- * 刪除特定會友的所有頭像檔案。
- */
-export async function deleteAllAvatarsForMember(
-  memberUuid: string,
-): Promise<number> {
-  let deletedCount = 0;
-
-  for (const [url, entry] of devAvatarStore.entries()) {
-    if (entry.memberUuid === memberUuid) {
-      devAvatarStore.delete(url);
-      deletedCount++;
-    }
-  }
-
-  return deletedCount;
-}
+import { getStorage } from "firebase-admin/storage";
+import crypto from "crypto";
 
 /**
  * 從 Firebase Storage 下載連結中提取儲存路徑。
@@ -76,6 +24,84 @@ export function getPathFromUrl(url: string): string {
 }
 
 /**
+ * 根據 URL 刪除單一頭像檔案。
+ */
+export async function deleteAvatarFile(avatarUrl: string): Promise<void> {
+  if (!avatarUrl) return;
+
+  try {
+    const filePath = getPathFromUrl(avatarUrl);
+    if (!filePath || filePath === avatarUrl) return;
+
+    const storage = getStorage();
+    const bucket = storage.bucket();
+    const file = bucket.file(filePath);
+    await file.delete({ ignoreNotFound: true });
+  } catch (error) {
+    console.error("刪除頭像檔案失敗:", error);
+  }
+}
+
+/**
+ * 上傳新的頭像檔案並回傳公共 URL
+ */
+export async function uploadAvatarFile(
+  fileBuffer: Buffer,
+  mimeType: string,
+  memberUuid: string,
+  filename: string,
+): Promise<string> {
+  const storage = getStorage();
+  const bucket = storage.bucket();
+
+  const timestamp = Date.now();
+  const safeFilename = filename.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+  const filePath = `members/${memberUuid}/avatars/${timestamp}_${safeFilename}`;
+
+  const file = bucket.file(filePath);
+  const token = crypto.randomUUID();
+
+  await file.save(fileBuffer, {
+    metadata: {
+      contentType: mimeType,
+      metadata: {
+        firebaseStorageDownloadTokens: token,
+      },
+    },
+  });
+
+  const bucketName = bucket.name;
+  const encodedPath = encodeURIComponent(filePath);
+  return `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodedPath}?alt=media&token=${token}`;
+}
+
+/**
+ * 刪除特定會友的所有頭像檔案。
+ */
+export async function deleteAllAvatarsForMember(
+  memberUuid: string,
+): Promise<number> {
+  let deletedCount = 0;
+
+  try {
+    const storage = getStorage();
+    const bucket = storage.bucket();
+    const prefix = `members/${memberUuid}/avatars/`;
+
+    const [files] = await bucket.getFiles({ prefix });
+
+    for (const file of files) {
+      await file.delete({ ignoreNotFound: true });
+      deletedCount++;
+    }
+  } catch (error) {
+    console.error(`刪除會友 ${memberUuid} 所有的頭像檔案失敗:`, error);
+  }
+
+  return deletedCount;
+}
+
+/**
  * 清理未使用的頭像檔案。
  * 找出儲存空間中不符合任何會友當前頭像 URL 的檔案。
  */
@@ -83,27 +109,42 @@ export async function cleanupUnusedAvatars(
   activeAvatarUrls: string[],
   bufferDays = 7,
 ): Promise<{ deleted: number; skipped: number }> {
-  const cutoffDate = new Date();
-  cutoffDate.setDate(cutoffDate.getDate() - bufferDays);
-
   let deleted = 0;
   let skipped = 0;
 
-  for (const [url, entry] of devAvatarStore.entries()) {
-    // 跳過仍在使用中的檔案
-    if (activeAvatarUrls.includes(url)) {
-      continue;
-    }
+  try {
+    const storage = getStorage();
+    const bucket = storage.bucket();
+    const [files] = await bucket.getFiles({ prefix: "members/" });
 
-    // 跳過安全緩衝期內的檔案
-    if (entry.createdAt > cutoffDate) {
-      skipped++;
-      continue;
-    }
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - bufferDays);
 
-    // 刪除未使用的檔案
-    await deleteAvatarFile(url);
-    deleted++;
+    for (const file of files) {
+      if (!file.name.includes("/avatars/")) continue;
+
+      const [metadata] = await file.getMetadata();
+      const createdAt = new Date(metadata.timeCreated || 0);
+
+      const isUsed = activeAvatarUrls.some((url) => {
+        const path = getPathFromUrl(url);
+        return path === file.name;
+      });
+
+      if (isUsed) {
+        continue;
+      }
+
+      if (createdAt > cutoffDate) {
+        skipped++;
+        continue;
+      }
+
+      await file.delete({ ignoreNotFound: true });
+      deleted++;
+    }
+  } catch (error) {
+    console.error("清理閒置頭像失敗:", error);
   }
 
   return { deleted, skipped };
@@ -112,17 +153,37 @@ export async function cleanupUnusedAvatars(
 /**
  * 獲取儲存使用統計數據 (用於監控)。
  */
-export function getAvatarStorageStats(): {
+export async function getAvatarStorageStats(): Promise<{
   totalFiles: number;
   uniqueMembers: number;
-} {
-  const memberIds = new Set<string>();
-  for (const entry of devAvatarStore.values()) {
-    memberIds.add(entry.memberUuid);
-  }
+}> {
+  try {
+    const storage = getStorage();
+    const bucket = storage.bucket();
+    const [files] = await bucket.getFiles({ prefix: "members/" });
 
-  return {
-    totalFiles: devAvatarStore.size,
-    uniqueMembers: memberIds.size,
-  };
+    let totalFiles = 0;
+    const memberIds = new Set<string>();
+
+    for (const file of files) {
+      if (!file.name.includes("/avatars/")) continue;
+      totalFiles++;
+
+      const parts = file.name.split("/");
+      if (parts.length >= 3) {
+        memberIds.add(parts[1]);
+      }
+    }
+
+    return {
+      totalFiles,
+      uniqueMembers: memberIds.size,
+    };
+  } catch (error) {
+    console.error("取得儲存統計數據失敗:", error);
+    return {
+      totalFiles: 0,
+      uniqueMembers: 0,
+    };
+  }
 }

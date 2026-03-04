@@ -29,7 +29,10 @@ export default defineNitroPlugin(() => {
   }
 
   try {
-    initializeApp({ credential: cert(serviceAccount) });
+    initializeApp({
+      credential: cert(serviceAccount),
+      storageBucket: config.public.firebaseStorageBucket,
+    });
     console.log("[Firebase Admin] Initialized successfully");
   } catch (e) {
     console.error("[Firebase Admin] Failed to initialize:", e);

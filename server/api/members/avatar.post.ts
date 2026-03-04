@@ -1,11 +1,10 @@
 /**
  * POST /api/members/avatar
  * 處理大頭貼檔案上傳。
- * 開發模式 (DEV)：產生模擬 URL。
- * 正式模式 (PROD)：應上傳至 Firebase Storage。
+ * 實際將檔案上傳至 Firebase Storage 儲存桶。
  */
 import { readMultipartFormData } from "h3";
-import { trackAvatarFile } from "../../utils/storage";
+import { uploadAvatarFile } from "../../utils/storage";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ACCEPTED_TYPES = ["image/jpeg", "image/png"];
@@ -37,15 +36,19 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: "圖片大小不可超過 2MB" });
   }
 
-  // 開發模式 (DEV)：產生模擬 URL
-  // 正式模式 (PROD)：應上傳至 Firebase Storage
-  const timestamp = Date.now();
-  const mockUrl = `https://storage.example.com/avatars/${memberUuid}/${timestamp}_${filename}`;
+  try {
+    const fileUrl = await uploadAvatarFile(
+      fileField.data,
+      contentType,
+      memberUuid,
+      filename,
+    );
 
-  // 追蹤檔案以便後續清理
-  trackAvatarFile(mockUrl, memberUuid);
-
-  return {
-    url: mockUrl,
-  };
+    return {
+      url: fileUrl,
+    };
+  } catch (error: any) {
+    console.error("[Avatar Upload] Error:", error);
+    throw createError({ statusCode: 500, message: "上傳圖片失敗" });
+  }
 });

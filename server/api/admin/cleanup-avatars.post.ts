@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
   const result = await cleanupUnusedAvatars(activeAvatarUrls);
 
   // 獲取當前統計數據
-  const stats = getAvatarStorageStats();
+  const stats = await getAvatarStorageStats();
 
   return {
     success: true,
