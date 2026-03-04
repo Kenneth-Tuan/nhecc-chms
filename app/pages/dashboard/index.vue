@@ -92,10 +92,6 @@ const auth = useAuth();
           class="!text-xs"
         />。
       </p>
-      <p class="text-slate-500 dark:text-slate-500 mt-2 text-sm">
-        使用頂部的 DEV
-        工具列可以切換不同角色的測試用戶，以驗證各角色的權限表現。
-      </p>
     </div>
   </div>
 </template>

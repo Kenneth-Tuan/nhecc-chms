@@ -6,7 +6,27 @@
  * - Desktop: Sidebar
  */
 
+import { useAuthStore } from "~/stores/auth.store";
+
+const authStore = useAuthStore();
+const { logout } = useFirebaseAuth();
+
+const handleLogout = async () => {
+  try {
+    await logout();
+    navigateTo("/login");
+  } catch (error) {
+    console.error("Logout failed:", error);
+  }
+};
+
 const route = useRoute();
+
+onMounted(() => {
+  if (!authStore.isInitialized) {
+    authStore.loadContext();
+  }
+});
 
 const menuItems = [
   { label: "首頁", icon: "pi pi-home", to: "/" },
@@ -143,7 +163,8 @@ const isActive = (path: string) => route.path === path;
           ]"
         >
           <Avatar
-            icon="pi pi-user"
+            :image="authStore.userContext?.avatar || undefined"
+            :icon="authStore.userContext?.avatar ? undefined : 'pi pi-user'"
             shape="circle"
             :class="[
               '!bg-slate-200 dark:!bg-slate-700 !text-slate-500', // colors
@@ -162,7 +183,7 @@ const isActive = (path: string) => route.path === path;
                 'text-slate-900 dark:text-white', // colors
               ]"
             >
-              用戶名稱
+              {{ authStore.currentUserName }}
             </p>
             <p
               :class="[
@@ -171,7 +192,7 @@ const isActive = (path: string) => route.path === path;
                 'text-slate-500', // colors
               ]"
             >
-              user@example.com
+              {{ authStore.userContext?.email || "未設定信箱" }}
             </p>
           </div>
           <ColorModeButton />
@@ -179,7 +200,9 @@ const isActive = (path: string) => route.path === path;
             :class="[
               'pi pi-sign-out', // etc
               'text-slate-400', // colors
+              'cursor-pointer hover:text-red-500 transition-colors',
             ]"
+            @click.stop="handleLogout"
           ></i>
         </Button>
       </div>

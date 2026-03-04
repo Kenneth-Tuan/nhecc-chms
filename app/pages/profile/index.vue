@@ -119,7 +119,7 @@ onMounted(() => {
             'text-slate-500', // colors
           ]"
         >
-          user@example.com
+          {{ user.email || "未設定信箱" }}
         </p>
       </div>
 
