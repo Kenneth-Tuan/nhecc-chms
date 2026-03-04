@@ -6,6 +6,8 @@ import type {
   OrganizationStructure,
   Course,
   ZoneWithGroups,
+  Zone,
+  Group,
 } from "~/types/organization";
 import { OrganizationRepository } from "../repositories/organization.repository";
 import { createError } from "h3";
@@ -26,6 +28,84 @@ export class OrganizationService {
   async getZonesWithGroups(): Promise<ZoneWithGroups[]> {
     const structure = await orgRepo.getStructure();
     return structure.zones;
+  }
+
+  // --- Zone CRUD --- //
+
+  async createZone(
+    data: Partial<Zone>,
+  ): Promise<{ success: boolean; message: string; id?: string }> {
+    if (!data.name) {
+      throw createError({ statusCode: 400, message: "牧區名稱為必填" });
+    }
+    const existingZones = await orgRepo.findAllZones();
+    if (existingZones.some((z) => z.name === data.name)) {
+      throw createError({ statusCode: 400, message: "該牧區名稱已存在" });
+    }
+    return orgRepo.createZone(data);
+  }
+
+  async updateZone(
+    id: string,
+    data: Partial<Zone>,
+  ): Promise<{ success: boolean; message: string }> {
+    if (!id) {
+      throw createError({ statusCode: 400, message: "需提供牧區 ID" });
+    }
+    if (data.name) {
+      const existingZones = await orgRepo.findAllZones();
+      if (existingZones.some((z) => z.id !== id && z.name === data.name)) {
+        throw createError({ statusCode: 400, message: "該牧區名稱已存在" });
+      }
+    }
+    return orgRepo.updateZone(id, data);
+  }
+
+  async deleteZone(id: string): Promise<{ success: boolean; message: string }> {
+    if (!id) {
+      throw createError({ statusCode: 400, message: "需提供牧區 ID" });
+    }
+    return orgRepo.deleteZone(id);
+  }
+
+  // --- Group CRUD --- //
+
+  async createGroup(
+    data: Partial<Group>,
+  ): Promise<{ success: boolean; message: string; id?: string }> {
+    if (!data.name || !data.zoneId) {
+      throw createError({ statusCode: 400, message: "小組名稱及牧區為必填" });
+    }
+    const existingGroups = await orgRepo.findAllGroups();
+    if (existingGroups.some((g) => g.name === data.name)) {
+      throw createError({ statusCode: 400, message: "該小組名稱已存在" });
+    }
+    return orgRepo.createGroup(data);
+  }
+
+  async updateGroup(
+    id: string,
+    data: Partial<Group>,
+  ): Promise<{ success: boolean; message: string }> {
+    if (!id) {
+      throw createError({ statusCode: 400, message: "需提供小組 ID" });
+    }
+    if (data.name) {
+      const existingGroups = await orgRepo.findAllGroups();
+      if (existingGroups.some((g) => g.id !== id && g.name === data.name)) {
+        throw createError({ statusCode: 400, message: "該小組名稱已存在" });
+      }
+    }
+    return orgRepo.updateGroup(id, data);
+  }
+
+  async deleteGroup(
+    id: string,
+  ): Promise<{ success: boolean; message: string }> {
+    if (!id) {
+      throw createError({ statusCode: 400, message: "需提供小組 ID" });
+    }
+    return orgRepo.deleteGroup(id);
   }
 
   /**

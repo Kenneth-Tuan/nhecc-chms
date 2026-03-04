@@ -21,8 +21,9 @@ export type CourseCategory = "Gospel" | "Discipleship" | "Ministry" | "Other";
 export interface Zone {
   id: string;
   name: string;
-  leaderId?: string;
-  leaderName?: string;
+  leaderId?: string; // deprecated
+  leaderName?: string; // deprecated
+  leaders?: { id: string; name: string }[];
   status: ZoneStatus;
   createdAt: string;
   updatedAt: string;
@@ -34,8 +35,9 @@ export interface Group {
   name: string;
   type: GroupType;
   zoneId?: string;
-  leaderId?: string;
-  leaderName?: string;
+  leaderId?: string; // deprecated
+  leaderName?: string; // deprecated
+  leaders?: { id: string; name: string }[];
   status: GroupStatus;
   createdAt: string;
   updatedAt: string;

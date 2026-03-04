@@ -16,6 +16,7 @@ const {
   pendingTreeNodes,
   pendingMembers,
   selectedGroupMembers,
+  groupMemberTreeNodes,
   selectedGroup,
   expandedKeys,
   isLoadingTree,
@@ -25,7 +26,35 @@ const {
   loadGroupMembers,
   assignMember,
   initialize,
+  isSavingZone,
+  saveZone,
+  deleteZone,
+  isSavingGroup,
+  saveGroup,
+  deleteGroup,
+  fetchLeaderCandidates,
 } = useOrganizationManagement();
+
+// Zone dialog state
+const showZoneDialog = ref(false);
+const zoneForm = ref<{
+  id?: string;
+  name: string;
+  leaders?: { id: string; name: string }[];
+}>({ name: "", leaders: [] });
+const zoneLeaderCandidates = ref<{ id: string; name: string }[]>([]);
+const filteredZoneLeaderCandidates = ref<{ id: string; name: string }[]>([]);
+
+// Group dialog state
+const showGroupDialog = ref(false);
+const groupForm = ref<{
+  id?: string;
+  name: string;
+  zoneId: string;
+  leaders?: { id: string; name: string }[];
+}>({ name: "", zoneId: "", leaders: [] });
+const groupLeaderCandidates = ref<{ id: string; name: string }[]>([]);
+const filteredGroupLeaderCandidates = ref<{ id: string; name: string }[]>([]);
 
 // Assignment dialog state
 const showAssignDialog = ref(false);
@@ -64,15 +93,16 @@ async function onNodeDrop(event: any): Promise<void> {
 
   if (!dragNode || !dropNode) return;
 
-  // Only allow pending members to be dropped onto groups
+  // Only allow pending members and group members to be dropped onto groups
   if (
-    dragNode.data?.type !== "pending-member" ||
+    (dragNode.data?.type !== "pending-member" &&
+      dragNode.data?.type !== "group-member") ||
     dropNode.data?.type !== "group"
   ) {
     toast.add({
       severity: "error",
       summary: "無法分配",
-      detail: "請將待分配會友拖曳至小組",
+      detail: "請將會友拖曳至小組",
       life: 3000,
     });
     // Revert invalid tree drop
@@ -158,6 +188,93 @@ const statusLabel: Record<string, string> = {
   Deleted: "已刪除",
 };
 
+async function openZoneDialog(zone?: any): Promise<void> {
+  zoneLeaderCandidates.value = await fetchLeaderCandidates("zone");
+  if (zone) {
+    zoneForm.value = {
+      ...zone,
+      leaders: zone.leaders ? [...zone.leaders] : [],
+    };
+  } else {
+    zoneForm.value = { name: "", leaders: [] };
+  }
+  showZoneDialog.value = true;
+}
+
+function searchZoneLeaders(event: any) {
+  const query = event.query.toLowerCase();
+  filteredZoneLeaderCandidates.value = zoneLeaderCandidates.value.filter((c) =>
+    c.name.toLowerCase().includes(query),
+  );
+}
+
+async function handleSaveZone() {
+  const result = await saveZone(zoneForm.value);
+  toast.add({
+    severity: result.success ? "success" : "error",
+    summary: result.success ? "儲存成功" : "儲存失敗",
+    detail: result.message,
+    life: 3000,
+  });
+  if (result.success) showZoneDialog.value = false;
+}
+
+async function handleDeleteZone(zoneId: string) {
+  if (!confirm("確定要刪除此牧區嗎？")) return;
+  const result = await deleteZone(zoneId);
+  toast.add({
+    severity: result.success ? "success" : "error",
+    summary: result.success ? "刪除成功" : "刪除失敗",
+    detail: result.message,
+    life: 3000,
+  });
+}
+
+async function openGroupDialog(zoneId: string, group?: any): Promise<void> {
+  groupLeaderCandidates.value = await fetchLeaderCandidates("group", {
+    zoneId,
+    groupId: group?.id,
+  });
+  if (group) {
+    groupForm.value = {
+      ...group,
+      leaders: group.leaders ? [...group.leaders] : [],
+    };
+  } else {
+    groupForm.value = { name: "", zoneId, leaders: [] };
+  }
+  showGroupDialog.value = true;
+}
+
+function searchGroupLeaders(event: any) {
+  const query = event.query.toLowerCase();
+  filteredGroupLeaderCandidates.value = groupLeaderCandidates.value.filter(
+    (c) => c.name.toLowerCase().includes(query),
+  );
+}
+
+async function handleSaveGroup() {
+  const result = await saveGroup(groupForm.value);
+  toast.add({
+    severity: result.success ? "success" : "error",
+    summary: result.success ? "儲存成功" : "儲存失敗",
+    detail: result.message,
+    life: 3000,
+  });
+  if (result.success) showGroupDialog.value = false;
+}
+
+async function handleDeleteGroup(groupId: string) {
+  if (!confirm("確定要刪除此小組嗎？")) return;
+  const result = await deleteGroup(groupId);
+  toast.add({
+    severity: result.success ? "success" : "error",
+    summary: result.success ? "刪除成功" : "刪除失敗",
+    detail: result.message,
+    life: 3000,
+  });
+}
+
 // Initialize on mount
 onMounted(() => {
   initialize();
@@ -199,17 +316,26 @@ onMounted(() => {
               <i class="pi pi-sitemap text-slate-500" />
               組織架構樹
             </h3>
-            <Button
-              icon="pi pi-refresh"
-              text
-              rounded
-              size="small"
-              :loading="isLoadingTree"
-              @click="initialize()"
-            />
+            <div class="flex items-center gap-1">
+              <Button
+                icon="pi pi-plus"
+                label="新增牧區"
+                size="small"
+                outlined
+                @click="openZoneDialog()"
+              />
+              <Button
+                icon="pi pi-refresh"
+                text
+                rounded
+                size="small"
+                :loading="isLoadingTree"
+                @click="initialize()"
+              />
+            </div>
           </div>
 
-          <div class="flex-1 overflow-y-auto p-3">
+          <div class="flex-1 overflow-y-auto">
             <ProgressSpinner
               v-if="isLoadingTree"
               class="!w-8 !h-8 mx-auto mt-8"
@@ -222,21 +348,26 @@ onMounted(() => {
               dragdropScope="member-assign"
               :draggableNodes="true"
               :droppableNodes="true"
-              class="!border-0 !bg-transparent org-tree"
+              class="!border-0 !bg-transparent"
               @nodeSelect="onNodeSelect"
               @nodeDrop="onNodeDrop"
+              :pt="{
+                nodelabel: {
+                  class: 'flex-1',
+                },
+              }"
             >
               <!-- Zone Node Template -->
               <template #zone="slotProps">
-                <div class="flex items-center gap-3 py-1">
-                  <div
+                <div class="flex items-center gap-3 py-1 group">
+                  <!-- <div
                     class="size-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center"
                   >
                     <i class="pi pi-folder-open text-sm" />
-                  </div>
-                  <div class="min-w-0">
+                  </div> -->
+                  <div class="min-w-0 flex-1">
                     <p
-                      class="font-bold text-sm text-slate-800 dark:text-slate-200"
+                      class="font-bold text-sm text-slate-800 dark:text-slate-200 group-hover:text-primary transition-colors"
                     >
                       {{ slotProps.node.label }}
                     </p>
@@ -246,29 +377,88 @@ onMounted(() => {
                       {{ slotProps.node.data.memberCount }} 人
                     </p>
                   </div>
+
+                  <div
+                    class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Button
+                      icon="pi pi-plus"
+                      text
+                      rounded
+                      size="small"
+                      v-tooltip.top="'新增小組'"
+                      @click.stop="openGroupDialog(slotProps.node.data.id)"
+                    />
+                    <Button
+                      severity="info"
+                      icon="pi pi-pencil"
+                      text
+                      rounded
+                      size="small"
+                      v-tooltip.top="'編輯牧區'"
+                      @click.stop="openZoneDialog(slotProps.node.data)"
+                    />
+                    <Button
+                      severity="danger"
+                      icon="pi pi-trash"
+                      text
+                      rounded
+                      size="small"
+                      v-tooltip.top="'刪除牧區'"
+                      @click.stop="handleDeleteZone(slotProps.node.data.id)"
+                    />
+                  </div>
                 </div>
               </template>
 
               <!-- Group Node Template -->
               <template #group="slotProps">
                 <div
-                  class="flex items-center gap-3 py-1 cursor-pointer transition-colors"
+                  class="flex items-center gap-3 py-1 cursor-pointer transition-colors group"
                   @click.stop="onNodeSelect(slotProps.node)"
                 >
-                  <div
+                  <!-- <div
                     class="size-7 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center"
                   >
                     <i class="pi pi-users text-xs" />
-                  </div>
-                  <div class="min-w-0">
+                  </div> -->
+                  <div class="min-w-0 flex-1">
                     <p
-                      class="font-semibold text-sm text-slate-700 dark:text-slate-300 hover:text-primary transition-colors"
+                      class="font-semibold text-sm text-slate-700 dark:text-slate-300 group-hover:text-primary transition-colors"
                     >
                       {{ slotProps.node.label }}
                     </p>
                     <p class="text-xs text-slate-400">
+                      小組長: {{ slotProps.node.data.leaderName }} ·
                       {{ slotProps.node.data.memberCount }} 人
                     </p>
+                  </div>
+
+                  <div
+                    class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Button
+                      icon="pi pi-pencil"
+                      text
+                      rounded
+                      size="small"
+                      v-tooltip.top="'編輯小組'"
+                      @click.stop="
+                        openGroupDialog(
+                          slotProps.node.data.zoneId,
+                          slotProps.node.data,
+                        )
+                      "
+                    />
+                    <Button
+                      icon="pi pi-trash"
+                      text
+                      rounded
+                      size="small"
+                      severity="danger"
+                      v-tooltip.top="'刪除小組'"
+                      @click.stop="handleDeleteGroup(slotProps.node.data.id)"
+                    />
                   </div>
                 </div>
               </template>
@@ -397,59 +587,84 @@ onMounted(() => {
               <ProgressSpinner class="!w-8 !h-8" />
             </div>
 
-            <!-- Member Table -->
-            <div v-else class="flex-1 overflow-auto">
-              <DataTable
-                :value="selectedGroupMembers"
-                :rows="20"
-                stripedRows
-                class="!text-sm"
-                emptyMessage="此小組尚無成員"
+            <!-- Member Tree -->
+            <div v-else class="flex-1 overflow-auto p-4">
+              <Tree
+                :value="groupMemberTreeNodes"
+                dragdropScope="member-assign"
+                :draggableNodes="true"
+                :droppableNodes="true"
+                class="member-tree !p-0 !bg-transparent !border-0 w-full"
+                @nodeDrop="onNodeDrop"
+                :pt="{
+                  nodelabel: {
+                    class: 'w-full',
+                  },
+                }"
               >
-                <Column field="fullName" header="姓名">
-                  <template #body="slotProps">
-                    <div class="flex items-center gap-2">
-                      <Avatar
-                        :label="slotProps.data.fullName?.charAt(0)"
-                        shape="circle"
-                        size="normal"
-                        :class="
-                          slotProps.data.gender === 'Male'
-                            ? '!bg-blue-100 !text-blue-600'
-                            : '!bg-pink-100 !text-pink-600'
-                        "
-                      />
-                      <span class="font-medium">{{
-                        slotProps.data.fullName
-                      }}</span>
-                    </div>
-                  </template>
-                </Column>
-                <Column field="roleLabel" header="職分" />
-                <Column field="mobile" header="聯絡電話">
-                  <template #body="slotProps">
-                    <span class="text-slate-500">{{
-                      slotProps.data.mobile
-                    }}</span>
-                  </template>
-                </Column>
-                <Column field="createdAt" header="加入日期">
-                  <template #body="slotProps">
-                    {{ formatDate(slotProps.data.createdAt) }}
-                  </template>
-                </Column>
-                <Column field="status" header="狀態">
-                  <template #body="slotProps">
-                    <Tag
-                      :value="
-                        statusLabel[slotProps.data.status] ||
-                        slotProps.data.status
+                <!-- Empty state handled by check above -->
+
+                <template #group-member="slotProps">
+                  <div
+                    class="inline-flex items-center gap-3 px-3 py-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm hover:border-primary/50 cursor-grab select-none transition-all active:cursor-grabbing w-full"
+                  >
+                    <Avatar
+                      :label="slotProps.node.data.fullName?.charAt(0)"
+                      shape="circle"
+                      size="normal"
+                      :class="
+                        slotProps.node.data.gender === 'Male'
+                          ? '!bg-blue-100 !text-blue-600'
+                          : '!bg-pink-100 !text-pink-600'
                       "
-                      :severity="statusSeverity(slotProps.data.status)"
                     />
-                  </template>
-                </Column>
-              </DataTable>
+                    <div
+                      class="grid grid-cols-12 gap-4 flex-1 items-center w-full min-w-0"
+                    >
+                      <!-- Name -->
+                      <div class="col-span-12 sm:col-span-3">
+                        <p
+                          class="font-bold text-sm text-slate-800 dark:text-slate-200"
+                        >
+                          {{ slotProps.node.data.fullName }}
+                        </p>
+                      </div>
+
+                      <!-- Role -->
+                      <div class="col-span-12 sm:col-span-2 hidden sm:block">
+                        <span class="text-sm text-slate-600">{{
+                          slotProps.node.data.roleLabel
+                        }}</span>
+                      </div>
+
+                      <!-- Mobile -->
+                      <div class="col-span-12 sm:col-span-3 hidden md:block">
+                        <span class="text-sm text-slate-500">{{
+                          slotProps.node.data.mobile
+                        }}</span>
+                      </div>
+
+                      <!-- Date -->
+                      <div class="col-span-12 sm:col-span-2 hidden lg:block">
+                        <span class="text-sm text-slate-500">{{
+                          formatDate(slotProps.node.data.createdAt)
+                        }}</span>
+                      </div>
+
+                      <!-- Status -->
+                      <div class="col-span-12 sm:col-span-2 flex justify-end">
+                        <Tag
+                          :value="
+                            statusLabel[slotProps.node.data.status] ||
+                            slotProps.node.data.status
+                          "
+                          :severity="statusSeverity(slotProps.node.data.status)"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </Tree>
             </div>
           </div>
         </div>
@@ -533,6 +748,112 @@ onMounted(() => {
         </div>
       </template>
     </Dialog>
+
+    <!-- Zone Dialog -->
+    <Dialog
+      v-model:visible="showZoneDialog"
+      :modal="true"
+      :closable="true"
+      :style="{ width: '400px', maxWidth: '95vw' }"
+      :header="zoneForm.id ? '編輯牧區' : '新增牧區'"
+    >
+      <div class="space-y-4 pt-2">
+        <div>
+          <label
+            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+          >
+            牧區名稱 <span class="text-red-500">*</span>
+          </label>
+          <InputText
+            v-model="zoneForm.name"
+            class="w-full"
+            placeholder="例如：學生牧區"
+          />
+        </div>
+        <div>
+          <label
+            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+          >
+            牧區長
+          </label>
+          <AutoComplete
+            v-model="zoneForm.leaders"
+            :suggestions="filteredZoneLeaderCandidates"
+            @complete="searchZoneLeaders"
+            optionLabel="name"
+            multiple
+            class="w-full"
+            placeholder="請搜尋並選擇牧區長"
+            :pt="{ inputMultiple: { class: 'w-full' } }"
+          />
+        </div>
+      </div>
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <Button label="取消" outlined @click="showZoneDialog = false" />
+          <Button
+            label="儲存"
+            icon="pi pi-check"
+            :loading="isSavingZone"
+            :disabled="!zoneForm.name"
+            @click="handleSaveZone"
+          />
+        </div>
+      </template>
+    </Dialog>
+
+    <!-- Group Dialog -->
+    <Dialog
+      v-model:visible="showGroupDialog"
+      :modal="true"
+      :closable="true"
+      :style="{ width: '400px', maxWidth: '95vw' }"
+      :header="groupForm.id ? '編輯小組' : '新增小組'"
+    >
+      <div class="space-y-4 pt-2">
+        <div>
+          <label
+            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+          >
+            小組名稱 <span class="text-red-500">*</span>
+          </label>
+          <InputText
+            v-model="groupForm.name"
+            class="w-full"
+            placeholder="例如：恩典小組"
+          />
+        </div>
+        <div>
+          <label
+            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+          >
+            小組長
+          </label>
+          <AutoComplete
+            v-model="groupForm.leaders"
+            :suggestions="filteredGroupLeaderCandidates"
+            @complete="searchGroupLeaders"
+            optionLabel="name"
+            multiple
+            class="w-full"
+            placeholder="請搜尋並選擇小組長"
+            :pt="{ inputMultiple: { class: 'w-full' } }"
+          />
+        </div>
+      </div>
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <Button label="取消" outlined @click="showGroupDialog = false" />
+          <Button
+            label="儲存"
+            icon="pi pi-check"
+            :loading="isSavingGroup"
+            :disabled="!groupForm.name"
+            @click="handleSaveGroup"
+          />
+        </div>
+      </template>
+    </Dialog>
   </div>
 </template>
 
@@ -572,5 +893,26 @@ onMounted(() => {
 :deep(.p-tree-node-droppoint-active) {
   background: var(--p-green-100) !important;
   border-radius: 0.5rem;
+}
+
+/* Member tree: simple vertical list */
+:deep(.member-tree .p-tree-node-list) {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0;
+}
+:deep(.member-tree .p-tree-node) {
+  padding: 0;
+}
+:deep(.member-tree .p-tree-node-content) {
+  padding: 0;
+  background: transparent !important;
+}
+:deep(.member-tree .p-tree-node-toggle-button) {
+  display: none !important;
+}
+:deep(.member-tree .p-tree-node-droppoint) {
+  display: none !important;
 }
 </style>

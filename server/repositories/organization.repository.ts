@@ -38,6 +38,67 @@ export class OrganizationRepository {
   }
 
   /**
+   * 新增牧區。
+   */
+  async createZone(
+    data: Partial<Zone>,
+  ): Promise<{ success: boolean; message: string; id?: string }> {
+    try {
+      const docRef = await this.db.collection("zones").add({
+        ...data,
+        status: data.status || "Active",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+      return { success: true, message: "牧區新增成功", id: docRef.id };
+    } catch (error: any) {
+      return { success: false, message: `牧區新增失敗: ${error.message}` };
+    }
+  }
+
+  /**
+   * 更新牧區。
+   */
+  async updateZone(
+    id: string,
+    data: Partial<Zone>,
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      await this.db
+        .collection("zones")
+        .doc(id)
+        .update({
+          ...data,
+          updatedAt: new Date().toISOString(),
+        });
+      return { success: true, message: "牧區更新成功" };
+    } catch (error: any) {
+      return { success: false, message: `牧區更新失敗: ${error.message}` };
+    }
+  }
+
+  /**
+   * 刪除牧區。
+   */
+  async deleteZone(id: string): Promise<{ success: boolean; message: string }> {
+    try {
+      // TODO: Check if there are groups in this zone before deleting
+      const groupsSnapshot = await this.db
+        .collection("groups")
+        .where("zoneId", "==", id)
+        .get();
+      if (!groupsSnapshot.empty) {
+        return { success: false, message: "該牧區下尚有小組，無法刪除" };
+      }
+
+      await this.db.collection("zones").doc(id).delete();
+      return { success: true, message: "牧區刪除成功" };
+    } catch (error: any) {
+      return { success: false, message: `牧區刪除失敗: ${error.message}` };
+    }
+  }
+
+  /**
    * 查找所有小組。
    */
   async findAllGroups(): Promise<Group[]> {
@@ -69,6 +130,70 @@ export class OrganizationRepository {
     const doc = await this.db.collection("groups").doc(id).get();
     if (!doc.exists) return undefined;
     return { ...doc.data(), id: doc.id } as Group;
+  }
+
+  /**
+   * 新增小組。
+   */
+  async createGroup(
+    data: Partial<Group>,
+  ): Promise<{ success: boolean; message: string; id?: string }> {
+    try {
+      const docRef = await this.db.collection("groups").add({
+        ...data,
+        type: data.type || "Pastoral",
+        status: data.status || "Active",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+      return { success: true, message: "小組新增成功", id: docRef.id };
+    } catch (error: any) {
+      return { success: false, message: `小組新增失敗: ${error.message}` };
+    }
+  }
+
+  /**
+   * 更新小組。
+   */
+  async updateGroup(
+    id: string,
+    data: Partial<Group>,
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      await this.db
+        .collection("groups")
+        .doc(id)
+        .update({
+          ...data,
+          updatedAt: new Date().toISOString(),
+        });
+      return { success: true, message: "小組更新成功" };
+    } catch (error: any) {
+      return { success: false, message: `小組更新失敗: ${error.message}` };
+    }
+  }
+
+  /**
+   * 刪除小組。
+   */
+  async deleteGroup(
+    id: string,
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      // TODO: Check if there are members in this group before deleting
+      const membersSnapshot = await this.db
+        .collection("members")
+        .where("groupId", "==", id)
+        .get();
+      if (!membersSnapshot.empty) {
+        return { success: false, message: "該小組下尚有會友，無法刪除" };
+      }
+
+      await this.db.collection("groups").doc(id).delete();
+      return { success: true, message: "小組刪除成功" };
+    } catch (error: any) {
+      return { success: false, message: `小組刪除失敗: ${error.message}` };
+    }
   }
 
   /**
@@ -218,7 +343,7 @@ export class OrganizationRepository {
 
     return {
       success: true,
-      message: `已將 ${member.fullName} 分配至 ${group.name}`,
+      message: `已將會友分配至 ${group.name}`,
     };
   }
 

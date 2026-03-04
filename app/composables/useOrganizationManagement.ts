@@ -38,7 +38,12 @@ function buildTreeNodes(
     data: {
       type: "zone",
       id: zone.id,
-      leaderName: zone.leaderName || "未指派",
+      name: zone.name,
+      leaders: zone.leaders || [],
+      leaderName:
+        zone.leaders?.map((l) => l.name).join("、") ||
+        zone.leaderName ||
+        "未指派", // backend mapping
       memberCount: zone.groups.reduce(
         (sum, g) => sum + (memberCounts[g.id] || 0),
         0,
@@ -55,9 +60,14 @@ function buildTreeNodes(
       data: {
         type: "group",
         id: group.id,
+        name: group.name,
         zoneId: zone.id,
         zoneName: zone.name,
-        leaderName: group.leaderName || "未指派",
+        leaders: group.leaders || [],
+        leaderName:
+          group.leaders?.map((l) => l.name).join("、") ||
+          group.leaderName ||
+          "未指派",
         memberCount: memberCounts[group.id] || 0,
         status: group.status,
       },
@@ -90,11 +100,37 @@ function buildPendingTreeNodes(members: PendingMember[]): TreeNode[] {
   }));
 }
 
+/**
+ * 為小組成員建立 PrimeVue TreeNode[]（供拖拉移動小組使用）。
+ */
+function buildGroupMemberTreeNodes(members: GroupMember[]): TreeNode[] {
+  return members.map((m) => ({
+    key: m.uuid,
+    label: m.fullName,
+    data: {
+      type: "group-member",
+      id: m.uuid,
+      fullName: m.fullName,
+      gender: m.gender,
+      mobile: m.mobile,
+      roleLabel: m.roleLabel,
+      baptismStatus: m.baptismStatus,
+      status: m.status,
+      createdAt: m.createdAt,
+    },
+    type: "group-member",
+    leaf: true,
+    draggable: true,
+    droppable: false,
+  }));
+}
+
 export function useOrganizationManagement() {
   const treeNodes = ref<TreeNode[]>([]);
   const pendingTreeNodes = ref<TreeNode[]>([]);
   const pendingMembers = ref<PendingMember[]>([]);
   const selectedGroupMembers = ref<GroupMember[]>([]);
+  const groupMemberTreeNodes = ref<TreeNode[]>([]);
   const selectedGroup = ref<{
     id: string;
     name: string;
@@ -164,6 +200,9 @@ export function useOrganizationManagement() {
           params: { groupId },
         },
       );
+      groupMemberTreeNodes.value = buildGroupMemberTreeNodes(
+        selectedGroupMembers.value,
+      );
     } catch (error) {
       console.error("Failed to load group members:", error);
     } finally {
@@ -213,6 +252,131 @@ export function useOrganizationManagement() {
     await Promise.all([loadStructure(), loadPendingMembers()]);
   }
 
+  // --- CRUD for Zones ---
+  const isSavingZone = ref(false);
+  async function saveZone(zoneData: {
+    id?: string;
+    name: string;
+    leaders?: { id: string; name: string }[];
+  }): Promise<{ success: boolean; message: string }> {
+    isSavingZone.value = true;
+    try {
+      const isEdit = !!zoneData.id;
+      const url = isEdit
+        ? `/api/organization/zones/${zoneData.id}`
+        : "/api/organization/zones";
+      const method = isEdit ? "PUT" : "POST";
+      const result = await $fetch<{ success: boolean; message: string }>(url, {
+        method,
+        body: zoneData,
+      });
+      await loadStructure();
+      return result;
+    } catch (error: unknown) {
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : "儲存牧區失敗",
+      };
+    } finally {
+      isSavingZone.value = false;
+    }
+  }
+
+  async function deleteZone(
+    zoneId: string,
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      const result = await $fetch<{ success: boolean; message: string }>(
+        `/api/organization/zones/${zoneId}`,
+        {
+          method: "DELETE",
+        },
+      );
+      await loadStructure();
+      return result;
+    } catch (error: unknown) {
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : "刪除牧區失敗",
+      };
+    }
+  }
+
+  // --- CRUD for Groups ---
+  const isSavingGroup = ref(false);
+  async function saveGroup(groupData: {
+    id?: string;
+    name: string;
+    zoneId: string;
+    leaders?: { id: string; name: string }[];
+  }): Promise<{ success: boolean; message: string }> {
+    isSavingGroup.value = true;
+    try {
+      const isEdit = !!groupData.id;
+      const url = isEdit
+        ? `/api/organization/groups/${groupData.id}`
+        : "/api/organization/groups";
+      const method = isEdit ? "PUT" : "POST";
+      const result = await $fetch<{ success: boolean; message: string }>(url, {
+        method,
+        body: groupData,
+      });
+      await loadStructure();
+      return result;
+    } catch (error: unknown) {
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : "儲存小組失敗",
+      };
+    } finally {
+      isSavingGroup.value = false;
+    }
+  }
+
+  async function deleteGroup(
+    groupId: string,
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      const result = await $fetch<{ success: boolean; message: string }>(
+        `/api/organization/groups/${groupId}`,
+        {
+          method: "DELETE",
+        },
+      );
+      await loadStructure();
+      if (selectedGroup.value?.id === groupId) {
+        selectedGroup.value = null;
+        selectedGroupMembers.value = [];
+        groupMemberTreeNodes.value = [];
+      }
+      return result;
+    } catch (error: unknown) {
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : "刪除小組失敗",
+      };
+    }
+  }
+
+  async function fetchLeaderCandidates(
+    level: "zone" | "group",
+    params?: { zoneId?: string; groupId?: string },
+  ): Promise<{ id: string; name: string }[]> {
+    try {
+      const query = new URLSearchParams();
+      query.append("type", level);
+      if (params?.groupId) query.append("groupId", params.groupId);
+      if (params?.zoneId) query.append("zoneId", params.zoneId);
+
+      const res = await $fetch<{ id: string; name: string }[]>(
+        `/api/organization/leader-candidates?${query.toString()}`,
+      );
+      return res || [];
+    } catch {
+      return [];
+    }
+  }
+
   return {
     treeNodes,
     pendingTreeNodes,
@@ -230,5 +394,13 @@ export function useOrganizationManagement() {
     loadGroupMembers,
     assignMember,
     initialize,
+    groupMemberTreeNodes,
+    isSavingZone,
+    saveZone,
+    deleteZone,
+    isSavingGroup,
+    saveGroup,
+    deleteGroup,
+    fetchLeaderCandidates,
   };
 }
