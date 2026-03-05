@@ -104,10 +104,11 @@ definePageMeta({
     :class="[
       'flex flex-col',
       'overflow-hidden',
-      'w-full max-w-[420px] min-h-[700px]',
+      'w-full max-w-[400px]',
       'bg-white dark:bg-slate-900',
       'rounded-3xl',
       'shadow-2xl',
+      'mx-4',
     ]"
   >
     <main
@@ -120,7 +121,7 @@ definePageMeta({
       <div
         :class="[
           'text-center', // layout
-          'mt-4 mb-8', // spacing
+          'mt-2 mb-6', // spacing
         ]"
       >
         <div
@@ -215,7 +216,7 @@ definePageMeta({
                 ]"
                 >密碼</label
               >
-              <NuxtLink
+              <!-- <NuxtLink
                 to="#"
                 :class="[
                   'text-xs font-medium', // font
@@ -223,7 +224,7 @@ definePageMeta({
                   'hover:underline', // etc
                 ]"
                 >忘記密碼？</NuxtLink
-              >
+              > -->
             </div>
             <Password
               v-model="formData.password"
@@ -241,7 +242,7 @@ definePageMeta({
             />
           </div>
 
-          <div
+          <!-- <div
             :class="[
               'flex items-center gap-2', // layout
               'px-1', // spacing
@@ -261,7 +262,7 @@ definePageMeta({
               ]"
               >記住我</label
             >
-          </div>
+          </div> -->
         </div>
 
         <Button
@@ -282,7 +283,7 @@ definePageMeta({
         :class="[
           'text-center', // layout
           'relative', // position
-          'my-8', // spacing
+          'my-6', // spacing
         ]"
       >
         <div
@@ -362,7 +363,7 @@ definePageMeta({
       <div
         :class="[
           'text-center', // layout
-          'mt-auto pt-8', // spacing
+          'mt-auto pt-6', // spacing
         ]"
       >
         <p

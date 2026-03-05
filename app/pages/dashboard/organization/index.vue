@@ -196,7 +196,6 @@ onMounted(() => {
 
 <template>
   <div class="contents">
-    <Toast />
     <div class="flex flex-col h-full">
       <!-- Page Header -->
       <div class="flex items-center justify-between mb-4 flex-shrink-0">

@@ -32,6 +32,8 @@ useSeoMeta({
   <Transition name="fade">
     <AppGlobalLoading v-if="isLoading" />
   </Transition>
+
+  <Toast />
 </template>
 
 <style>

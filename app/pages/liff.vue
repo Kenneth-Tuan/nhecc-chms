@@ -52,39 +52,37 @@ definePageMeta({
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center min-h-screen">
-    <div
-      class="flex flex-col overflow-hidden w-full max-w-[420px] min-h-[700px] bg-white dark:bg-slate-900 rounded-3xl shadow-2xl mx-auto"
+  <div
+    class="flex flex-col overflow-hidden w-full max-w-[400px] bg-white dark:bg-slate-900 rounded-3xl shadow-2xl mx-4"
+  >
+    <main
+      class="flex flex-col items-center justify-center p-8 sm:p-12 text-center animate-fade-in animate-duration-500"
     >
-      <main
-        class="flex-1 flex flex-col items-center justify-center p-6 sm:p-8 text-center animate-fade-in animate-duration-500"
-      >
-        <div class="flex items-center justify-center w-24 h-24 mb-6">
-          <img
-            src="@/assets/icons/NHECC_ICON-01.png"
-            alt="Logo"
-            class="object-contain drop-shadow-sm"
-          />
-        </div>
-
-        <ProgressSpinner
-          class="w-14 h-14 mb-6 text-primary"
-          strokeWidth="4"
-          animationDuration="1s"
+      <div class="flex items-center justify-center w-20 h-20 mb-8">
+        <img
+          src="@/assets/icons/NHECC_ICON-01.png"
+          alt="Logo"
+          class="object-contain drop-shadow-sm"
         />
+      </div>
 
-        <h1
-          class="text-xl font-bold tracking-wide text-slate-800 dark:text-white mb-2"
-        >
-          LINE 安全驗證中
-        </h1>
+      <ProgressSpinner
+        class="w-12 h-12 mb-8 text-primary"
+        strokeWidth="4"
+        animationDuration="1s"
+      />
 
-        <p
-          class="text-sm font-medium text-slate-500 dark:text-slate-400 max-w-[260px] mx-auto leading-relaxed"
-        >
-          正在與 LINE 伺服器連線以完成登入，請稍候片刻...
-        </p>
-      </main>
-    </div>
+      <h1
+        class="text-xl font-bold tracking-wide text-slate-800 dark:text-white mb-3"
+      >
+        LINE 安全驗證中
+      </h1>
+
+      <p
+        class="text-sm font-medium text-slate-500 dark:text-slate-400 max-w-[280px] mx-auto leading-relaxed"
+      >
+        正在與 LINE 伺服器連線以完成登入，請稍候片刻...
+      </p>
+    </main>
   </div>
 </template>
