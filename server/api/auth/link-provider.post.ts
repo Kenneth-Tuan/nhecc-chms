@@ -6,6 +6,7 @@
  */
 import { getAdminAuth } from "../../utils/firebase-admin";
 import { MemberRepository } from "../../repositories/member.repository";
+import { AuthService } from "../../services/auth.service";
 
 interface LinkProviderBody {
   provider: "google" | "line";
@@ -14,6 +15,7 @@ interface LinkProviderBody {
 }
 
 const memberRepo = new MemberRepository();
+const authService = new AuthService();
 
 export default defineEventHandler(async (event) => {
   const canonicalUid = event.context.userId as string;
@@ -44,11 +46,20 @@ export default defineEventHandler(async (event) => {
     providerUid = decoded.uid; // Google UID
 
     // 防止重複綁定：確認此 Google UID 未被其他 member 使用
-    const existing = await memberRepo.findByLinkedProvider(
+    // 1. 查 linkedProviders 欄位
+    const existingLinked = await memberRepo.findByLinkedProvider(
       "google",
       providerUid,
     );
-    if (existing && existing.uuid !== canonicalUid) {
+    if (existingLinked && existingLinked.uuid !== canonicalUid) {
+      throw createError({
+        statusCode: 409,
+        message: "此 Google 帳號已被其他帳號連結",
+      });
+    }
+    // 2. 查 document ID（canonical UID 就是此 provider UID 的情況）
+    const existingCanonical = await memberRepo.findById(providerUid);
+    if (existingCanonical && existingCanonical.uuid !== canonicalUid) {
       throw createError({
         statusCode: 409,
         message: "此 Google 帳號已被其他帳號連結",
@@ -89,8 +100,20 @@ export default defineEventHandler(async (event) => {
     providerUid = lineRes.sub; // LINE userId
 
     // 防止重複綁定
-    const existing = await memberRepo.findByLinkedProvider("line", providerUid);
-    if (existing && existing.uuid !== canonicalUid) {
+    // 1. 查 linkedProviders 欄位
+    const existingLinked = await memberRepo.findByLinkedProvider(
+      "line",
+      providerUid,
+    );
+    if (existingLinked && existingLinked.uuid !== canonicalUid) {
+      throw createError({
+        statusCode: 409,
+        message: "此 LINE 帳號已被其他帳號連結",
+      });
+    }
+    // 2. 查 document ID（canonical UID 就是此 provider UID 的情況）
+    const existingCanonical = await memberRepo.findById(providerUid);
+    if (existingCanonical && existingCanonical.uuid !== canonicalUid) {
       throw createError({
         statusCode: 409,
         message: "此 LINE 帳號已被其他帳號連結",
@@ -101,6 +124,9 @@ export default defineEventHandler(async (event) => {
   } else {
     throw createError({ statusCode: 400, message: "不支援的 provider" });
   }
+
+  // 清除 context cache，確保下次 loadContext 拿到最新的 linkedProviders
+  authService.clearCache(canonicalUid);
 
   return { success: true };
 });

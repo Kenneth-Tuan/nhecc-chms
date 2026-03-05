@@ -6,12 +6,14 @@
  * 需附帶有效的 session cookie。
  */
 import { MemberRepository } from "../../repositories/member.repository";
+import { AuthService } from "../../services/auth.service";
 
 interface UnlinkProviderBody {
   provider: "google" | "line";
 }
 
 const memberRepo = new MemberRepository();
+const authService = new AuthService();
 
 export default defineEventHandler(async (event) => {
   const canonicalUid = event.context.userId as string;
@@ -44,6 +46,9 @@ export default defineEventHandler(async (event) => {
   }
 
   await memberRepo.updateLinkedProviders(canonicalUid, { [provider]: null });
+
+  // 清除 context cache
+  authService.clearCache(canonicalUid);
 
   return { success: true };
 });

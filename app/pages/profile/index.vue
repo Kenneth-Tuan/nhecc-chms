@@ -9,6 +9,11 @@ import { useToast } from "primevue/usetoast";
 import googleIcon from "@/assets/icons/google.svg";
 import lineIcon from "@/assets/icons/line.svg";
 
+definePageMeta({
+  layout: "default",
+});
+
+const route = useRoute();
 const authStore = useAuthStore();
 const toast = useToast();
 const {
@@ -184,7 +189,6 @@ onMounted(() => {
         </p>
       </div>
 
-      <!-- Admin Console Card (Conditional) -->
       <div
         v-if="user.isAdmin"
         :class="[
@@ -235,7 +239,7 @@ onMounted(() => {
           label="進入管理模式"
           @click="navigateToAdmin"
           :class="[
-            '!text-sm !font-bold', // font
+            '!text-sm !font-bold !text-white', // font
             '!py-2.5', // spacing
             '!w-full', // scaling
             '!bg-blue-600 hover:!bg-blue-700 !border-none', // border/color
@@ -275,7 +279,7 @@ onMounted(() => {
 
         <NuxtLink
           v-for="item in menuItems"
-          :key="item.to"
+          :key="item.label"
           :to="item.to"
           :class="[
             'flex items-center justify-between', // layout

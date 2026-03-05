@@ -84,7 +84,7 @@ definePageMeta({
 </script>
 
 <template>
-  <div class="flex flex-col w-full max-w-xl rounded-3xl shadow-2xl mx-4">
+  <LayoutAuthCard>
     <main
       class="flex flex-col items-center justify-center p-8 sm:p-12 text-center animate-fade-in animate-duration-500"
     >
@@ -114,5 +114,7 @@ definePageMeta({
         正在與 LINE 伺服器連線以完成登入，請稍候片刻...
       </p>
     </main>
-  </div>
+  </LayoutAuthCard>
 </template>
+
+<style scoped></style>

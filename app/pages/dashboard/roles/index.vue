@@ -3,6 +3,7 @@
  * Role Management List Page (ST002)
  */
 import type { Role } from "~/types/role";
+import InvitationLinkDialog from "./_components/InvitationLinkDialog.vue";
 
 definePageMeta({
   layout: "dashboard",
@@ -86,10 +87,21 @@ const scopeSeverity: Record<string, string> = {
 onMounted(() => {
   fetchRoles();
 });
+
+// Invitation
+const showInviteDialog = ref(false);
+const inviteRoleId = ref("");
+const inviteRoleName = ref("");
+
+function openInviteDialog(role: Role): void {
+  inviteRoleId.value = role.id;
+  inviteRoleName.value = role.name;
+  showInviteDialog.value = true;
+}
 </script>
 
 <template>
-  <div>
+  <div class="contents">
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
       <div>
@@ -165,6 +177,15 @@ onMounted(() => {
                 @click="router.push(`/dashboard/roles/edit/${data.id}`)"
               />
               <Button
+                icon="pi pi-link"
+                text
+                rounded
+                size="small"
+                severity="info"
+                v-tooltip.top="'產生邀請連結'"
+                @click="openInviteDialog(data)"
+              />
+              <Button
                 v-if="!data.isSystem"
                 icon="pi pi-trash"
                 text
@@ -185,5 +206,12 @@ onMounted(() => {
         </template>
       </DataTable>
     </div>
+
+    <!-- Invitation Dialog -->
+    <InvitationLinkDialog
+      v-model:visible="showInviteDialog"
+      :role-id="inviteRoleId"
+      :role-name="inviteRoleName"
+    />
   </div>
 </template>

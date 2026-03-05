@@ -100,14 +100,7 @@ definePageMeta({
 </script>
 
 <template>
-  <div
-    :class="[
-      'flex flex-col',
-      'mx-4 w-full max-w-xl',
-      'rounded-3xl',
-      'shadow-2xl',
-    ]"
-  >
+  <LayoutAuthCard>
     <main
       :class="[
         'flex-1 flex flex-col', // layout
@@ -115,17 +108,11 @@ definePageMeta({
       ]"
     >
       <!-- Header -->
-      <div
-        :class="[
-          'text-center', // layout
-          'mt-2 mb-6', // spacing
-        ]"
-      >
+      <div class="flex items-end justify-center mb-6">
         <div
           :class="[
             'flex items-center justify-center', // layout
-            'mx-auto mb-4', // spacing
-            'w-20 h-20', // scaling
+            'w-16 h-16', // scaling
           ]"
         >
           <img
@@ -136,23 +123,29 @@ definePageMeta({
             ]"
           />
         </div>
-        <h1
+        <div
           :class="[
-            'text-2xl font-bold', // font
-            'text-slate-800 dark:text-white', // colors
+            'text-left', // layout
           ]"
         >
-          歡迎回來
-        </h1>
-        <p
-          :class="[
-            'text-sm', // font
-            'mt-2', // spacing
-            'text-slate-500 dark:text-slate-400', // colors
-          ]"
-        >
-          請登入您的帳號以繼續使用
-        </p>
+          <h1
+            :class="[
+              'text-2xl font-bold', // font
+              'text-slate-800 dark:text-white', // colors
+            ]"
+          >
+            歡迎回來
+          </h1>
+          <p
+            :class="[
+              'text-sm', // font
+              'mt-2', // spacing
+              'text-slate-500 dark:text-slate-400', // colors
+            ]"
+          >
+            請登入您的帳號以繼續使用
+          </p>
+        </div>
       </div>
 
       <!-- Form -->
@@ -185,7 +178,7 @@ definePageMeta({
               placeholder="Email 或 手機號碼"
               :class="[
                 'py-3 px-4', // spacing
-                'rounded-xl', // border
+                'bg-inherit',
               ]"
               style="
                 --p-inputtext-padding-x: 1rem;
@@ -234,7 +227,7 @@ definePageMeta({
               ]"
               :input-class="[
                 '!py-3 !px-4 !w-full', // spacing/scaling
-                '!rounded-xl', // border
+                'bg-inherit',
               ]"
             />
           </div>
@@ -407,7 +400,7 @@ definePageMeta({
         </div>
       </div>
     </main>
-  </div>
+  </LayoutAuthCard>
 </template>
 
 <style scoped></style>

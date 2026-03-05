@@ -500,9 +500,10 @@ onMounted(() => {
               >手機 <span class="text-red-500">*</span></label
             >
             <div class="relative">
-              <InputText
+              <InputMask
                 v-model="form.mobile"
-                placeholder="0912345678"
+                mask="9999-999-999"
+                placeholder="09xx-xxx-xxx"
                 :invalid="!!fieldErrors.mobile || !!mobileError"
                 class="w-full"
                 @blur="onMobileBlur"

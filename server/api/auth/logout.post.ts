@@ -6,5 +6,12 @@ export default defineEventHandler(async (event) => {
     sameSite: "lax",
   });
 
+  deleteCookie(event, "canonical_uid", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    sameSite: "lax",
+  });
+
   return { success: true };
 });

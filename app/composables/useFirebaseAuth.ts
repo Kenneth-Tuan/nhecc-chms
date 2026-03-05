@@ -108,7 +108,7 @@ export function useFirebaseAuth() {
       }
 
       return {
-        uid: credential.user.uid,
+        uid: result.uid, // 使用 session API 回傳的 canonical UID
         isNewUser: isNewUser,
         displayName: credential.user.displayName,
         email: credential.user.email,

@@ -33,6 +33,18 @@ const handleLogout = async () => {
     console.error("Logout failed:", error);
   }
 };
+
+const title = computed(() => {
+  return route.fullPath.includes("/dashboard") ? "內行管理系統" : "內行人學院";
+});
+
+const userDescription = computed(() => {
+  if (authStore.isAdmin) return `您擁有管理員權限`;
+
+  return "一般使用者";
+});
+
+const isManagerMode = computed(() => route.path.startsWith("/dashboard"));
 </script>
 
 <template>
@@ -57,7 +69,7 @@ const handleLogout = async () => {
         >
           NHECC ChMS
         </h1>
-        <p class="text-xs text-slate-500 dark:text-slate-400">教會管理系統</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400">{{ title }}</p>
       </div>
     </div>
 
@@ -92,7 +104,7 @@ const handleLogout = async () => {
     <!-- User info / Footer -->
     <div class="p-4 border-t border-slate-100 dark:border-slate-800">
       <div
-        class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 group transition-colors"
+        class="flex items-center gap-3 px-3 py-2 rounded-xl border border-slate-100 dark:border-slate-800"
       >
         <Avatar
           :image="authStore.userContext?.avatar || undefined"
@@ -105,11 +117,7 @@ const handleLogout = async () => {
             {{ authStore.currentUserName }}
           </p>
           <p class="text-xs truncate text-slate-500">
-            {{
-              auth.currentScopeLabel.value ||
-              authStore.userContext?.email ||
-              "未設定"
-            }}
+            {{ userDescription }}
           </p>
         </div>
 
@@ -120,6 +128,19 @@ const handleLogout = async () => {
           @click.stop="handleLogout"
         />
       </div>
+
+      <Button
+        v-if="authStore.isAdmin"
+        :label="isManagerMode ? '返回一般模式' : '進入管理模式'"
+        @click="navigateTo(isManagerMode ? '/' : '/dashboard')"
+        :class="[
+          '!text-sm !font-bold !text-white', // font
+          '!w-full mt-2', // scaling
+          '!bg-blue-600 hover:!bg-blue-700 !border-none', // border/color
+          'shadow-lg shadow-blue-500/20', // shadow
+          '!rounded-xl', // etc
+        ]"
+      />
     </div>
   </aside>
 </template>

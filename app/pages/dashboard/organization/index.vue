@@ -199,17 +199,16 @@ onMounted(() => {
     <div class="flex flex-col h-full">
       <!-- Page Header -->
       <div class="flex items-center justify-between mb-4 flex-shrink-0">
-        <div>
-          <Breadcrumb
+        <!-- <Breadcrumb
             :model="[
               { label: '首頁', to: '/dashboard' },
               { label: '組織架構' },
             ]"
             class="!p-0 !bg-transparent"
-          />
-          <h2 class="text-xl font-bold text-slate-900 dark:text-white mt-1">
-            組織架構管理
-          </h2>
+          /> -->
+        <div>
+          <h1 class="text-2xl font-bold">組織架構管理</h1>
+          <p class="text-sm text-slate-500 mt-1">管理系統組織架構</p>
         </div>
       </div>
 

@@ -3,9 +3,15 @@
  * 個人資料設定頁面 (ST001)
  * 供一般用戶（無管理權限者）修改個人基本資料。
  */
+
 import type { MemberDetail, UpdateProfileInput } from "~/types/member";
 import dayjs from "dayjs";
 
+definePageMeta({
+  layout: "default",
+});
+
+const route = useRoute();
 const router = useRouter();
 const toast = useToast();
 const { isLoading } = useGlobalLoading();
@@ -126,7 +132,9 @@ async function handleSave() {
 
 const isUploading = computed(() => avatarUploadRef.value?.isUploading || false);
 
-onMounted(loadProfile);
+onMounted(() => {
+  loadProfile();
+});
 </script>
 
 <template>
