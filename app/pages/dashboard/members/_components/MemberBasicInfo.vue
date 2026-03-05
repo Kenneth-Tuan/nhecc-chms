@@ -46,87 +46,129 @@ async function confirmRevealAll(): Promise<void> {
 </script>
 
 <template>
-  <div class="flex flex-col md:flex-row gap-6">
-    <!-- Left Panel: Avatar + Status -->
-    <div class="flex flex-col items-center gap-3 md:w-48 shrink-0">
-      <Avatar
-        :label="member.fullName?.charAt(0)"
-        :image="member.avatar"
-        shape="circle"
-        class="!w-20 !h-20 !text-2xl !bg-primary-100 dark:!bg-primary-900/30 !text-primary"
-      />
-      <p class="font-bold text-lg text-center">{{ member.fullName }}</p>
-      <Tag
-        :value="statusLabel[member.status]"
-        :severity="statusSeverity[member.status] as any"
-        class="!text-xs"
-      />
-      <!-- Role Tags -->
-      <div class="flex flex-wrap gap-1 justify-center">
-        <Tag
-          v-for="role in member.roleNames"
-          :key="role"
-          :value="role"
-          severity="info"
-          class="!text-xs"
+  <div class="flex flex-col lg:flex-row gap-8 p-4">
+    <!-- Left Panel: Profile Summary Card -->
+    <div
+      class="flex flex-col items-center gap-4 lg:w-64 shrink-0 p-6 rounded-2xl bg-slate-50/50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800"
+    >
+      <div class="relative">
+        <Avatar
+          :label="member.fullName?.charAt(0)"
+          :image="member.avatar"
+          shape="circle"
+          class="!w-24 !h-24 !text-3xl !bg-primary-100 dark:!bg-primary-900/40 !text-primary !border-4 !border-white dark:!border-slate-800 shadow-sm"
         />
+        <div class="absolute -bottom-1 -right-1">
+          <Tag
+            :value="statusLabel[member.status]"
+            :severity="statusSeverity[member.status] as any"
+            class="!text-xs !px-2 shadow-sm"
+          />
+        </div>
       </div>
 
-      <!-- Reveal All Button -->
+      <div class="text-center space-y-1">
+        <h2 class="font-bold text-xl text-slate-900 dark:text-white">
+          {{ member.fullName }}
+        </h2>
+        <div class="flex flex-wrap gap-1.5 justify-center">
+          <Tag
+            v-for="role in member.roleNames"
+            :key="role"
+            :value="role"
+            severity="info"
+            class="!text-[10px] !bg-sky-50 dark:!bg-sky-900/20 !text-sky-600 dark:!text-sky-400 !border-sky-100 dark:!border-sky-800"
+          />
+        </div>
+      </div>
+
+      <!-- Reveal All Button integrated into sidebar -->
       <Button
         v-if="auth.can('reveal', 'Member', 'mobile')"
-        label="顯示所有敏感資料"
+        label="顯示敏感資料"
         icon="pi pi-eye"
         size="small"
         severity="warn"
-        outlined
-        class="mt-2 !text-xs"
+        text
+        class="mt-4 !text-xs w-full"
         @click="showRevealAllDialog = true"
       />
     </div>
 
-    <!-- Right Panel: Details -->
-    <div class="flex-1 space-y-5">
-      <!-- Basic Info -->
-      <div>
-        <h3
-          class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-2"
-        >
-          <i class="pi pi-user" />
-          基本資訊
-        </h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <p class="text-xs text-slate-400">姓名</p>
-            <p class="text-sm font-medium">{{ member.fullName }}</p>
+    <!-- Right Panel: Detailed Info -->
+    <div class="flex-1 space-y-8">
+      <!-- Section: Basic Info -->
+      <section>
+        <div class="flex items-center gap-3 mb-4">
+          <div
+            class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center"
+          >
+            <i class="pi pi-user text-blue-600 dark:text-blue-400" />
           </div>
-          <div>
-            <p class="text-xs text-slate-400">性別</p>
-            <p class="text-sm font-medium flex items-center gap-1">
-              <i :class="[genderIcon, genderColor, 'text-xs']" />
-              {{ genderLabel }}
+          <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200">
+            基本資訊
+          </h3>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 px-2">
+          <div class="space-y-1">
+            <span
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              >姓名</span
+            >
+            <p class="text-base font-bold text-slate-900 dark:text-white">
+              {{ member.fullName }}
             </p>
           </div>
-          <div>
-            <p class="text-xs text-slate-400">出生年月日（年齡）</p>
-            <p class="text-sm font-medium">
-              {{ member.dob }} （{{ member.age }} 歲）
+          <div class="space-y-1">
+            <span
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              >性別</span
+            >
+            <div
+              class="flex items-center gap-2 text-base font-bold text-slate-900 dark:text-white"
+            >
+              <i :class="[genderIcon, genderColor]" />
+              {{ genderLabel }}
+            </div>
+          </div>
+          <div class="space-y-1">
+            <span
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              >出生年月日 (年齡)</span
+            >
+            <p class="text-base font-bold text-slate-900 dark:text-white">
+              {{ member.dob }}
+              <span
+                class="text-sm font-medium text-slate-500 dark:text-slate-400 ml-1"
+                >({{ member.age }} 歲)</span
+              >
             </p>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Contact Info (sensitive) -->
-      <div>
-        <h3
-          class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-2"
-        >
-          <i class="pi pi-phone" />
-          聯絡資訊
-        </h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <p class="text-xs text-slate-400">手機</p>
+      <Divider />
+
+      <!-- Section: Contact Info -->
+      <section>
+        <div class="flex items-center gap-3 mb-4">
+          <div
+            class="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center"
+          >
+            <i class="pi pi-phone text-orange-600 dark:text-orange-400" />
+          </div>
+          <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200">
+            聯絡資訊
+          </h3>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 px-2">
+          <div class="space-y-1">
+            <span
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              >手機</span
+            >
             <MemberRevealButton
               :member-id="member.uuid"
               field="mobile"
@@ -134,8 +176,11 @@ async function confirmRevealAll(): Promise<void> {
               :can-reveal="member.mobileMeta.canReveal"
             />
           </div>
-          <div>
-            <p class="text-xs text-slate-400">Email</p>
+          <div class="space-y-1">
+            <span
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              >Email</span
+            >
             <MemberRevealButton
               :member-id="member.uuid"
               field="email"
@@ -143,97 +188,149 @@ async function confirmRevealAll(): Promise<void> {
               :can-reveal="member.emailMeta.canReveal"
             />
           </div>
-          <div v-if="member.lineId">
-            <p class="text-xs text-slate-400">Line ID</p>
+          <div
+            v-if="member.lineId || member.lineIdMeta.canReveal"
+            class="space-y-1"
+          >
+            <span
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              >Line ID</span
+            >
             <MemberRevealButton
               :member-id="member.uuid"
               field="lineId"
-              :masked-value="member.lineId"
+              :masked-value="member.lineId || '未提供'"
               :can-reveal="member.lineIdMeta.canReveal"
             />
           </div>
-          <div v-if="member.address">
-            <p class="text-xs text-slate-400">地址</p>
+          <div
+            v-if="member.address || member.addressMeta.canReveal"
+            class="space-y-2"
+          >
+            <span
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              >通訊地址</span
+            >
             <MemberRevealButton
               :member-id="member.uuid"
               field="address"
-              :masked-value="member.address"
+              :masked-value="member.address || '未提供'"
               :can-reveal="member.addressMeta.canReveal"
             />
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Emergency Contact (sensitive) -->
-      <div>
-        <h3
-          class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-2"
-        >
-          <i class="pi pi-exclamation-triangle" />
-          緊急聯絡人
-        </h3>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div>
-            <p class="text-xs text-slate-400">姓名</p>
-            <p class="text-sm font-medium">{{ member.emergencyContactName }}</p>
+      <Divider />
+
+      <!-- Section: Emergency Contact -->
+      <section>
+        <div class="flex items-center gap-3 mb-4">
+          <div
+            class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center"
+          >
+            <i
+              class="pi pi-exclamation-triangle text-red-600 dark:text-red-400"
+            />
           </div>
-          <div>
-            <p class="text-xs text-slate-400">關係</p>
-            <p class="text-sm font-medium">
-              {{ member.emergencyContactRelationship }}
+          <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200">
+            緊急聯絡人
+          </h3>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-y-4 gap-x-8 px-2">
+          <div class="space-y-1">
+            <span
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              >姓名</span
+            >
+            <p class="text-base font-bold text-slate-900 dark:text-white">
+              {{ member.emergencyContactName || "-" }}
             </p>
           </div>
-          <div>
-            <p class="text-xs text-slate-400">電話</p>
+          <div class="space-y-1">
+            <span
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              >關係</span
+            >
+            <p class="text-base font-bold text-slate-900 dark:text-white">
+              {{ member.emergencyContactRelationship || "-" }}
+            </p>
+          </div>
+          <div class="space-y-1">
+            <span
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              >電話</span
+            >
             <MemberRevealButton
               :member-id="member.uuid"
               field="emergencyContactPhone"
-              :masked-value="member.emergencyContactPhone"
+              :masked-value="member.emergencyContactPhone || '-'"
               :can-reveal="member.emergencyContactPhoneMeta.canReveal"
             />
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Church Info -->
-      <div>
-        <h3
-          class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-2"
-        >
-          <i class="pi pi-building" />
-          教會資訊
-        </h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <p class="text-xs text-slate-400">受洗狀態</p>
-            <p class="text-sm font-medium flex items-center gap-1">
+      <Divider />
+
+      <!-- Section: Church Info -->
+      <section>
+        <div class="flex items-center gap-3 mb-4">
+          <div
+            class="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center"
+          >
+            <i class="pi pi-building text-green-600 dark:text-green-400" />
+          </div>
+          <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200">
+            教會資訊
+          </h3>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 px-2">
+          <div class="space-y-1">
+            <span
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              >受洗狀態</span
+            >
+            <div
+              class="flex items-center gap-2 text-base font-bold text-slate-900 dark:text-white"
+            >
               <i
                 :class="[
                   member.baptismStatus
                     ? 'pi pi-check-circle text-green-500'
                     : 'pi pi-minus-circle text-slate-300',
-                  'text-sm',
                 ]"
               />
               {{ member.baptismStatus ? "已受洗" : "未受洗" }}
+              <span
+                v-if="member.baptismDate"
+                class="text-sm font-medium text-slate-500 dark:text-slate-400 ml-1"
+                >({{ member.baptismDate }})</span
+              >
+            </div>
+          </div>
+          <div class="space-y-1">
+            <span
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              >牧區</span
+            >
+            <p class="text-base font-bold text-slate-900 dark:text-white">
+              {{ member.zoneName || "未分配" }}
             </p>
           </div>
-          <div v-if="member.baptismDate">
-            <p class="text-xs text-slate-400">受洗日期</p>
-            <p class="text-sm font-medium">{{ member.baptismDate }}</p>
-          </div>
-          <div>
-            <p class="text-xs text-slate-400">牧區</p>
-            <p class="text-sm font-medium">{{ member.zoneName || "未分配" }}</p>
-          </div>
-          <div>
-            <p class="text-xs text-slate-400">小組</p>
-            <p class="text-sm font-medium">
+          <div class="space-y-1">
+            <span
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              >小組</span
+            >
+            <p class="text-base font-bold text-slate-900 dark:text-white">
               {{ member.groupName || "待分發" }}
             </p>
           </div>
         </div>
-      </div>
+      </section>
     </div>
 
     <!-- Reveal All Confirmation Dialog -->

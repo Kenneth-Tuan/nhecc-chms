@@ -2,16 +2,47 @@
 import { useFirebaseAuth } from "~/composables/useFirebaseAuth";
 import { useAuthStore } from "~/stores/auth.store";
 import { useToast } from "primevue/usetoast";
+import liff from "@line/liff";
 
 const firebaseAuth = useFirebaseAuth();
 const toast = useToast();
 const loading = ref(true);
+const route = useRoute();
+
+/** 判斷是否為「帳號綁定」意圖，而非正常登入 */
+const isLinkIntent = computed(() => route.query.intent === "link");
 
 onMounted(async () => {
   try {
+    // 初始化 LIFF（不管哪種 intent 都需要）
+    const config = useRuntimeConfig();
+    await liff.init({ liffId: config.public.liffId as string });
+
+    if (!liff.isLoggedIn()) {
+      // 重導向到 LINE 登入，帶回 intent 參數
+      liff.login({ redirectUri: window.location.href });
+      return;
+    }
+
+    const idToken = liff.getIDToken();
+    if (!idToken) throw new Error("Failed to get LINE ID token");
+
+    // === INTENT: link — 帳號綁定模式 ===
+    if (isLinkIntent.value) {
+      await firebaseAuth.linkWithLine(idToken);
+      toast.add({
+        severity: "success",
+        summary: "LINE 綁定成功",
+        detail: "已成功連結您的 LINE 帳號",
+        life: 3000,
+      });
+      navigateTo("/profile");
+      return;
+    }
+
+    // === 正常登入模式 ===
     const result = await firebaseAuth.loginWithLine();
 
-    // 如果發生重定向 (liff.login())，或是沒拿到 uid，就中斷後續邏輯
     if (!result || !result.uid) return;
 
     if (result.isNewUser) {
@@ -34,13 +65,14 @@ onMounted(async () => {
       }
     }
   } catch (err: any) {
+    const isLinkMode = isLinkIntent.value;
     toast.add({
       severity: "error",
-      summary: "LINE 登入失敗",
-      detail: err.message || "發生錯誤，請稍後再試",
+      summary: isLinkMode ? "LINE 綁定失敗" : "LINE 登入失敗",
+      detail: err.data?.message || err.message || "發生錯誤，請稍後再試",
       life: 4000,
     });
-    navigateTo("/login");
+    navigateTo(isLinkMode ? "/profile" : "/login");
   } finally {
     loading.value = false;
   }
@@ -52,9 +84,7 @@ definePageMeta({
 </script>
 
 <template>
-  <div
-    class="flex flex-col overflow-hidden w-full max-w-[400px] bg-white dark:bg-slate-900 rounded-3xl shadow-2xl mx-4"
-  >
+  <div class="flex flex-col w-full max-w-xl rounded-3xl shadow-2xl mx-4">
     <main
       class="flex flex-col items-center justify-center p-8 sm:p-12 text-center animate-fade-in animate-duration-500"
     >

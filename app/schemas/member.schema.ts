@@ -7,9 +7,13 @@ import { z } from "zod";
 import dayjs from "dayjs";
 
 /** 台灣手機格式：09XXXXXXXX */
+const TAIWAN_MOBILE_REGEX = /^09\d{8}$/;
 const mobileSchema = z
   .string()
-  .regex(/^09\d{8}$/, "手機號碼格式不正確，請輸入 09 開頭的 10 碼手機號碼")
+  .regex(
+    TAIWAN_MOBILE_REGEX,
+    "手機號碼格式不正確，請輸入 09 開頭的 10 碼手機號碼",
+  )
   .transform((val) => val.replace(/-/g, ""));
 
 /** 性別列舉 */
@@ -27,10 +31,12 @@ const pastDateSchema = z
   .refine(
     (val) => dayjs(val).startOf("day").isBefore(dayjs().endOf("day")),
     "日期不可為未來日期",
-  );
+  )
+  .refine((val) => dayjs(val).isValid(), "日期格式不正確")
+  .optional();
 
 /** 基礎會友物件架構（未含進階邏輯驗證） */
-const baseMemberSchema = z.object({
+export const baseMemberSchema = z.object({
   fullName: z.string().min(1, "姓名為必填").max(50, "姓名不可超過 50 字"),
   gender: genderSchema,
   dob: pastDateSchema,
@@ -38,9 +44,9 @@ const baseMemberSchema = z.object({
   mobile: mobileSchema,
   address: z.string().max(200, "地址不可超過 200 字").optional(),
   lineId: z.string().max(50, "Line ID 不可超過 50 字").optional(),
-  emergencyContactName: z.string().min(1, "緊急聯絡人姓名為必填"),
-  emergencyContactRelationship: z.string().min(1, "與會友關係為必填"),
-  emergencyContactPhone: mobileSchema,
+  emergencyContactName: z.string().optional(),
+  emergencyContactRelationship: z.string().optional(),
+  emergencyContactPhone: z.string().optional(),
   baptismStatus: z.boolean().default(false),
   baptismDate: z.string().optional(),
   status: memberStatusSchema.default("Active"),
@@ -52,23 +58,64 @@ const baseMemberSchema = z.object({
   avatar: z.string().url("頭像必須為有效 URL").optional(),
 });
 
-/** 建立新會友的驗證架構（包含牧區-小組關係驗證） */
-export const createMemberSchema = baseMemberSchema.refine(
-  (data) => {
-    // 若設定了小組，則必須同時設定牧區
-    if (data.groupId && !data.zoneId) {
-      return false;
+/** 共通的緊急聯絡人驗證邏輯：全有或全無 */
+const emergencyContactRefinement = (data: any, ctx: z.RefinementCtx) => {
+  const name = data.emergencyContactName?.trim();
+  const rel = data.emergencyContactRelationship?.trim();
+  const phone = data.emergencyContactPhone?.trim();
+
+  if (name || rel || phone) {
+    if (!name) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "填寫緊急聯絡資訊時，姓名為必填",
+        path: ["emergencyContactName"],
+      });
     }
-    return true;
-  },
-  {
-    message: "選擇小組時必須先選擇牧區",
-    path: ["groupId"],
-  },
-);
+    if (!rel) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "填寫緊急聯絡資訊時，關係為必填",
+        path: ["emergencyContactRelationship"],
+      });
+    }
+    if (!phone) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "填寫緊急聯絡資訊時，電話為必填",
+        path: ["emergencyContactPhone"],
+      });
+    } else if (!TAIWAN_MOBILE_REGEX.test(phone.replace(/-/g, ""))) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "緊急聯絡人手機格式不正確",
+        path: ["emergencyContactPhone"],
+      });
+    }
+  }
+};
+
+/** 建立新會友的驗證架構（包含牧區-小組關係驗證） */
+export const createMemberSchema = baseMemberSchema
+  .refine(
+    (data) => {
+      // 若設定了小組，則必須同時設定牧區
+      if (data.groupId && !data.zoneId) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "選擇小組時必須先選擇牧區",
+      path: ["groupId"],
+    },
+  )
+  .superRefine(emergencyContactRefinement);
 
 /** 更新會友的驗證架構（所有欄位皆為可選，不含進階邏輯驗證） */
-export const updateMemberSchema = baseMemberSchema.partial();
+export const updateMemberSchema = baseMemberSchema
+  .partial()
+  .superRefine(emergencyContactRefinement);
 
 /** 個人資料更新架構（僅限本人可改欄位，排除系統管理欄位） */
 export const updateProfileSchema = baseMemberSchema
@@ -79,7 +126,8 @@ export const updateProfileSchema = baseMemberSchema
     roleIds: true,
     functionalGroupIds: true,
   })
-  .partial();
+  .partial()
+  .superRefine(emergencyContactRefinement);
 
 /** 會友清單過濾條件架構 */
 export const memberFiltersSchema = z.object({

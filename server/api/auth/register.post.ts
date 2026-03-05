@@ -47,6 +47,11 @@ export default defineEventHandler(async (event) => {
 
   // API 攔截：確保 LINE 註冊時 lineId 與 UID 一致
   const finalLineId = isLineUser ? body.uid.replace("line_", "") : undefined;
+  const registrationProvider = isLineUser
+    ? "line"
+    : isGoogleUser
+      ? "google"
+      : "email";
 
   const member = await memberRepo.create({
     uuid: body.uid,
@@ -56,6 +61,7 @@ export default defineEventHandler(async (event) => {
     email: body.email,
     mobile: body.phone || "",
     lineId: finalLineId,
+    registrationProvider,
     emergencyContactName: "",
     emergencyContactRelationship: "",
     emergencyContactPhone: "",

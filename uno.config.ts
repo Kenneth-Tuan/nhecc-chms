@@ -74,4 +74,17 @@ export default defineConfig({
       },
     },
   },
+
+  shortcuts: {
+    "scrollbar-custom": `
+      pr2px      
+      [&::-webkit-scrollbar]:w2px
+      [&::-webkit-scrollbar-track]:bg-transparent
+      [&::-webkit-scrollbar-thumb]:bg-#555 
+      [&::-webkit-scrollbar-thumb]:rounded-full
+      [&::-webkit-scrollbar-thumb:hover]:bg-gray-400
+    `,
+    "no-scrollbar":
+      "[&::-webkit-scrollbar]:hidden [&::-webkit-scrollbar-track]:hidden [&::-webkit-scrollbar-thumb]:hidden",
+  },
 });

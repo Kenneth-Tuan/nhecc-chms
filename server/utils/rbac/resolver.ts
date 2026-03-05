@@ -49,6 +49,17 @@ export function resolveUserContext(member: Member, roles: Role[]): UserContext {
     managedGroupIds,
     permissions,
     revealAuthority,
+    linkedProviders: {
+      google:
+        !!member.linkedProviders?.google ||
+        member.registrationProvider === "google",
+      line:
+        !!member.linkedProviders?.line ||
+        member.registrationProvider === "line",
+      email:
+        !!member.linkedProviders?.email ||
+        member.registrationProvider === "email",
+    },
   };
 }
 

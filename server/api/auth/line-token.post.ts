@@ -6,7 +6,7 @@
  * 隨後建立或獲取 Firebase 用戶並回傳自定義 Token (Custom token)。
  */
 import { getAdminAuth } from "../../utils/firebase-admin";
-import { MemberRepository } from "../../repositories/member.repository";
+import { resolveCanonicalUid } from "../../utils/auth.utils";
 
 interface LineVerifyResponse {
   iss: string;
@@ -18,8 +18,6 @@ interface LineVerifyResponse {
   picture?: string;
   email?: string;
 }
-
-const memberRepo = new MemberRepository();
 
 export default defineEventHandler(async (event) => {
   const { idToken } = await readBody<{ idToken: string }>(event);
@@ -73,22 +71,26 @@ export default defineEventHandler(async (event) => {
   }
 
   const auth = getAdminAuth();
+  const lineUserId = verifyRes.sub;
   // Firebase UID 必須符合 [a-zA-Z0-9-_.], 不允許冒號
-  const firebaseUid = `line_${verifyRes.sub}`;
+  const firebaseUid = `line_${lineUserId}`;
 
-  // 檢查會友記錄以判斷是否為應用程式的新用戶。
-  // Firebase 用戶會在用戶端呼叫 signInWithCustomToken 時自動建立，在此不需要呼叫 admin.createUser()。
-  const existingMember = await memberRepo.findById(firebaseUid);
-  const isNewUser = !existingMember;
+  // 步驟 2：Canonical UID 查表
+  // 若 LINE UID 已被綁定到某個 canonical 帳號，使用 canonical UID 發 token
+  const { canonicalUid, isNewUser } = await resolveCanonicalUid(
+    firebaseUid,
+    "line",
+    lineUserId,
+  );
 
   // 建立 Firebase 自定義 Token (Custom token)
-  const customToken = await auth.createCustomToken(firebaseUid);
+  const customToken = await auth.createCustomToken(canonicalUid);
 
   return {
     customToken,
     isNewUser,
     lineProfile: {
-      userId: verifyRes.sub,
+      userId: lineUserId,
       name: verifyRes.name || "",
       picture: verifyRes.picture || "",
       email: verifyRes.email || "",

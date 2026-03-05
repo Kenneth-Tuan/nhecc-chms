@@ -67,6 +67,16 @@ export interface Member {
   // 大頭貼
   avatar?: string;
 
+  // 帳號來源（第一次登入/註冊時使用的 provider）
+  registrationProvider?: "email" | "google" | "line";
+
+  // Canonical UID 帳號綁定（SERVER 存儲，不直接暴露給前端）
+  linkedProviders?: {
+    google?: string; // Google UID
+    line?: string; // LINE userId (不含 line_ 前綴)
+    email?: string; // 綁定的 email
+  };
+
   // 軟刪除中繼資料 (ST004)
   deletionReason?: DeletionReason;
   deletionNotes?: string;
@@ -153,6 +163,7 @@ export interface CreateMemberPayload {
   roleIds?: string[];
   functionalGroupIds?: string[];
   avatar?: string;
+  registrationProvider?: "email" | "google" | "line";
 }
 
 /** 更新會友請求資料（所有欄位皆為可選，包含刪除中繼資料） */

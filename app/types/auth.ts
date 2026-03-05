@@ -20,6 +20,12 @@ export interface UserContext {
   managedGroupIds: string[];
   permissions: Record<PermissionKey, boolean>;
   revealAuthority: Record<SensitiveField, boolean>;
+  /** 帳號連結狀態（只含 boolean，不暴露實際 UID） */
+  linkedProviders: {
+    google: boolean;
+    line: boolean;
+    email: boolean;
+  };
 }
 
 /** 模擬測試用戶定義（保留以維持模擬資料相容性） */

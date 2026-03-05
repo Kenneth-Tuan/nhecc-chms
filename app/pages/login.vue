@@ -103,12 +103,9 @@ definePageMeta({
   <div
     :class="[
       'flex flex-col',
-      'overflow-hidden',
-      'w-full max-w-[400px]',
-      'bg-white dark:bg-slate-900',
+      'mx-4 w-full max-w-xl',
       'rounded-3xl',
       'shadow-2xl',
-      'mx-4',
     ]"
   >
     <main

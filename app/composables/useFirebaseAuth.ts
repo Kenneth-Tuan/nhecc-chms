@@ -173,12 +173,88 @@ export function useFirebaseAuth() {
     }
   }
 
+  /** 綁定 Google 帳號（popup 取 ID token → 後端 API） */
+  async function linkWithGoogle(): Promise<void> {
+    loading.value = true;
+    error.value = null;
+    try {
+      const provider = new GoogleAuthProvider();
+      // 用 popup 讓用戶登入 Google，只為了取得 ID token，不建立新 session
+      const result = await signInWithPopup(auth, provider);
+      const idToken = await result.user.getIdToken();
+      await $fetch("/api/auth/link-provider", {
+        method: "POST",
+        body: { provider: "google", providerToken: idToken },
+      });
+      // 刷新 auth context 以更新 linkedProviders 狀態
+      await authStore.loadContext();
+    } catch (e: any) {
+      error.value = e.code || e.message;
+      throw e;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  /**
+   * 綁定 LINE 帳號
+   * 需傳入從 LIFF 取得的 LINE ID token（由 liff.vue 在 intent=link 模式下取得）
+   */
+  async function linkWithLine(lineIdToken: string): Promise<void> {
+    loading.value = true;
+    error.value = null;
+    try {
+      await $fetch("/api/auth/link-provider", {
+        method: "POST",
+        body: { provider: "line", providerToken: lineIdToken },
+      });
+      await authStore.loadContext();
+    } catch (e: any) {
+      error.value = e.code || e.message;
+      throw e;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  /** 解除第三方 Provider 綁定 */
+  async function unlinkProvider(provider: "google" | "line"): Promise<void> {
+    loading.value = true;
+    error.value = null;
+    try {
+      await $fetch("/api/auth/unlink-provider", {
+        method: "POST",
+        body: { provider },
+      });
+      await authStore.loadContext();
+    } catch (e: any) {
+      error.value = e.code || e.message;
+      throw e;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  /** 當前帳號的連結狀態（從 authStore 讀取，唯讀） */
+  const linkedProviders = computed(
+    () =>
+      authStore.userContext?.linkedProviders ?? {
+        google: false,
+        line: false,
+        email: false,
+      },
+  );
+
   return {
     loginWithEmail,
     registerWithEmail,
     loginWithGoogle,
     loginWithLine,
     logout,
+    linkWithGoogle,
+    linkWithLine,
+    unlinkProvider,
+    linkedProviders,
     loading: readonly(loading),
     error: readonly(error),
     pendingLineProfile,

@@ -5,8 +5,19 @@
  */
 
 import { useAuthStore } from "~/stores/auth.store";
+import { useToast } from "primevue/usetoast";
+import googleIcon from "@/assets/icons/google.svg";
+import lineIcon from "@/assets/icons/line.svg";
 
 const authStore = useAuthStore();
+const toast = useToast();
+const {
+  linkWithGoogle,
+  unlinkProvider,
+  linkedProviders,
+  loading: authLoading,
+} = useFirebaseAuth();
+
 const user = computed(() => ({
   name: authStore.userContext?.fullName || "載入中...",
   email: authStore.userContext?.email || "",
@@ -20,21 +31,6 @@ const menuItems = [
     icon: "pi pi-user",
     to: "/profile/settings",
   },
-  // {
-  //   label: "學習旅程",
-  //   icon: "pi pi-history",
-  //   to: "/profile/learning-journey",
-  // },
-  // {
-  //   label: "修改密碼",
-  //   icon: "pi pi-lock",
-  //   to: "/profile/change-password",
-  // },
-  // {
-  //   label: "幫助與支援",
-  //   icon: "pi pi-question-circle",
-  //   to: "/support",
-  // },
 ];
 
 const { logout } = useFirebaseAuth();
@@ -50,6 +46,72 @@ const handleLogout = async () => {
 
 const navigateToAdmin = () => {
   navigateTo("/dashboard");
+};
+
+const handleLinkGoogle = async () => {
+  try {
+    await linkWithGoogle();
+    toast.add({
+      severity: "success",
+      summary: "Google 綁定成功",
+      detail: "已成功連結 Google 帳號",
+      life: 3000,
+    });
+  } catch (e: any) {
+    const msg =
+      e.data?.message ||
+      (e.code === "auth/credential-already-in-use"
+        ? "此 Google 帳號已被其他帳號使用"
+        : "綁定失敗，請稍後再試");
+    toast.add({
+      severity: "error",
+      summary: "Google 綁定失敗",
+      detail: msg,
+      life: 4000,
+    });
+  }
+};
+
+const handleUnlinkGoogle = async () => {
+  try {
+    await unlinkProvider("google");
+    toast.add({
+      severity: "success",
+      summary: "已解除連結",
+      detail: "Google 帳號已解除連結",
+      life: 3000,
+    });
+  } catch (e: any) {
+    toast.add({
+      severity: "error",
+      summary: "解除連結失敗",
+      detail: e.data?.message || "請稍後再試",
+      life: 4000,
+    });
+  }
+};
+
+const handleLinkLine = () => {
+  navigateTo("/liff?intent=link");
+};
+
+const handleUnlinkLine = async () => {
+  try {
+    await unlinkProvider("line");
+    toast.add({
+      severity: "success",
+      summary: "已解除連結",
+      detail: "LINE 帳號已解除連結",
+      life: 3000,
+    });
+  } catch (e: any) {
+    toast.add({
+      severity: "error",
+      summary: "解除連結失敗",
+      detail: e.data?.message || "請稍後再試",
+      life: 4000,
+    });
+  }
 };
 
 onMounted(() => {
@@ -262,6 +324,39 @@ onMounted(() => {
             ]"
           ></i>
         </NuxtLink>
+
+        <!-- 連結帳號區塊 -->
+        <div class="mt-4">
+          <h2
+            :class="[
+              'text-sm font-semibold uppercase tracking-wider',
+              'mb-3 px-1',
+              'text-slate-400 dark:text-slate-500',
+            ]"
+          >
+            連結帳號
+          </h2>
+          <div class="flex flex-col gap-2">
+            <LinkedAccountItem
+              :icon="googleIcon"
+              label="Google"
+              :linked="linkedProviders.google"
+              :loading="authLoading"
+              :can-unlink="linkedProviders.line || linkedProviders.email"
+              @link="handleLinkGoogle"
+              @unlink="handleUnlinkGoogle"
+            />
+            <LinkedAccountItem
+              :icon="lineIcon"
+              label="LINE"
+              :linked="linkedProviders.line"
+              :loading="authLoading"
+              :can-unlink="linkedProviders.google || linkedProviders.email"
+              @link="handleLinkLine"
+              @unlink="handleUnlinkLine"
+            />
+          </div>
+        </div>
       </div>
 
       <!-- Logout -->

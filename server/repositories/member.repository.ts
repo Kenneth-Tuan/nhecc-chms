@@ -180,6 +180,7 @@ export class MemberRepository {
       roleIds: payload.roleIds || ["general"],
       functionalGroupIds: payload.functionalGroupIds || [],
       avatar: payload.avatar || null,
+      registrationProvider: payload.registrationProvider || "email",
     };
 
     if (docId) {
@@ -252,4 +253,45 @@ export class MemberRepository {
    * 重置 - 對實體 Firestore 無操作 (No-op)，避免誤刪資料。
    */
   reset(): void {}
+
+  /**
+   * 根據 linkedProviders 欄位查找 canonical member。
+   * 用於 Canonical UID 查表：當用戶以非 canonical Provider 登入時，找回原始帳號。
+   */
+  async findByLinkedProvider(
+    provider: "google" | "line",
+    uid: string,
+  ): Promise<Member | undefined> {
+    const field = `linkedProviders.${provider}`;
+    const snapshot = await this.collection
+      .where(field, "==", uid)
+      .limit(1)
+      .get();
+    if (snapshot.empty) return undefined;
+    const doc = snapshot.docs[0];
+    return { ...doc.data(), uuid: doc.id } as Member;
+  }
+
+  /**
+   * 更新 linkedProviders 欄位（部分更新，不覆蓋其他 provider）。
+   * 傳入 null 表示移除該 provider 的綁定。
+   */
+  async updateLinkedProviders(
+    uuid: string,
+    providers: Partial<{
+      google: string | null;
+      line: string | null;
+      email: string | null;
+    }>,
+  ): Promise<void> {
+    const { FieldValue } = await import("firebase-admin/firestore");
+    const updateData: Record<string, any> = {
+      updatedAt: new Date().toISOString(),
+    };
+    for (const [provider, value] of Object.entries(providers)) {
+      updateData[`linkedProviders.${provider}`] =
+        value === null ? FieldValue.delete() : value;
+    }
+    await this.collection.doc(uuid).update(updateData);
+  }
 }

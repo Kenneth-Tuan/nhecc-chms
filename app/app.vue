@@ -33,7 +33,13 @@ useSeoMeta({
     <AppGlobalLoading v-if="isLoading" />
   </Transition>
 
-  <Toast />
+  <!-- Toast 設定：手機版置中 (方便閱讀)，桌機版保持右下 -->
+  <Toast
+    :position="
+      $viewport && $viewport.isLessThan('sm') ? 'top-center' : 'top-right'
+    "
+    class="!max-w-[calc(100vw-2rem)]"
+  />
 </template>
 
 <style>

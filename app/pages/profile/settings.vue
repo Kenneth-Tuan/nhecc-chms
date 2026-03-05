@@ -8,6 +8,7 @@ import dayjs from "dayjs";
 
 const router = useRouter();
 const toast = useToast();
+const { isLoading } = useGlobalLoading();
 
 const {
   isSubmitting,
@@ -19,7 +20,6 @@ const {
 
 const avatarUploadRef = ref();
 
-const isLoading = ref(true);
 const memberDetail = ref<MemberDetail | null>(null);
 
 const form = ref<UpdateProfileInput & { existingAvatar?: string | null }>({
@@ -147,16 +147,8 @@ onMounted(loadProfile);
       </h1>
     </div>
 
-    <div
-      v-if="isLoading"
-      class="flex flex-col items-center justify-center py-20 gap-4"
-    >
-      <ProgressSpinner style="width: 50px; height: 50px" />
-      <p class="text-slate-500 animate-pulse">正在載入您的資料...</p>
-    </div>
-
     <form
-      v-else
+      v-if="!isLoading"
       @submit.prevent="handleSave"
       class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500"
     >
@@ -227,8 +219,9 @@ onMounted(loadProfile);
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="flex flex-col gap-2">
             <label class="text-base font-semibold">手機號碼</label>
-            <InputText
+            <InputMask
               v-model="form.mobile"
+              mask="9999-999-999"
               placeholder="09xx-xxx-xxx"
               class="!py-3 !px-4 !text-lg !rounded-xl"
               :invalid="!!fieldErrors.mobile"
@@ -395,7 +388,7 @@ onMounted(loadProfile);
           <Button
             label="完成並儲存"
             severity="primary"
-            class="flex-[2] !py-4 !rounded-2xl !font-extrabold shadow-xl shadow-primary-500/20"
+            class="flex-[2] !py-4 !rounded-2xl !font-extrabold shadow-md shadow-primary-500/20"
             type="submit"
             :loading="isSubmitting || isUploading"
           />
