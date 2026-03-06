@@ -3,13 +3,14 @@
  * Member List Table Component (ST003)
  * PrimeVue DataTable with all required columns.
  */
-import type { MemberListItem } from '~/types/member';
+import type { MemberListItem } from "~/types/member";
+import { useAuthStore } from "@/stores/auth.store";
 
 const props = defineProps<{
   members: MemberListItem[];
   isLoading: boolean;
   sortBy: string;
-  sortOrder: 'asc' | 'desc';
+  sortOrder: "asc" | "desc";
 }>();
 
 const emit = defineEmits<{
@@ -20,26 +21,29 @@ const emit = defineEmits<{
 }>();
 
 const auth = useAuth();
+const authStore = useAuthStore();
 
 const statusSeverity: Record<string, string> = {
-  Active: 'success',
-  Inactive: 'secondary',
-  Suspended: 'danger',
+  Active: "success",
+  Inactive: "secondary",
+  Suspended: "danger",
 };
 
 const statusLabel: Record<string, string> = {
-  Active: '啟用',
-  Inactive: '停用',
-  Suspended: '停權',
+  Active: "啟用",
+  Inactive: "停用",
+  Suspended: "停權",
 };
 
 function onRowClick(event: { data: MemberListItem }): void {
-  emit('rowClick', event.data);
+  emit("rowClick", event.data);
 }
 </script>
 
 <template>
-  <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+  <div
+    class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden"
+  >
     <DataTable
       :value="members"
       :loading="isLoading"
@@ -63,7 +67,9 @@ function onRowClick(event: { data: MemberListItem }): void {
               <div class="flex items-center gap-1.5 mt-0.5">
                 <i
                   :class="[
-                    data.gender === 'Male' ? 'pi pi-mars text-blue-500' : 'pi pi-venus text-pink-500',
+                    data.gender === 'Male'
+                      ? 'pi pi-mars text-blue-500'
+                      : 'pi pi-venus text-pink-500',
                     'text-xs',
                   ]"
                 />
@@ -127,7 +133,9 @@ function onRowClick(event: { data: MemberListItem }): void {
         <template #body="{ data }">
           <i
             :class="[
-              data.baptismStatus ? 'pi pi-check-circle text-green-500' : 'pi pi-minus-circle text-slate-300',
+              data.baptismStatus
+                ? 'pi pi-check-circle text-green-500'
+                : 'pi pi-minus-circle text-slate-300',
               'text-base',
             ]"
           />
@@ -158,7 +166,9 @@ function onRowClick(event: { data: MemberListItem }): void {
               @click.stop="$emit('edit', data)"
             />
             <Button
-              v-if="auth.can('delete', 'Member')"
+              v-if="
+                auth.can('delete', 'Member') && data.id !== authStore.userId
+              "
               icon="pi pi-trash"
               text
               rounded
