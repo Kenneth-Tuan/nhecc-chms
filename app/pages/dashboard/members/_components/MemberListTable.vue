@@ -167,7 +167,8 @@ function onRowClick(event: { data: MemberListItem }): void {
             />
             <Button
               v-if="
-                auth.can('delete', 'Member') && data.id !== authStore.userId
+                auth.can('delete', 'Member') &&
+                data.uuid !== authStore.userContext?.userId
               "
               icon="pi pi-trash"
               text
