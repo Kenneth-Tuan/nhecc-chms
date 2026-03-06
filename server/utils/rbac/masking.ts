@@ -8,8 +8,8 @@
  * 例如："0912345678" -> "0912***678"
  */
 export function maskMobile(mobile: string): string {
-  if (!mobile || mobile.length < 10) return "***";
-  return `${mobile.slice(0, 4)}***${mobile.slice(7)}`;
+  if (!mobile || mobile.length < 12) return "***";
+  return `${mobile.slice(0, 5)}***-${mobile.slice(9)}`;
 }
 
 /**

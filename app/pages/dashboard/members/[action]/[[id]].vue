@@ -151,7 +151,7 @@ async function handleSubmit(): Promise<void> {
       payload.email = form.value.email.trim();
     }
     if (form.value.mobile && !form.value.mobile.includes("*")) {
-      payload.mobile = form.value.mobile.trim().replace(/-/g, "");
+      payload.mobile = form.value.mobile.trim();
     }
     if (form.value.address && !form.value.address.includes("*")) {
       payload.address = form.value.address.trim();
@@ -163,9 +163,7 @@ async function handleSubmit(): Promise<void> {
       form.value.emergencyContactPhone &&
       !form.value.emergencyContactPhone.includes("*")
     ) {
-      payload.emergencyContactPhone = form.value.emergencyContactPhone
-        .trim()
-        .replace(/-/g, "");
+      payload.emergencyContactPhone = form.value.emergencyContactPhone.trim();
     }
 
     if (!validateUpdate(payload)) {
@@ -221,14 +219,12 @@ async function handleSubmit(): Promise<void> {
       gender: form.value.gender as "Male" | "Female",
       dob: form.value.dob,
       email: form.value.email.trim(),
-      mobile: form.value.mobile.trim().replace(/-/g, ""),
+      mobile: form.value.mobile.trim(),
       address: form.value.address?.trim() || undefined,
       lineId: form.value.lineId?.trim() || undefined,
       emergencyContactName: form.value.emergencyContactName.trim(),
       emergencyContactRelationship: form.value.emergencyContactRelationship,
-      emergencyContactPhone: form.value.emergencyContactPhone
-        .trim()
-        .replace(/-/g, ""),
+      emergencyContactPhone: form.value.emergencyContactPhone.trim(),
       baptismStatus: form.value.baptismStatus,
       baptismDate: form.value.baptismStatus
         ? form.value.baptismDate || undefined
@@ -618,9 +614,10 @@ onMounted(() => {
             <label class="text-sm font-medium"
               >電話 <span class="text-red-500">*</span></label
             >
-            <InputText
+            <InputMask
               v-model="form.emergencyContactPhone"
-              placeholder="0912345678"
+              mask="9999-999-999"
+              placeholder="09xx-xxx-xxx"
               :invalid="!!fieldErrors.emergencyContactPhone"
               @input="clearFieldError('emergencyContactPhone')"
             />

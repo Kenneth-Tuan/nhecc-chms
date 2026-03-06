@@ -120,7 +120,7 @@ export class InvitationService {
     token: string,
     fullName: string,
     email: string,
-    phone: string,
+    mobile: string,
     password: string,
   ): Promise<{ uid: string; customToken: string }> {
     const invitation = await invitationRepo.findByToken(token);
@@ -167,7 +167,7 @@ export class InvitationService {
       gender: "Male",
       dob: "",
       email,
-      mobile: phone,
+      mobile,
       emergencyContactName: "",
       emergencyContactRelationship: "",
       emergencyContactPhone: "",

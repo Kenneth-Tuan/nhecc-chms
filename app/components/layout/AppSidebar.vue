@@ -136,7 +136,9 @@ const isManagerMode = computed(() => route.path.startsWith("/dashboard"));
         :class="[
           '!text-sm !font-bold !text-white', // font
           '!w-full mt-2', // scaling
-          '!bg-blue-600 hover:!bg-blue-700 !border-none', // border/color
+          isManagerMode
+            ? '!bg-gray-400 hover:!bg-gray-500 !border-none'
+            : '!bg-blue-600 hover:!bg-blue-700 !border-none', // border/color
           'shadow-lg shadow-blue-500/20', // shadow
           '!rounded-xl', // etc
         ]"

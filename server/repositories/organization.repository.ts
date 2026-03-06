@@ -302,9 +302,7 @@ export class OrganizationRepository {
         uuid: doc.id,
         fullName: m.fullName,
         gender: m.gender,
-        mobile: m.mobile
-          ? m.mobile.replace(/(\d{4})(\d{3})(\d{3})/, "$1-$2-$3")
-          : "",
+        mobile: m.mobile || "",
         roleLabel: role?.name || "會友",
         baptismStatus: m.baptismStatus,
         status: m.status,

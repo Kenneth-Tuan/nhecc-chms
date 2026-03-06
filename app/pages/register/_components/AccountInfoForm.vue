@@ -7,7 +7,7 @@ const props = defineProps<{
   modelValue: {
     fullName: string;
     email: string;
-    phone: string;
+    mobile: string;
     password: string;
     confirmPassword: string;
   };
@@ -25,7 +25,7 @@ const emit = defineEmits<{
     value: {
       fullName: string;
       email: string;
-      phone: string;
+      mobile: string;
       password: string;
       confirmPassword: string;
     },
@@ -74,24 +74,24 @@ function update(field: string, value: string) {
     <!-- 手機 -->
     <div class="flex flex-col gap-2">
       <label
-        for="phone"
+        for="mobile"
         class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
       >
         <i class="pi pi-phone text-slate-400" />
         <span> 手機號碼 </span>
       </label>
       <InputMask
-        :modelValue="form.phone"
-        @update:modelValue="update('phone', $event as string)"
-        name="phone"
+        :modelValue="form.mobile"
+        @update:modelValue="update('mobile', $event as string)"
+        name="mobile"
         mask="9999-999-999"
         placeholder="09xx-xxx-xxx"
-        :invalid="!!errors.phone"
+        :invalid="!!errors.mobile"
         fluid
         class="bg-inherit"
       />
-      <small class="text-red-500 text-xs mt-1" v-if="errors.phone">
-        {{ errors.phone }}
+      <small class="text-red-500 text-xs mt-1" v-if="errors.mobile">
+        {{ errors.mobile }}
       </small>
     </div>
 

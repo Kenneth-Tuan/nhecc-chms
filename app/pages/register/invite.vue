@@ -29,7 +29,7 @@ const errorMessage = ref("");
 const formData = ref({
   fullName: "",
   email: "",
-  phone: "",
+  mobile: "",
   password: "",
   confirmPassword: "",
 });
@@ -96,7 +96,7 @@ async function handleSubmit(): Promise<void> {
         token,
         fullName: formData.value.fullName.trim(),
         email: formData.value.email.trim(),
-        phone: formData.value.phone.trim(),
+        mobile: formData.value.mobile.trim(),
         password: formData.value.password,
       },
     });

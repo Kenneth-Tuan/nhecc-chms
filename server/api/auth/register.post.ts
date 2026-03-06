@@ -8,7 +8,7 @@ import { getAdminAuth } from "../../utils/firebase-admin";
 interface RegisterBody {
   uid: string;
   fullName: string;
-  phone: string;
+  mobile: string;
   email: string;
   avatar?: string;
 }
@@ -59,7 +59,7 @@ export default defineEventHandler(async (event) => {
     gender: "Male",
     dob: "",
     email: body.email,
-    mobile: body.phone || "",
+    mobile: body.mobile || "",
     lineId: finalLineId,
     registrationProvider,
     emergencyContactName: "",

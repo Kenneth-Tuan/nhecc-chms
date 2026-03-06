@@ -20,8 +20,8 @@ export function useMemberValidation() {
     mobile: string,
     excludeUuid?: string,
   ): Promise<boolean> {
-    const rawMobile = mobile.replace(/\D/g, "");
-    if (!rawMobile || !/^09\d{8}$/.test(rawMobile)) {
+    const rawMobile = mobile.trim();
+    if (!rawMobile || !/^09\d{2}-\d{3}-\d{3}$/.test(rawMobile)) {
       mobileError.value = null;
       return true;
     }

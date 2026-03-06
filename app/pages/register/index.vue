@@ -40,7 +40,7 @@ const currentStep1Schema = computed(() =>
 const formData = ref<any>({
   fullName: (route.query.fullName as string) || "",
   email: (route.query.email as string) || "",
-  phone: "",
+  mobile: "",
   gender: "Male",
   birthDate: "",
   isBaptized: false,
@@ -120,7 +120,7 @@ const onStep1Submit = async () => {
       body: {
         uid,
         fullName: formData.value.fullName,
-        phone: formData.value.phone,
+        mobile: formData.value.mobile,
         email: formData.value.email,
         avatar: formData.value.avatar,
       },

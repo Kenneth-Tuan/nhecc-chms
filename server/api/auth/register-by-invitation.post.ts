@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     token: string;
     fullName: string;
     email: string;
-    phone: string;
+    mobile: string;
     password: string;
   }>(event);
 
@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
     body.token,
     body.fullName,
     body.email,
-    body.phone || "",
+    body.mobile || "",
     body.password,
   );
 

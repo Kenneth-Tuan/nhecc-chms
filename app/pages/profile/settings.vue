@@ -371,9 +371,10 @@ onMounted(() => {
           </div>
           <div class="flex flex-col gap-2">
             <label class="text-base font-semibold font-bold">緊急電話</label>
-            <InputText
+            <InputMask
               v-model="form.emergencyContactPhone"
-              placeholder="09..."
+              mask="9999-999-999"
+              placeholder="09xx-xxx-xxx"
               class="!py-3 !px-4 !text-lg !rounded-xl border-red-200 dark:border-red-900/40"
               :invalid="!!fieldErrors.emergencyContactPhone"
             />

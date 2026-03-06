@@ -12,7 +12,7 @@ const { fullName, gender, mobile, email } = baseMemberSchema.shape;
 // ── Step 1: 帳號資訊 ─────────────────────────────────────────────────────────
 const step1Base = z.object({
   fullName,
-  phone: mobile, // 前端叫 phone，提交時映射成 mobile
+  mobile,
   email,
 });
 

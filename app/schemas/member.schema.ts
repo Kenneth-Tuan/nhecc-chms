@@ -6,15 +6,11 @@ import { z } from "zod";
 
 import dayjs from "dayjs";
 
-/** 台灣手機格式：09XXXXXXXX */
-const TAIWAN_MOBILE_REGEX = /^09\d{8}$/;
+/** 台灣手機格式：09xx-xxx-xxx */
+const TAIWAN_MOBILE_REGEX = /^09\d{2}-\d{3}-\d{3}$/;
 const mobileSchema = z
   .string()
-  .regex(
-    TAIWAN_MOBILE_REGEX,
-    "手機號碼格式不正確，請輸入 09 開頭的 10 碼手機號碼",
-  )
-  .transform((val) => val.replace(/-/g, ""));
+  .regex(TAIWAN_MOBILE_REGEX, "手機號碼格式不正確，請輸入 09xx-xxx-xxx 格式");
 
 /** 性別列舉 */
 const genderSchema = z.enum(["Male", "Female"], {
@@ -85,10 +81,10 @@ const emergencyContactRefinement = (data: any, ctx: z.RefinementCtx) => {
         message: "填寫緊急聯絡資訊時，電話為必填",
         path: ["emergencyContactPhone"],
       });
-    } else if (!TAIWAN_MOBILE_REGEX.test(phone.replace(/-/g, ""))) {
+    } else if (!TAIWAN_MOBILE_REGEX.test(phone)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "緊急聯絡人手機格式不正確",
+        message: "緊急聯絡人手機格式不正確，請輸入 09xx-xxx-xxx 格式",
         path: ["emergencyContactPhone"],
       });
     }
