@@ -39,7 +39,7 @@ export function useLiff() {
     await initLiff();
 
     if (!liff.isLoggedIn()) {
-      liff.login();
+      liff.login({ redirectUri: window.location.href });
       return null;
     }
 
@@ -62,7 +62,7 @@ export function useLiff() {
 
       if (isTokenExpired) {
         liffLogout();
-        liff.login();
+        liff.login({ redirectUri: window.location.href });
         return null;
       }
       throw e;
