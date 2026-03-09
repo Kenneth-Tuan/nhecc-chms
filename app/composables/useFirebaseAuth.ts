@@ -245,6 +245,49 @@ export function useFirebaseAuth() {
       },
   );
 
+  /** 修改密碼（包含需要重新驗證的邏輯） */
+  async function changePassword(
+    oldPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    loading.value = true;
+    error.value = null;
+    try {
+      if (!auth.currentUser) throw new Error("未登入");
+
+      try {
+        // 1. 直接嘗試更新
+        await import("firebase/auth").then(({ updatePassword }) =>
+          updatePassword(auth.currentUser!, newPassword),
+        );
+      } catch (err: any) {
+        if (err.code === "auth/requires-recent-login") {
+          // 2. 若失敗，進行重新驗證
+          const {
+            EmailAuthProvider,
+            reauthenticateWithCredential,
+            updatePassword,
+          } = await import("firebase/auth");
+          const credential = EmailAuthProvider.credential(
+            auth.currentUser.email!,
+            oldPassword,
+          );
+          await reauthenticateWithCredential(auth.currentUser, credential);
+
+          // 3. 重新驗證後再次更新
+          await updatePassword(auth.currentUser, newPassword);
+        } else {
+          throw err;
+        }
+      }
+    } catch (e: any) {
+      error.value = e.code || e.message;
+      throw e;
+    } finally {
+      loading.value = false;
+    }
+  }
+
   return {
     loginWithEmail,
     registerWithEmail,
@@ -255,6 +298,7 @@ export function useFirebaseAuth() {
     linkWithLine,
     unlinkProvider,
     linkedProviders,
+    changePassword,
     loading: readonly(loading),
     error: readonly(error),
     pendingLineProfile,

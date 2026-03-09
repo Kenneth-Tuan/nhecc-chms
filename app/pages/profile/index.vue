@@ -36,6 +36,11 @@ const menuItems = [
     icon: "pi pi-user",
     to: "/profile/settings",
   },
+  {
+    label: "重設密碼",
+    icon: "pi pi-lock",
+    to: "/profile/password",
+  },
 ];
 
 const { logout } = useFirebaseAuth();
