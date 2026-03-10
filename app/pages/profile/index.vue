@@ -30,18 +30,25 @@ const user = computed(() => ({
   isAdmin: authStore.isAdmin,
 }));
 
-const menuItems = [
-  {
-    label: "個人資料設定",
-    icon: "pi pi-user",
-    to: "/profile/settings",
-  },
-  {
-    label: "重設密碼",
-    icon: "pi pi-lock",
-    to: "/profile/password",
-  },
-];
+const menuItems = computed(() => {
+  const items = [
+    {
+      label: "個人資料設定",
+      icon: "pi pi-user",
+      to: "/profile/settings",
+    },
+  ];
+
+  if (linkedProviders.value.email) {
+    items.push({
+      label: "重設密碼",
+      icon: "pi pi-lock",
+      to: "/profile/password",
+    });
+  }
+
+  return items;
+});
 
 const { logout } = useFirebaseAuth();
 
