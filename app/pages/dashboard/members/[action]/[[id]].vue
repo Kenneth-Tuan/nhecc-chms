@@ -8,6 +8,7 @@ import type {
   UpdateMemberPayload,
 } from "~/types/member";
 import { useOrganizationStore } from "~/stores/organization.store";
+import { useConfirm } from "primevue/useconfirm";
 import dayjs from "dayjs";
 
 definePageMeta({
@@ -17,6 +18,7 @@ definePageMeta({
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
+const confirm = useConfirm();
 const orgStore = useOrganizationStore();
 
 const action = route.params.action as string;
@@ -125,6 +127,44 @@ async function onEmailBlur(): Promise<void> {
       await checkEmailDuplicate(form.value.email);
     }
   }
+}
+
+// Reset Password Flow
+const isResettingPassword = ref(false);
+
+function confirmResetPassword() {
+  confirm.require({
+    message: `確定要將「${member.value?.fullName}」的密碼重設為預設值 (123456) 嗎？\n該會友下次登入時將被強制要求修改密碼。`,
+    header: "重設密碼確認",
+    icon: "pi pi-exclamation-triangle",
+    acceptClass: "p-button-danger",
+    acceptLabel: "確認重設",
+    rejectLabel: "取消",
+    accept: async () => {
+      if (!memberUuid) return;
+      isResettingPassword.value = true;
+      try {
+        await $fetch(`/api/members/${memberUuid}/reset-password`, {
+          method: "POST",
+        });
+        toast.add({
+          severity: "success",
+          summary: "成功",
+          detail: "已成功重設該會友密碼為 123456",
+          life: 3000,
+        });
+      } catch (e: any) {
+        toast.add({
+          severity: "error",
+          summary: "重設失敗",
+          detail: e.data?.message || e.message || "發生未知錯誤",
+          life: 5000,
+        });
+      } finally {
+        isResettingPassword.value = false;
+      }
+    },
+  });
 }
 
 // Form submission
@@ -369,17 +409,32 @@ onMounted(() => {
 <template>
   <div class="max-w-4xl">
     <!-- Header -->
-    <div class="flex items-center gap-3 mb-6">
-      <Button icon="pi pi-arrow-left" text rounded @click="router.back()" />
-      <div>
-        <h1 class="text-2xl font-bold">
-          {{ isEdit ? "編輯會友資料" : "新增會友" }}
-        </h1>
-        <p class="text-sm text-slate-500 mt-1">
-          {{ isEdit ? member?.fullName || "載入中..." : "填寫會友基本資料" }}
-        </p>
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-3">
+        <Button icon="pi pi-arrow-left" text rounded @click="router.back()" />
+        <div>
+          <h1 class="text-2xl font-bold">
+            {{ isEdit ? "編輯會友資料" : "新增會友" }}
+          </h1>
+          <p class="text-sm text-slate-500 mt-1">
+            {{ isEdit ? member?.fullName || "載入中..." : "填寫會友基本資料" }}
+          </p>
+        </div>
+      </div>
+      <div v-if="isEdit && !isLoading && member?.registrationProvider === 'email'">
+        <Button
+          label="重設密碼"
+          icon="pi pi-key"
+          severity="danger"
+          outlined
+          :loading="isResettingPassword"
+          @click="confirmResetPassword"
+        />
       </div>
     </div>
+
+    <!-- Confirm Dialog for Reset Password -->
+    <ConfirmDialog />
 
     <!-- Loading -->
     <div v-if="isLoading" class="flex justify-center py-12">

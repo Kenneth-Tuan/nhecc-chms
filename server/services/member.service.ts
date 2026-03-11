@@ -336,6 +336,41 @@ export class MemberService {
     }
   }
 
+  /**
+   * 重設會友密碼為預設值，並標記需要更改密碼。
+   */
+  async resetPassword(
+    userContext: UserContext,
+    ability: AppAbility,
+    uuid: string,
+  ): Promise<void> {
+    const member = await memberRepo.findById(uuid);
+    if (!member) {
+      throw createError({ statusCode: 404, message: "找不到該會友" });
+    }
+
+    // 檢查是否有權限更新該會友
+    this.checkScopeAccess(userContext, member);
+
+    try {
+      const auth = getAdminAuth();
+      await auth.updateUser(uuid, { password: "123456" });
+    } catch (error: any) {
+      if (error.code === "auth/user-not-found") {
+        throw createError({ statusCode: 404, message: "該會友尚未建立登入帳號" });
+      }
+      throw createError({
+        statusCode: 500,
+        message: `密碼更新失敗: ${error.message}`,
+      });
+    }
+
+    const updated = await memberRepo.update(uuid, { requiresPasswordChange: true });
+    if (!updated) {
+      throw createError({ statusCode: 500, message: "資料庫狀態更新失敗" });
+    }
+  }
+
   // ===== 私有輔助方法 (Private helpers) =====
 
   /**
@@ -435,7 +470,7 @@ export class MemberService {
     }
 
     // 功能性小組不需要牧區驗證
-    if (group.type === "Functional") return;
+    if (group.groupType === "Functional") return;
 
     if (group.zoneId !== zoneId) {
       throw createError({

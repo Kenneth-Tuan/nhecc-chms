@@ -25,4 +25,10 @@ export default defineNuxtRouteMiddleware(async (to) => {
       },
     });
   }
+
+  // 4. 強制修改密碼檢查
+  if (store.userContext.requiresPasswordChange && to.path !== "/profile/password") {
+    // 允許登出 (/api/auth/logout is hit by useFirebaseAuth, but route might not be /logout)
+    return navigateTo("/profile/password");
+  }
 });

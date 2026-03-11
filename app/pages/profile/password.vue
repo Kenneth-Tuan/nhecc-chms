@@ -6,6 +6,7 @@ import {
   resetPasswordSchema,
   type ResetPasswordValues,
 } from "~/schemas/password.schema";
+import { useAuthStore } from "~/stores/auth.store";
 
 definePageMeta({
   layout: "default",
@@ -41,6 +42,10 @@ const handleSave = async () => {
   isSubmitting.value = true;
   try {
     await changePassword(form.value.oldPassword, form.value.newPassword);
+
+    await $fetch("/api/profile/password-changed", { method: "POST" });
+    const authStore = useAuthStore();
+    await authStore.loadContext();
 
     toast.add({
       severity: "success",

@@ -60,6 +60,7 @@ export function resolveUserContext(member: Member, roles: Role[]): UserContext {
         !!member.linkedProviders?.email ||
         member.registrationProvider === "email",
     },
+    requiresPasswordChange: !!member.requiresPasswordChange,
   };
 }
 

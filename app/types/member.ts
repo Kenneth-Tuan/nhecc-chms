@@ -80,6 +80,9 @@ export interface Member {
   // 軟刪除中繼資料 (ST004)
   deletionReason?: DeletionReason;
   deletionNotes?: string;
+
+  // 密碼重設狀態
+  requiresPasswordChange?: boolean;
 }
 
 /** 附在 API 回應中的敏感欄位中繼資料 */
@@ -170,6 +173,7 @@ export interface CreateMemberPayload {
 export type UpdateMemberPayload = Partial<CreateMemberPayload> & {
   deletionReason?: DeletionReason;
   deletionNotes?: string;
+  requiresPasswordChange?: boolean;
 };
 
 /** 個人更新資料請求資料（限本人的 subset） */

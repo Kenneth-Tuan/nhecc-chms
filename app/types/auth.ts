@@ -26,6 +26,7 @@ export interface UserContext {
     line: boolean;
     email: boolean;
   };
+  requiresPasswordChange?: boolean;
 }
 
 /** 模擬測試用戶定義（保留以維持模擬資料相容性） */
