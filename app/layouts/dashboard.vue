@@ -29,6 +29,12 @@ const menuItems = computed(() =>
       to: "/dashboard/roles",
       show: auth.can("manage", "System"),
     },
+    {
+      label: "課程管理",
+      icon: "pi pi-book",
+      to: "/dashboard/courses/templates",
+      show: auth.can("manage", "Course"), // or view Course
+    },
   ].filter((item) => item.show),
 );
 
