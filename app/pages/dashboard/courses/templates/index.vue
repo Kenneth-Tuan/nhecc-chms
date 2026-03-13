@@ -65,6 +65,10 @@ function editTemplate(template: CourseTemplateListItem): void {
   router.push(`/dashboard/courses/templates/${template.id}`)
 }
 
+function viewClasses(template: CourseTemplateListItem): void {
+  router.push(`/dashboard/courses/templates/${template.id}/classes`)
+}
+
 function getFormatLabel(value?: string): string {
   if (!value) return '-'
   return COURSE_FORMAT_OPTIONS.find((o) => o.value === value)?.label || value
@@ -134,6 +138,7 @@ onMounted(() => {
       :get-format-label="getFormatLabel"
       :get-frequency-label="getFrequencyLabel"
       @edit="editTemplate"
+      @view-classes="viewClasses"
       @toggle-status="toggleStatus"
     />
   </div>

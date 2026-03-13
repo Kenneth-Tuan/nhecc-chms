@@ -13,6 +13,7 @@ defineProps<{
 
 const emit = defineEmits<{
   edit: [template: CourseTemplateListItem]
+  viewClasses: [template: CourseTemplateListItem]
   toggleStatus: [template: CourseTemplateListItem]
 }>()
 </script>
@@ -69,15 +70,26 @@ const emit = defineEmits<{
       </template>
     </Column>
 
-    <Column header="操作" style="min-width: 80px">
+    <Column header="操作" style="min-width: 120px">
       <template #body="{ data }">
-        <Button
-          icon="pi pi-pencil"
-          text
-          rounded
-          size="small"
-          @click="emit('edit', data)"
-        />
+        <div class="flex gap-2">
+          <Button
+            icon="pi pi-book"
+            text
+            rounded
+            size="small"
+            v-tooltip.top="'管理實體班級'"
+            @click="emit('viewClasses', data)"
+          />
+          <Button
+            icon="pi pi-pencil"
+            text
+            rounded
+            size="small"
+            v-tooltip.top="'編輯模板'"
+            @click="emit('edit', data)"
+          />
+        </div>
       </template>
     </Column>
 
