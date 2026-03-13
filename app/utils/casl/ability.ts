@@ -12,7 +12,8 @@ export type AppAction =
   | "export"
   | "manage"
   | "grade"
-  | "reveal";
+  | "reveal"
+  | "teach";
 
 export type AppSubject =
   | "Dashboard"
@@ -20,6 +21,8 @@ export type AppSubject =
   | "Organization"
   | "System"
   | "Course"
+  | "CourseClass"
+  | "CourseEnrollment"
   | "all";
 
 export type AppAbility = Ability<[AppAction, AppSubject]>;
@@ -57,9 +60,27 @@ export function buildAbility(userContext: UserContext): AppAbility {
   if (userContext.permissions["org:view"]) can("view", "Organization");
   if (userContext.permissions["org:manage"]) can("manage", "Organization");
   if (userContext.permissions["system:config"]) can("manage", "System");
-  if (userContext.permissions["course:view"]) can("view", "Course");
-  if (userContext.permissions["course:manage"]) can("manage", "Course");
-  if (userContext.permissions["course:grade"]) can("grade", "Course");
+  
+  if (userContext.permissions["course:view"]) {
+    can("view", "Course");
+    can("view", "CourseClass");
+    can("view", "CourseEnrollment");
+  }
+  if (userContext.permissions["course:manage"]) {
+    can("manage", "Course");
+    can("manage", "CourseClass");
+    can("manage", "CourseEnrollment");
+    can("teach", "CourseClass");
+  }
+  if (userContext.permissions["course:grade"]) {
+    can("grade", "Course");
+    can("grade", "CourseClass");
+    can("grade", "CourseEnrollment");
+  }
+
+  // 老師可以對自己的班級執行「授課行為」(teach) 或「評分」(grade)
+  can("teach", "CourseClass", { teacherIds: { $in: [userContext.userId] } } as any);
+  can("grade", "CourseClass", { teacherIds: { $in: [userContext.userId] } } as any);
 
   // Z 軸：欄位層級的解鎖權限 (Reveal authority)
   if (userContext.revealAuthority.mobile) can("reveal", "Member", "mobile");
