@@ -1,0 +1,284 @@
+{
+  "S1": {
+    "name": "S1 生養",
+    "description": "傳福音給未信者、幫助其確立基要真理，並受洗，加入教會。",
+    "courses": [
+      {
+        "courseName": "啟發/幸福小組",
+        "courseType": "福音小組",
+        "material": ["啟發影片", "幸福信息"],
+        "goal": "接觸未信者的前端平台/認識耶穌並接受耶穌為生命的救主",
+        "duration": "12～13w",
+        "prerequisite": "慕道/新加入教會",
+        "schedule": ""
+      },
+      {
+        "courseName": "抉擇之路（上）",
+        "courseType": "一對一/一對多",
+        "material": ["抉擇之路（上）"],
+        "goal": "認識耶穌並接受耶穌為生命的救主",
+        "duration": "6w",
+        "prerequisite": "慕道/新加入教會",
+        "schedule": "小組內隨時進行"
+      },
+      {
+        "courseName": "信仰造就手冊（洗禮課）",
+        "courseType": "一對一/一對多",
+        "material": ["信仰造就手冊"],
+        "goal": "了解與遵行基要真理，願意加入教會與小組。",
+        "duration": "12w",
+        "prerequisite": "慕道/新加入教會",
+        "schedule": "小組內隨時進行"
+      },
+      {
+        "courseName": "如何QT/每日嗎哪",
+        "courseType": "大班制",
+        "material": ["每日嗎哪", "聖經", "初信者>標竿人生42天+馬可福音"],
+        "goal": "教導慕道友或初信者如何建立個人與神的關係，學習默想和禱告。",
+        "duration": "1次2hrs",
+        "prerequisite": "慕道/新加入教會",
+        "schedule": "1 time / per season"
+      },
+      {
+        "courseName": "遇見神營會1",
+        "courseType": "團體制",
+        "material": [
+          "預備手冊",
+          "棄絕偶像",
+          "七個釋放禱告",
+          "六個生命破口",
+          "天父的愛（楊道諾牧師）",
+          "饒恕的大能（楊道諾牧師）",
+          "真理",
+          "被聖靈充滿"
+        ],
+        "goal": "遇見聲，關閉生命破口與拆除舊有的黑暗權勢，開始新生活、被聖靈充滿",
+        "duration": "2週個人預備+2次禱告會+2天1夜營會",
+        "prerequisite": "慕道/新加入教會/已受洗尚未參加過營會者",
+        "schedule": "2 times / per year"
+      }
+    ]
+  },
+  "S2": {
+    "name": "S2 餵養",
+    "description": "幫助初信者在真理上紮根、穩定靈命，並開始參與事奉及傳福音",
+    "courses": [
+      {
+        "courseName": "聖經綜覽",
+        "courseType": "大班制",
+        "material": ["新舊約"],
+        "goal": "介紹聖經藍圖，幫助弟兄姊妹有效地閱讀聖經",
+        "duration": "1次2hrs",
+        "prerequisite": "1. 想了解聖經、有意願者 2. 完成 S1 3. 已受洗",
+        "schedule": "2 times / per year"
+      },
+      {
+        "courseName": "一對一（同伴者）",
+        "courseType": "一對一",
+        "material": ["輪子生活"],
+        "goal": "建立初信者清楚的基督徒生活觀並以耶穌基督為中心的生活",
+        "duration": "16w",
+        "prerequisite": "1. 已受洗 2. 完成 S1",
+        "schedule": "2 times / per year"
+      },
+      {
+        "courseName": "如何進行一對一陪讀",
+        "courseType": "大班制",
+        "material": ["聖經", "抉擇之路", "初信造就手冊"],
+        "goal": "幫助初信者能以陪讀的方式陪伴他人相信耶穌",
+        "duration": "1次2hrs",
+        "prerequisite": "1. 已受洗 2. 完成 S1",
+        "schedule": "2 times / per year"
+      },
+      {
+        "courseName": "禱告課程1",
+        "courseType": "YT團體制",
+        "material": ["楊道諾牧師《求主教導我們禱告》"],
+        "goal": "幫助初信者清楚禱告的基本真理，並操練禱告。",
+        "duration": "6 or 12課",
+        "prerequisite": "1. 已受洗 2. 完成 S1",
+        "schedule": "1～2 times / per year"
+      },
+      {
+        "courseName": "短宣（本地）",
+        "courseType": "團體出擊",
+        "material": ["參加福音爆發"],
+        "goal": "實踐福音第一線接觸",
+        "duration": "1次2hrs",
+        "prerequisite": "1. 已受洗 2. 完成 S1",
+        "schedule": "1 time / per month"
+      },
+      {
+        "courseName": "遇見神營會2",
+        "courseType": "團體制",
+        "material": ["性格測驗", "恩賜調查", "人生腳本測驗"],
+        "goal": "幫助初信者在此遇見神，認識自己的性格，與同工美好配搭、認識自己的恩賜，並破除人生重複的謊言。",
+        "duration": "2週個人預備+2次禱告會+2天1夜營會",
+        "prerequisite": "1. 已受洗 2. 完成 S1",
+        "schedule": "2 times / per year"
+      }
+    ]
+  },
+  "S3": {
+    "name": "S3 牧養",
+    "description": "培養教會與小組的核心同工",
+    "courses": [
+      {
+        "courseName": "宣教基礎課程 2",
+        "courseType": "影片+團體討論",
+        "material": ["大樹牧師錄製影片", "討論提綱"],
+        "goal": "進階宣教訓練，涵蓋跨文化宣教等概念",
+        "duration": "2次2hrs",
+        "prerequisite": "1. 已受洗 2. 完成 S2",
+        "schedule": "1 time / per year"
+      },
+      {
+        "courseName": "短宣（國內外）",
+        "courseType": "團體出擊",
+        "material": ["參加短宣隊"],
+        "goal": "實踐福音第一線接觸",
+        "duration": "",
+        "prerequisite": "1. 已受洗 2. 完成 S2",
+        "schedule": "1～2 times / per year"
+      },
+      {
+        "courseName": "一對一（養育班）",
+        "courseType": "一對一養育者小組實習與督導",
+        "material": ["1. 輪子生活", "2. 養育者指南"],
+        "goal": "培養能夠帶領一對一同伴者訓練的導師。此階段著重於操練與實用性。",
+        "duration": "16～18w",
+        "prerequisite": "1. 已受洗 2. 完成 S2",
+        "schedule": "2 tims / per year"
+      },
+      {
+        "courseName": "禱告課程 2",
+        "courseType": "YT團體制",
+        "material": ["楊道諾牧師《求主教導我們的家禱告》"],
+        "goal": "幫助同工清楚為家庭禱告的真理，並操練為家庭禱告征戰，守住各人的家",
+        "duration": "6 or 12 課",
+        "prerequisite": "1. 已受洗 2. 完成 S2",
+        "schedule": "1～2 times / per year"
+      },
+      {
+        "courseName": "幸福大學上",
+        "courseType": "小班制",
+        "material": ["幸福大學上（改版）"],
+        "goal": "訓練小組同工成為啟發/幸福小組帶領者或小組實習同工",
+        "duration": "12w",
+        "prerequisite": "1. 已受洗 2. 完成 S2",
+        "schedule": "1 time / per year"
+      }
+    ]
+  },
+  "S4": {
+    "name": "S4 培養",
+    "description": "領袖培訓",
+    "courses": [
+      {
+        "courseName": "短宣（國內外）",
+        "courseType": "團體出擊",
+        "material": [],
+        "goal": "參與海內外具挑戰性的宣教活動，被差派。",
+        "duration": "",
+        "prerequisite": "",
+        "schedule": "1～2 times / per year"
+      },
+      {
+        "courseName": "好牧人營會",
+        "courseType": "團體制",
+        "material": [],
+        "goal": "服事領袖與牧人。",
+        "duration": "2週個人預備+2次禱告會+2天1夜營會",
+        "prerequisite": "現有與培訓中的牧養領袖",
+        "schedule": "1 time / per year"
+      },
+      {
+        "courseName": "禱告課程 3",
+        "courseType": "YT團體制",
+        "material": ["楊道諾牧師《求主教導我們的教會禱告》"],
+        "goal": "幫助同工清楚為教會禱告的真理，並操練為教會禱告征戰",
+        "duration": "6 or 12 課",
+        "prerequisite": "",
+        "schedule": ""
+      },
+      {
+        "courseName": "領袖力/小組長訓練",
+        "courseType": "團體制",
+        "material": [],
+        "goal": "",
+        "duration": "1次2hrs",
+        "prerequisite": "",
+        "schedule": "1 time / per year"
+      }
+    ]
+  },
+  "Elective": {
+    "name": "選修課程",
+    "description": "其他輔助靈命增長之專題課程",
+    "courses": [
+      {
+        "courseName": "<選>抉擇之路(下)",
+        "courseType": "一對一/一對多",
+        "material": ["抉擇之路(下)"],
+        "goal": "認識耶穌並接受耶穌為生命的救主",
+        "duration": "6w",
+        "prerequisite": "已上完前述課程但還未信主，須持續跟進者，可使用此材料繼續跟進。",
+        "schedule": ""
+      },
+      {
+        "courseName": "<選>事工訓練",
+        "courseType": "各事工決定",
+        "material": [
+          "控台",
+          "影音媒體",
+          "招待",
+          "敬拜團",
+          "兒童",
+          "青少年",
+          "幼兒",
+          "悠活"
+        ],
+        "goal": "幫助弟兄姊妹進入服事，共同建造教會!",
+        "duration": "",
+        "prerequisite": "",
+        "schedule": ""
+      },
+      {
+        "courseName": "<選>家庭相關課程",
+        "courseType": "",
+        "material": ["個人覺察", "主前再立約", "家長課程", "婚姻"],
+        "goal": "",
+        "duration": "",
+        "prerequisite": "",
+        "schedule": ""
+      },
+      {
+        "courseName": "<選>醫治釋放訓練課程+營會",
+        "courseType": "",
+        "material": ["劉興本牧師訓練材料"],
+        "goal": "",
+        "duration": "",
+        "prerequisite": "",
+        "schedule": ""
+      },
+      {
+        "courseName": "<選>屬靈爭戰",
+        "courseType": "",
+        "material": [],
+        "goal": "",
+        "duration": "",
+        "prerequisite": "",
+        "schedule": ""
+      },
+      {
+        "courseName": "<電影>The Forge鑄鐵爐?",
+        "courseType": "",
+        "material": [],
+        "goal": "",
+        "duration": "",
+        "prerequisite": "",
+        "schedule": ""
+      }
+    ]
+  }
+}
