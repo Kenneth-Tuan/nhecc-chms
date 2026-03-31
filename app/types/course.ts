@@ -61,12 +61,6 @@ export interface CourseAttachment {
 /** 課程模板狀態 */
 export type CourseTemplateStatus = 'ACTIVE' | 'INACTIVE'
 
-/** 意願登記日期範圍 */
-export interface RegistrationDateRange {
-  start: string
-  end: string
-}
-
 /** 課程模板 (Firestore document) */
 export interface CourseTemplate {
   id: string
@@ -79,7 +73,6 @@ export interface CourseTemplate {
   frequency?: FrequencyType
   attachments: CourseAttachment[]
   syllabus?: string
-  registrationDateRange?: RegistrationDateRange
   status: CourseTemplateStatus
   hasAssociations: boolean
   createdAt: string

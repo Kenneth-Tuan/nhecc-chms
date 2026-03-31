@@ -117,12 +117,6 @@ export interface CourseAttachment {
 /** 課程模板狀態 */
 export type CourseTemplateStatus = 'ACTIVE' | 'INACTIVE'
 
-/** 意願登記日期範圍 */
-export interface RegistrationDateRange {
-  start: string // ISO date string
-  end: string
-}
-
 /** 課程模板 (Firestore document) */
 export interface CourseTemplate {
   id: string
@@ -135,7 +129,6 @@ export interface CourseTemplate {
   frequency?: FrequencyType
   attachments: CourseAttachment[]
   syllabus?: string
-  registrationDateRange?: RegistrationDateRange
   status: CourseTemplateStatus
   /** 是否已有關聯（學生登記 or 被設為擋修條件）—— 若為 true，code 不可修改 */
   hasAssociations: boolean
@@ -218,14 +211,6 @@ const courseAttachmentSchema = z.object({
   uploadedAt: z.string(),
 })
 
-const registrationDateRangeSchema = z.object({
-  start: z.string(),
-  end: z.string(),
-}).refine((v) => new Date(v.start) <= new Date(v.end), {
-  message: '開始日期不可晚於結束日期',
-  path: ['end'],
-})
-
 export const createCourseTemplateSchema = z.object({
   name: z.string().min(1, '課程名稱為必填').max(100),
   code: z
@@ -246,7 +231,6 @@ export const createCourseTemplateSchema = z.object({
   ]).optional(),
   attachments: z.array(courseAttachmentSchema).default([]),
   syllabus: z.string().optional(),
-  registrationDateRange: registrationDateRangeSchema.optional(),
   status: z.enum(['ACTIVE', 'INACTIVE']).default('ACTIVE'),
 })
 

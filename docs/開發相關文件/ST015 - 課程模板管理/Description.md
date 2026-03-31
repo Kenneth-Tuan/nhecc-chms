@@ -4,8 +4,6 @@
 
 課程模板 (Course Template) 定義課程的核心屬性，包含代號、名稱、授課方式、擋修條件、課綱、附件教材等。
 
-**開放意願登記日期範圍**存於模板層級，供學生在該區間內填寫選課意願。教務人員再依據回收名單與時段意願，另排開班時間（開班管理為後續獨立模組）。
-
 ---
 
 ## 2. 資料模型 (Data Schema)
@@ -24,7 +22,6 @@
 | `frequency` | `FrequencyType` | 否 | 開課頻率（見 2.5）|
 | `attachments` | `CourseAttachment[]` | 否 | 課程教材附件（見 2.6）|
 | `syllabus` | `string` | 否 | 課程大綱，Rich Text HTML 格式 |
-| `registrationDateRange` | `{ start: Timestamp, end: Timestamp }` | 否 | 開放意願登記的日期區間 |
 | `status` | `'ACTIVE' \| 'INACTIVE'` | 是 | 課程狀態，預設 `ACTIVE` |
 | `createdAt` | `Timestamp` | 自動 | 建立時間 |
 | `updatedAt` | `Timestamp` | 自動 | 最後更新時間 |
@@ -159,7 +156,6 @@ interface CourseAttachment {
 | 開課頻率 | `<Select>` | 選項 hardcode `FrequencyType` enum |
 | 課程教材 | `<FileUpload>` | 上傳至 Firebase Storage，取得 URL 後存入 `attachments` |
 | 課程大綱 | `<Editor>` | PrimeVue 內建（Quill.js）|
-| 意願登記日期 | `<DatePicker selectionMode="range">` | |
 | 課程狀態 | `<ToggleSwitch>` | 列表頁直接切換，呼叫 PATCH status endpoint |
 
 ---

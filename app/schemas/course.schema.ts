@@ -22,16 +22,6 @@ const courseAttachmentSchema = z.object({
   uploadedAt: z.string(),
 })
 
-const registrationDateRangeSchema = z
-  .object({
-    start: z.string(),
-    end: z.string(),
-  })
-  .refine((v) => new Date(v.start) <= new Date(v.end), {
-    message: '開始日期不可晚於結束日期',
-    path: ['end'],
-  })
-
 export const createCourseTemplateSchema = z.object({
   name: z.string().min(1, '課程名稱為必填').max(100),
   code: z
@@ -65,7 +55,6 @@ export const createCourseTemplateSchema = z.object({
     .optional(),
   attachments: z.array(courseAttachmentSchema).default([]),
   syllabus: z.string().optional(),
-  registrationDateRange: registrationDateRangeSchema.optional(),
   status: z.enum(['ACTIVE', 'INACTIVE']).default('ACTIVE'),
 })
 

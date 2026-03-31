@@ -10,114 +10,96 @@ import type {
   Prerequisite,
   CourseAttachment,
   CourseCategory,
-  RegistrationDateRange,
-} from '~/types/course'
+} from "~/types/course";
 import {
   COURSE_FORMAT_OPTIONS,
   FREQUENCY_OPTIONS,
   DURATION_TYPE_OPTIONS,
-} from '~/types/course'
-import PrerequisiteSelect from './PrerequisiteSelect.vue'
+} from "~/types/course";
+import PrerequisiteSelect from "./PrerequisiteSelect.vue";
 
 const props = defineProps<{
   /** 編輯時傳入現有模板，建立時為 undefined */
-  template?: CourseTemplate
-  isSaving: boolean
-}>()
+  template?: CourseTemplate;
+  isSaving: boolean;
+}>();
 
 const emit = defineEmits<{
-  submit: [payload: any]
-  cancel: []
-}>()
+  submit: [payload: any];
+  cancel: [];
+}>();
 
-const { list: listCategories } = useCourseCategories()
+const { list: listCategories } = useCourseCategories();
 
 // ── Form state ──
-const name = ref('')
-const code = ref('')
-const categoryIds = ref<string[]>([])
-const format = ref<CourseFormat | undefined>(undefined)
-const prerequisites = ref<Prerequisite[]>([])
-const durationType = ref<DurationType | undefined>(undefined)
-const durationWeeks = ref<number | undefined>(undefined)
-const durationHours = ref<number | undefined>(undefined)
-const frequency = ref<FrequencyType | undefined>(undefined)
-const attachments = ref<CourseAttachment[]>([])
-const syllabus = ref('')
-const regDateRange = ref<Date[] | undefined>(undefined)
-const status = ref<'ACTIVE' | 'INACTIVE'>('ACTIVE')
+const name = ref("");
+const code = ref("");
+const categoryIds = ref<string[]>([]);
+const format = ref<CourseFormat | undefined>(undefined);
+const prerequisites = ref<Prerequisite[]>([]);
+const durationType = ref<DurationType | undefined>(undefined);
+const durationWeeks = ref<number | undefined>(undefined);
+const durationHours = ref<number | undefined>(undefined);
+const frequency = ref<FrequencyType | undefined>(undefined);
+const attachments = ref<CourseAttachment[]>([]);
+const syllabus = ref("");
+const status = ref<"ACTIVE" | "INACTIVE">("ACTIVE");
 
 // ── 分類選項 ──
-const categories = ref<CourseCategory[]>([])
+const categories = ref<CourseCategory[]>([]);
 
 onMounted(async () => {
   try {
-    categories.value = await listCategories()
+    categories.value = await listCategories();
   } catch {
     // 靜默
   }
 
   // 編輯模式：填充表單
   if (props.template) {
-    const t = props.template
-    name.value = t.name
-    code.value = t.code
-    categoryIds.value = t.categoryIds || []
-    format.value = t.format
-    prerequisites.value = t.prerequisites || []
-    frequency.value = t.frequency
-    attachments.value = t.attachments || []
-    syllabus.value = t.syllabus || ''
-    status.value = t.status
+    const t = props.template;
+    name.value = t.name;
+    code.value = t.code;
+    categoryIds.value = t.categoryIds || [];
+    format.value = t.format;
+    prerequisites.value = t.prerequisites || [];
+    frequency.value = t.frequency;
+    attachments.value = t.attachments || [];
+    syllabus.value = t.syllabus || "";
+    status.value = t.status;
 
     if (t.estimatedDuration) {
-      durationType.value = t.estimatedDuration.type
-      durationWeeks.value = t.estimatedDuration.weeks
-      durationHours.value = t.estimatedDuration.hoursPerSession
-    }
-
-    if (t.registrationDateRange) {
-      regDateRange.value = [
-        new Date(t.registrationDateRange.start),
-        new Date(t.registrationDateRange.end),
-      ]
+      durationType.value = t.estimatedDuration.type;
+      durationWeeks.value = t.estimatedDuration.weeks;
+      durationHours.value = t.estimatedDuration.hoursPerSession;
     }
   }
-})
+});
 
-const isEditMode = computed(() => !!props.template)
+const isEditMode = computed(() => !!props.template);
 const codeDisabled = computed(
   () => isEditMode.value && props.template?.hasAssociations,
-)
+);
 
 function onCodeInput(event: Event): void {
-  const input = event.target as HTMLInputElement
-  code.value = input.value.toUpperCase()
+  const input = event.target as HTMLInputElement;
+  code.value = input.value.toUpperCase();
 }
 
 function handleSubmit(): void {
   // 組裝 estimatedDuration
-  let estimatedDuration: any = undefined
+  let estimatedDuration: any = undefined;
   if (durationType.value) {
-    estimatedDuration = { type: durationType.value }
-    if (durationType.value === 'WEEKLY' && durationWeeks.value) {
-      estimatedDuration.weeks = durationWeeks.value
+    estimatedDuration = { type: durationType.value };
+    if (durationType.value === "WEEKLY" && durationWeeks.value) {
+      estimatedDuration.weeks = durationWeeks.value;
     }
-    if (durationType.value === 'EVENT' && durationHours.value) {
-      estimatedDuration.hoursPerSession = durationHours.value
-    }
-  }
-
-  // 組裝 registrationDateRange
-  let registrationDateRange: RegistrationDateRange | undefined = undefined
-  if (regDateRange.value && regDateRange.value.length === 2) {
-    registrationDateRange = {
-      start: regDateRange.value[0].toISOString(),
-      end: regDateRange.value[1].toISOString(),
+    if (durationType.value === "EVENT" && durationHours.value) {
+      estimatedDuration.hoursPerSession = durationHours.value;
     }
   }
 
-  emit('submit', {
+  emit("submit", {
     name: name.value,
     code: code.value,
     categoryIds: categoryIds.value,
@@ -127,29 +109,28 @@ function handleSubmit(): void {
     frequency: frequency.value,
     attachments: attachments.value,
     syllabus: syllabus.value,
-    registrationDateRange,
     status: status.value,
-  })
+  });
 }
 
 // ── 附件上傳 ──
 function onFileUpload(event: any): void {
-  const files = event.files as File[]
+  const files = event.files as File[];
   for (const file of files) {
     // TODO: 實際上傳至 Firebase Storage，取得 URL
     // 目前先建立 placeholder
     attachments.value.push({
       name: file.name,
-      url: '', // 待接 Firebase Storage
+      url: "", // 待接 Firebase Storage
       size: file.size,
       mimeType: file.type,
       uploadedAt: new Date().toISOString(),
-    })
+    });
   }
 }
 
 function removeAttachment(index: number): void {
-  attachments.value.splice(index, 1)
+  attachments.value.splice(index, 1);
 }
 </script>
 
@@ -162,7 +143,7 @@ function removeAttachment(index: number): void {
         <InputText
           id="name"
           v-model.trim="name"
-          placeholder="例：成長班 - 基礎信仰建立"
+          placeholder="例：一對一門徒訓練養育班"
           class="w-full"
         />
       </div>
@@ -218,10 +199,7 @@ function removeAttachment(index: number): void {
       <!-- 擋修條件 -->
       <div class="flex flex-col gap-2 md:col-span-2">
         <label class="font-semibold">擋修條件</label>
-        <PrerequisiteSelect
-          v-model="prerequisites"
-          :exclude-code="code"
-        />
+        <PrerequisiteSelect v-model="prerequisites" :exclude-code="code" />
       </div>
 
       <!-- 預計時間 -->
@@ -272,19 +250,6 @@ function removeAttachment(index: number): void {
         />
       </div>
 
-      <!-- 意願登記日期 -->
-      <div class="flex flex-col gap-2 md:col-span-2">
-        <label class="font-semibold">開放意願登記日期</label>
-        <DatePicker
-          v-model="regDateRange"
-          selection-mode="range"
-          date-format="yy-mm-dd"
-          placeholder="選擇日期範圍"
-          show-icon
-          class="w-full"
-        />
-      </div>
-
       <!-- 課程教材 -->
       <div class="flex flex-col gap-2 md:col-span-2">
         <label class="font-semibold">課程教材</label>
@@ -325,10 +290,7 @@ function removeAttachment(index: number): void {
       <!-- 課程大綱 -->
       <div class="flex flex-col gap-2 md:col-span-2">
         <label class="font-semibold">課程大綱</label>
-        <Editor
-          v-model="syllabus"
-          editor-style="height: 250px"
-        />
+        <Editor v-model="syllabus" editor-style="height: 250px" />
       </div>
     </div>
 
