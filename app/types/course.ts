@@ -49,13 +49,18 @@ export interface CourseDuration {
   hoursPerSession?: number
 }
 
-/** 課程教材附件 */
+/** 基礎附件類型選項 */
+export type AttachmentType = 'PDF' | 'DOCUMENT' | 'IMAGE' | 'RECORDING' | 'LINK'
+
+/** 課程教材附件基礎介面 */
 export interface CourseAttachment {
   name: string
   url: string
+  type: AttachmentType
   size?: number
   mimeType?: string
-  uploadedAt: string
+  createdAt: string
+  updatedAt: string
 }
 
 /** 課程模板狀態 */

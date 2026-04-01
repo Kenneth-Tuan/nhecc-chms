@@ -27,6 +27,11 @@ export class CourseEnrollmentRepository {
     return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as CourseEnrollment))
   }
 
+  async findByUserId(userId: string): Promise<CourseEnrollment[]> {
+    const snapshot = await this.col.where('userId', '==', userId).get()
+    return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as CourseEnrollment))
+  }
+
   async findByUserIdAndTemplateId(userId: string, templateId: string): Promise<CourseEnrollment | undefined> {
     const snapshot = await this.col
       .where('userId', '==', userId)

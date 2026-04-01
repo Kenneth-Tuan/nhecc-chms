@@ -8,9 +8,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, message: '未授權' })
   }
 
-  if (!userContext.permissions['course:manage']) {
-    throw createError({ statusCode: 403, message: '無權限指派學生' })
-  }
+  requireAbility(event, "manage", "CourseClass");
 
   const body = await readBody(event)
   if (!body.classId || !Array.isArray(body.enrollmentIds)) {

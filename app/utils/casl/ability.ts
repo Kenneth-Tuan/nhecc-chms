@@ -61,26 +61,77 @@ export function buildAbility(userContext: UserContext): AppAbility {
   if (userContext.permissions["org:manage"]) can("manage", "Organization");
   if (userContext.permissions["system:config"]) can("manage", "System");
   
-  if (userContext.permissions["course:view"]) {
-    can("view", "Course");
-    can("view", "CourseClass");
-    can("view", "CourseEnrollment");
+  // --- 課程與班級動態權限引擎 (X-Y 聯動) ---
+  
+  // 1. 課程模板 (CourseTemplate)
+  if (userContext.permissions["courseTemplate:view"]) can("view", "Course");
+  if (userContext.permissions["courseTemplate:manage"]) {
+    if (userContext.scope === "Global") {
+      can("manage", "Course");
+    } else {
+      // 非全域僅能管理自己建立的或相關的 (暫估由 creatorId 判定，此處示範通案)
+      can("manage", "Course", { creatorId: userContext.userId } as any);
+    }
   }
-  if (userContext.permissions["course:manage"]) {
-    can("manage", "Course");
-    can("manage", "CourseClass");
-    can("manage", "CourseEnrollment");
-    can("teach", "CourseClass");
-  }
-  if (userContext.permissions["course:grade"]) {
-    can("grade", "Course");
-    can("grade", "CourseClass");
-    can("grade", "CourseEnrollment");
+  if (userContext.permissions["courseTemplate:delete"] && userContext.scope === "Global") {
+    can("delete", "Course");
   }
 
-  // 老師可以對自己的班級執行「授課行為」(teach) 或「評分」(grade)
-  can("teach", "CourseClass", { teacherIds: { $in: [userContext.userId] } } as any);
-  can("grade", "CourseClass", { teacherIds: { $in: [userContext.userId] } } as any);
+  // 2. 班級 (CourseClass)
+  
+  // 基礎規則：所有登入用戶皆可瀏覽「報名中且已發佈」的班級
+  can("view", "CourseClass", { status: "SETUP", isPublished: true } as any);
+
+  // 進行中 (IN_PROGRESS)
+  if (userContext.permissions["courseClass:view_inprogress"]) {
+    if (userContext.scope === "Global") {
+      can("view", "CourseClass", { status: "IN_PROGRESS" } as any);
+    } else {
+      // Group/Self 範圍：僅限班級成員 (老師或學生)
+      can("view", "CourseClass", { 
+        status: "IN_PROGRESS",
+        $or: [
+          { teacherIds: { $in: [userContext.userId] } },
+          { studentIds: { $in: [userContext.userId] } }
+        ]
+      } as any);
+    }
+  }
+
+  // 已結束 (COMPLETED)
+  if (userContext.permissions["courseClass:view_completed"]) {
+    if (userContext.scope === "Global") {
+      can("view", "CourseClass", { status: "COMPLETED" } as any);
+    } else {
+      // 參與者可永久查閱
+      can("view", "CourseClass", { 
+        status: "COMPLETED",
+        $or: [
+          { teacherIds: { $in: [userContext.userId] } },
+          { studentIds: { $in: [userContext.userId] } }
+        ]
+      } as any);
+    }
+  }
+
+  // 管理與報名修改 (Manage)
+  if (userContext.permissions["courseClass:manage"]) {
+    if (userContext.scope === "Global") {
+      can("manage", "CourseClass");
+    } else {
+      // 僅限自己任教的班級
+      can("manage", "CourseClass", { teacherIds: { $in: [userContext.userId] } } as any);
+    }
+  }
+
+  // 評分 (Grade)
+  if (userContext.permissions["courseClass:grade"]) {
+    if (userContext.scope === "Global") {
+      can("grade", "CourseClass");
+    } else {
+      can("grade", "CourseClass", { teacherIds: { $in: [userContext.userId] } } as any);
+    }
+  }
 
   // Z 軸：欄位層級的解鎖權限 (Reveal authority)
   if (userContext.revealAuthority.mobile) can("reveal", "Member", "mobile");

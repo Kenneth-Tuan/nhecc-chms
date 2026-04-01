@@ -21,9 +21,15 @@ export const ALL_PERMISSION_KEYS: PermissionKey[] = [
   "org:view",
   "org:manage",
   "system:config",
-  "course:view",
-  "course:manage",
-  "course:grade",
+  "courseTemplate:view",
+  "courseTemplate:manage",
+  "courseTemplate:delete",
+  "courseClass:view_setup",
+  "courseClass:view_inprogress",
+  "courseClass:view_completed",
+  "courseClass:manage",
+  "courseClass:delete",
+  "courseClass:grade",
 ];
 
 /** Permission labels (Chinese) */
@@ -38,9 +44,15 @@ export const PERMISSION_LABELS: Record<PermissionKey, string> = {
   "org:view": "檢視組織架構",
   "org:manage": "管理組織架構",
   "system:config": "系統設定",
-  "course:view": "檢視課程",
-  "course:manage": "管理課程",
-  "course:grade": "評分",
+  "courseTemplate:view": "檢視課程模板",
+  "courseTemplate:manage": "管理課程模板",
+  "courseTemplate:delete": "刪除課程模板",
+  "courseClass:view_setup": "瀏覽準備中班級",
+  "courseClass:view_inprogress": "瀏覽進行中班級",
+  "courseClass:view_completed": "瀏覽已結束班級",
+  "courseClass:manage": "管理班級(開班/編輯)",
+  "courseClass:delete": "刪除班級",
+  "courseClass:grade": "班級評分",
 };
 
 /** Permission groups for UI display */
@@ -78,12 +90,18 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
     permissions: [{ key: "system:config", label: "系統設定" }],
   },
   {
-    label: "課程管理",
+    label: "課程 & 班級管理",
     icon: "pi pi-book",
     permissions: [
-      { key: "course:view", label: "檢視課程" },
-      { key: "course:manage", label: "管理課程" },
-      { key: "course:grade", label: "評分" },
+      { key: "courseTemplate:view", label: "檢視課程模板" },
+      { key: "courseTemplate:manage", label: "管理課程模板" },
+      { key: "courseTemplate:delete", label: "刪除課程模板" },
+      { key: "courseClass:view_setup", label: "瀏覽準備中班級" },
+      { key: "courseClass:view_inprogress", label: "瀏覽進行中班級" },
+      { key: "courseClass:view_completed", label: "瀏覽已結束班級" },
+      { key: "courseClass:manage", label: "管理班級(開班/編輯)" },
+      { key: "courseClass:delete", label: "刪除班級" },
+      { key: "courseClass:grade", label: "班級評分" },
     ],
   },
 ];

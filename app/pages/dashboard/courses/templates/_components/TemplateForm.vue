@@ -10,6 +10,7 @@ import type {
   Prerequisite,
   CourseAttachment,
   CourseCategory,
+  AttachmentType,
 } from "~/types/course";
 import {
   COURSE_FORMAT_OPTIONS,
@@ -113,6 +114,14 @@ function handleSubmit(): void {
   });
 }
 
+function inferAttachmentType(mimeType: string): AttachmentType {
+  if (mimeType.includes("pdf")) return "PDF";
+  if (mimeType.includes("image")) return "IMAGE";
+  if (mimeType.includes("word") || mimeType.includes("officedocument"))
+    return "DOCUMENT";
+  return "LINK"; // 預設
+}
+
 // ── 附件上傳 ──
 function onFileUpload(event: any): void {
   const files = event.files as File[];
@@ -124,7 +133,9 @@ function onFileUpload(event: any): void {
       url: "", // 待接 Firebase Storage
       size: file.size,
       mimeType: file.type,
-      uploadedAt: new Date().toISOString(),
+      type: inferAttachmentType(file.type),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     });
   }
 }
@@ -136,24 +147,24 @@ function removeAttachment(index: number): void {
 
 <template>
   <form @submit.prevent="handleSubmit">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <!-- 課程名稱 -->
       <div class="flex flex-col gap-2">
-        <label for="name" class="font-semibold">課程名稱 *</label>
+        <label for="name" class="font-bold text-slate-700 text-base">課程名稱 *</label>
         <InputText
           id="name"
           v-model.trim="name"
           placeholder="例：一對一門徒訓練養育班"
-          class="w-full"
+          class="w-full text-base"
         />
       </div>
 
       <!-- 課程代號 -->
       <div class="flex flex-col gap-2">
-        <label for="code" class="font-semibold">
+        <label for="code" class="font-bold text-slate-700 text-base">
           課程代號 *
-          <span v-if="codeDisabled" class="text-xs text-orange-500 ml-1">
-            (已有關聯，不可修改)
+          <span v-if="codeDisabled" class="text-base text-orange-500 ml-2 font-normal">
+            (已有關聯班級，不可修改)
           </span>
         </label>
         <InputText
@@ -161,14 +172,14 @@ function removeAttachment(index: number): void {
           :model-value="code"
           :disabled="codeDisabled"
           placeholder="例：S101"
-          class="w-full font-mono"
+          class="w-full font-mono text-base"
           @input="onCodeInput"
         />
       </div>
 
       <!-- 課程分類 -->
       <div class="flex flex-col gap-2">
-        <label for="categoryIds" class="font-semibold">課程分類</label>
+        <label for="categoryIds" class="font-bold text-slate-700 text-base">課程分類</label>
         <MultiSelect
           id="categoryIds"
           v-model="categoryIds"
@@ -177,13 +188,13 @@ function removeAttachment(index: number): void {
           option-value="id"
           placeholder="選擇分類"
           display="chip"
-          class="w-full"
+          class="w-full text-base"
         />
       </div>
 
       <!-- 授課方式 -->
       <div class="flex flex-col gap-2">
-        <label for="format" class="font-semibold">授課方式</label>
+        <label for="format" class="font-bold text-slate-700 text-base">授課方式</label>
         <Select
           id="format"
           v-model="format"
@@ -192,20 +203,20 @@ function removeAttachment(index: number): void {
           option-value="value"
           placeholder="選擇授課方式"
           show-clear
-          class="w-full"
+          class="w-full text-base"
         />
       </div>
 
       <!-- 擋修條件 -->
       <div class="flex flex-col gap-2 md:col-span-2">
-        <label class="font-semibold">擋修條件</label>
-        <PrerequisiteSelect v-model="prerequisites" :exclude-code="code" />
+        <label class="font-bold text-slate-700 text-base">擋修條件 (需先修完以下模板)</label>
+        <PrerequisiteSelect v-model="prerequisites" :exclude-id="template?.id" />
       </div>
 
       <!-- 預計時間 -->
       <div class="flex flex-col gap-2">
-        <label class="font-semibold">預計花費時間</label>
-        <div class="flex gap-2">
+        <label class="font-bold text-slate-700 text-base">預計花費時間</label>
+        <div class="flex gap-3">
           <Select
             v-model="durationType"
             :options="DURATION_TYPE_OPTIONS"
@@ -213,7 +224,7 @@ function removeAttachment(index: number): void {
             option-value="value"
             placeholder="類型"
             show-clear
-            class="w-40"
+            class="w-44 text-base"
           />
           <InputNumber
             v-if="durationType === 'WEEKLY'"
@@ -221,7 +232,7 @@ function removeAttachment(index: number): void {
             placeholder="週數"
             :min="1"
             suffix=" 週"
-            class="flex-1"
+            class="flex-1 text-base"
           />
           <InputNumber
             v-if="durationType === 'EVENT'"
@@ -230,14 +241,14 @@ function removeAttachment(index: number): void {
             :min="0.5"
             :step="0.5"
             suffix=" 小時/次"
-            class="flex-1"
+            class="flex-1 text-base"
           />
         </div>
       </div>
 
       <!-- 開課頻率 -->
       <div class="flex flex-col gap-2">
-        <label for="frequency" class="font-semibold">開課頻率</label>
+        <label for="frequency" class="font-bold text-slate-700 text-base">開課頻率</label>
         <Select
           id="frequency"
           v-model="frequency"
@@ -246,41 +257,43 @@ function removeAttachment(index: number): void {
           option-value="value"
           placeholder="選擇開課頻率"
           show-clear
-          class="w-full"
+          class="w-full text-base"
         />
       </div>
 
       <!-- 課程教材 -->
       <div class="flex flex-col gap-2 md:col-span-2">
-        <label class="font-semibold">課程教材</label>
+        <label class="font-bold text-slate-700 text-base">課程教材</label>
         <FileUpload
           mode="basic"
           multiple
-          choose-label="上傳教材"
-          class="mb-2"
+          choose-label="上傳課程附件 (PDF/Office)"
+          class="mb-3 text-base"
           auto
           custom-upload
           @uploader="onFileUpload"
         />
-        <div v-if="attachments.length > 0" class="flex flex-col gap-2">
+        <div v-if="attachments.length > 0" class="flex flex-col gap-3">
           <div
             v-for="(att, idx) in attachments"
             :key="idx"
-            class="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-lg"
+            class="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl"
           >
-            <div class="flex items-center gap-2">
-              <i class="pi pi-file text-slate-500" />
-              <span class="text-sm">{{ att.name }}</span>
-              <span v-if="att.size" class="text-xs text-slate-400">
-                ({{ (att.size / 1024).toFixed(1) }} KB)
-              </span>
+            <div class="flex items-center gap-3">
+              <i class="pi pi-file text-slate-500 text-lg" />
+              <div class="flex flex-col">
+                <span class="text-base font-bold text-slate-800">{{ att.name }}</span>
+                <span v-if="att.size" class="text-base text-slate-400">
+                  {{ (att.size / 1024).toFixed(1) }} KB
+                </span>
+              </div>
             </div>
             <Button
-              icon="pi pi-times"
+              icon="pi pi-trash"
               text
               rounded
               severity="danger"
-              size="small"
+              class="p-2"
               @click="removeAttachment(idx)"
             />
           </div>
@@ -289,24 +302,26 @@ function removeAttachment(index: number): void {
 
       <!-- 課程大綱 -->
       <div class="flex flex-col gap-2 md:col-span-2">
-        <label class="font-semibold">課程大綱</label>
-        <Editor v-model="syllabus" editor-style="height: 250px" />
+        <label class="font-bold text-slate-700 text-base">課程大綱</label>
+        <Editor v-model="syllabus" editor-style="height: 300px" class="text-base" />
       </div>
     </div>
 
     <!-- Actions -->
-    <div class="flex justify-end gap-3 mt-8 pt-6 border-t border-slate-200">
+    <div class="flex justify-end gap-4 mt-12 pt-8 border-t border-slate-200">
       <Button
         label="取消"
         severity="secondary"
-        outlined
+        text
+        class="px-8 text-base"
         @click="emit('cancel')"
       />
       <Button
         type="submit"
-        :label="isEditMode ? '儲存變更' : '建立模板'"
+        :label="isEditMode ? '儲存變更' : '建立課程模板'"
         :loading="isSaving"
         icon="pi pi-check"
+        class="px-10 py-3 shadow-lg text-base font-bold"
       />
     </div>
   </form>

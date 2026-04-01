@@ -225,6 +225,30 @@ export class MemberService {
   }
 
   /**
+   * 獲取所有具備教師權限的人員名單（用於開班指派）。
+   */
+  async listTeachers(): Promise<{ id: string; name: string }[]> {
+    // 1. 獲取所有角色並找出具備課程管理權限的角色 ID
+    const roles = await roleRepo.findAll()
+    const teacherRoleIds = roles
+      .filter((r) => r.permissions["courseClass:manage"] || r.permissions["courseClass:grade"])
+      .map((r) => r.id)
+
+    if (teacherRoleIds.length === 0) return []
+
+    // 2. 在記憶體中篩選（Firestore array-contains 限制單一值）
+    // 為了效能與彈性，我們先抓取所有活動中的人員（通常老師人數不會破千，此做法尚可）
+    const allActiveMembers = await memberRepo.findAll({ status: 'Active' } as any)
+    
+    return allActiveMembers
+      .filter((m) => m.roleIds.some((id) => teacherRoleIds.includes(id)))
+      .map((m) => ({
+        id: m.uuid,
+        name: m.fullName,
+      }))
+  }
+
+  /**
    * 建立新會友。
    */
   async create(payload: CreateMemberPayload): Promise<Member> {

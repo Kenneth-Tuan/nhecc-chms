@@ -28,6 +28,8 @@ useSeoMeta({
     <NuxtPage />
   </NuxtLayout>
 
+  <DynamicDialog />
+
   <!-- 避免使用 watch：使用 v-if 在開啟時進行渲染，動態拉取隨機經文與 Lottie -->
   <Transition name="fade">
     <AppGlobalLoading v-if="isLoading" />

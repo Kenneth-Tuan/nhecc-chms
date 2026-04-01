@@ -17,9 +17,11 @@ const courseDurationSchema = z.object({
 const courseAttachmentSchema = z.object({
   name: z.string().min(1),
   url: z.string().url(),
+  type: z.enum(['PDF', 'DOCUMENT', 'IMAGE', 'RECORDING', 'LINK']),
   size: z.number().optional(),
   mimeType: z.string().optional(),
-  uploadedAt: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
 })
 
 export const createCourseTemplateSchema = z.object({

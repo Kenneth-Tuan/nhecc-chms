@@ -21,10 +21,17 @@ export type PermissionKey =
   | "org:manage"
   // 系統設定
   | "system:config"
-  // 課程管理
-  | "course:view"
-  | "course:manage"
-  | "course:grade";
+  // 課程模板管理
+  | "courseTemplate:view"
+  | "courseTemplate:manage"
+  | "courseTemplate:delete"
+  // 課程班級管理
+  | "courseClass:view_setup"
+  | "courseClass:view_inprogress"
+  | "courseClass:view_completed"
+  | "courseClass:manage"
+  | "courseClass:delete"
+  | "courseClass:grade";
 
 /** Z 軸敏感資料解鎖權限的欄位列舉 */
 export type SensitiveField =

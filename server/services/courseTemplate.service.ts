@@ -60,7 +60,7 @@ export class CourseTemplateService {
     if (existing) {
       throw createError({
         statusCode: 409,
-        message: `課程代號 ${payload.code} 已存在`,
+        message: `課程代號 ${payload.code} 已存在於「${existing.name}」`,
       })
     }
 
@@ -92,7 +92,7 @@ export class CourseTemplateService {
       if (codeConflict && codeConflict.id !== id) {
         throw createError({
           statusCode: 409,
-          message: `課程代號 ${payload.code} 已存在`,
+          message: `課程代號 ${payload.code} 已存在於「${codeConflict.name}」`,
         })
       }
     }

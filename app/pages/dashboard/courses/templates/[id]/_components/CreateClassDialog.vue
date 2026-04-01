@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import type { CreateCourseClassPayload } from "~/types/course-class";
+import type { CreateCourseClassPayload, CourseTeacher } from "~/types/course-class";
 
 const props = defineProps<{
   visible: boolean;
@@ -17,14 +17,14 @@ const toast = useToast();
 
 const formData = ref({
   name: "",
-  teacherIds: [] as string[],
+  teachers: [] as CourseTeacher[],
   sessions: [] as any[],
 });
 
 // TODO: Replace with actual member fetch
-const dummyTeachers = [
-  { label: "王牧師", value: "teacher_1" },
-  { label: "李執事", value: "teacher_2" },
+const dummyTeachers: CourseTeacher[] = [
+  { name: "王牧師", id: "teacher_1" },
+  { name: "李執事", id: "teacher_2" },
 ];
 
 function closeDialog() {
@@ -43,13 +43,21 @@ async function handleSave() {
   }
 
   try {
-    const payload: CreateCourseClassPayload = {
+    const payload: any = {
       templateId: props.templateId,
       name: formData.value.name,
-      teacherIds: formData.value.teacherIds,
+      teachers: formData.value.teachers,
       sessions: formData.value.sessions,
       status: "SETUP",
       currentSessionId: null,
+      startDate: new Date().toISOString(), // 預設值
+      endDate: new Date().toISOString(),   // 預設值
+      location: "未定",
+      description: "",
+      maxCapacity: 30,
+      enrollmentCount: 0,
+      attachments: [],
+      isPublished: false,
     };
 
     await createClass(payload);
@@ -78,64 +86,66 @@ async function handleSave() {
     @update:visible="$emit('update:visible', $event)"
     modal
     header="建立實體班級"
-    :style="{ width: '500px' }"
+    :style="{ width: '550px' }"
     class="p-fluid"
   >
-    <div class="flex flex-col gap-6 py-2">
+    <div class="flex flex-col gap-8 py-4">
       <!-- 班級名稱 -->
       <div class="flex flex-col gap-2">
-        <label for="className" class="font-bold text-slate-700 text-lg"
-          >班級名稱 <span class="text-red-500">*</span></label
+        <label for="className" class="font-bold text-slate-700 text-base"
+          >正式班級名稱 <span class="text-red-500">*</span></label
         >
         <InputText
           id="className"
           v-model="formData.name"
           placeholder="例如：2026 春季啟發小組"
-          class="text-lg p-3"
+          class="text-base p-3"
         />
       </div>
 
       <!-- 授課老師 -->
       <div class="flex flex-col gap-2">
-        <label class="font-bold text-slate-700 text-lg">授課老師</label>
+        <label class="font-bold text-slate-700 text-base">指派授課老師 / 同伴者</label>
         <MultiSelect
-          v-model="formData.teacherIds"
+          v-model="formData.teachers"
           :options="dummyTeachers"
-          optionLabel="label"
-          optionValue="value"
+          optionLabel="name"
           placeholder="請選擇老師"
-          class="text-lg"
+          display="chip"
+          class="text-base"
         />
-        <small class="text-slate-500">可不選，或之後再指派</small>
+        <p class="text-slate-500 text-base mt-1">可暫不選，或之後再於管理頁面指派。</p>
       </div>
 
       <!-- 課表設定 (簡化版) -->
       <div class="flex flex-col gap-2">
-        <label class="font-bold text-slate-700 text-lg">課表設定</label>
+        <label class="font-bold text-slate-700 text-base">班級課表設定</label>
         <div
-          class="bg-slate-50 p-4 rounded-lg border border-slate-200 text-center text-slate-500"
+          class="bg-blue-50 p-6 rounded-2xl border border-blue-100 text-center text-blue-700"
         >
-          <i class="pi pi-calendar-plus mb-2 text-2xl"></i>
-          <p>排課系統開發中，目前將建立無預定時間的班級。</p>
+          <i class="pi pi-calendar-plus mb-3 text-3xl"></i>
+          <p class="text-base leading-relaxed">排課輔助系統開發中，<br />目前將先建立無預定時間的空班頁面。</p>
         </div>
       </div>
     </div>
 
     <template #footer>
-      <Button
-        label="取消"
-        icon="pi pi-times"
-        text
-        @click="closeDialog"
-        class="text-lg"
-      />
-      <Button
-        label="建立班級"
-        icon="pi pi-check"
-        @click="handleSave"
-        :loading="isCreating"
-        class="text-lg"
-      />
+      <div class="flex justify-end gap-3 pt-4">
+        <Button
+          label="取消"
+          text
+          severity="secondary"
+          @click="closeDialog"
+          class="text-base px-6"
+        />
+        <Button
+          label="確認建立班級"
+          icon="pi pi-check"
+          @click="handleSave"
+          :loading="isCreating"
+          class="text-base px-8 py-3 font-bold"
+        />
+      </div>
     </template>
   </Dialog>
 </template>

@@ -8,8 +8,8 @@ import { SYSTEM_STATUS_CONDITIONS } from '~/types/course'
 
 const props = defineProps<{
   modelValue: Prerequisite[]
-  /** 排除的課程代號（避免自己選自己） */
-  excludeCode?: string
+  /** 排除的課程 ID（避免自己選自己） */
+  excludeId?: string
 }>()
 
 const emit = defineEmits<{
@@ -48,7 +48,7 @@ const options = computed<PrerequisiteOption[]>(() => {
   )
 
   const courseOpts: PrerequisiteOption[] = allTemplates.value
-    .filter((t) => t.code !== props.excludeCode)
+    .filter((t) => t.id !== props.excludeId)
     .map((t) => ({
       type: 'COURSE' as const,
       value: t.code,
@@ -81,6 +81,6 @@ const selectedValues = computed({
     display="chip"
     filter
     :loading="isLoadingOptions"
-    class="w-full"
+    class="w-full text-base"
   />
 </template>

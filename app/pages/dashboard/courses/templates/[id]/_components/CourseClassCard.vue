@@ -35,42 +35,43 @@ const statusSeverity = computed(() => {
 
 <template>
   <div
-    class="bg-white border border-slate-200 rounded-xl p-5 hover:shadow-md transition-all duration-300 cursor-pointer flex flex-col h-full"
+    class="bg-white border border-slate-200 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col h-full group"
     @click="$emit('click')"
   >
-    <div class="flex justify-between items-start mb-3">
-      <h3 class="text-xl font-bold text-slate-800 leading-tight">
+    <div class="flex justify-between items-start mb-4">
+      <h3 class="text-xl font-bold text-slate-800 leading-tight group-hover:text-blue-600 transition-colors">
         {{ courseClass.name }}
       </h3>
-      <Tag :value="statusLabel" :severity="statusSeverity" rounded></Tag>
+      <Tag :value="statusLabel" :severity="statusSeverity" class="text-base px-3 py-1 font-bold" rounded></Tag>
     </div>
 
-    <div class="flex-grow">
-      <div class="text-slate-600 text-base mb-2 flex items-center gap-2">
-        <i class="pi pi-users text-slate-400"></i>
-        <!-- TODO: Replace with real teacher names if populated from API -->
-        <span
-          >老師:
-          {{
-            courseClass.teacherIds.length > 0
-              ? courseClass.teacherIds.length + " 位"
-              : "未指派"
-          }}</span
-        >
+    <div class="flex-grow space-y-3">
+      <div class="text-slate-600 text-base flex items-center gap-3">
+        <i class="pi pi-users text-slate-400 text-lg"></i>
+        <span>
+          授課老師:
+          <span class="font-bold text-slate-700">
+            {{
+              courseClass.teachers && courseClass.teachers.length > 0
+                ? courseClass.teachers.length + " 位"
+                : "未指派"
+            }}
+          </span>
+        </span>
       </div>
-      <div class="text-slate-600 text-base flex items-center gap-2">
-        <i class="pi pi-calendar text-slate-400"></i>
-        <span>總堂數: {{ courseClass.sessions.length }}</span>
+      <div class="text-slate-600 text-base flex items-center gap-3">
+        <i class="pi pi-calendar text-slate-400 text-lg"></i>
+        <span>總堂數: <span class="font-bold text-slate-700">{{ courseClass.sessions.length }}</span></span>
       </div>
     </div>
 
-    <div class="mt-4 pt-4 border-t border-slate-100 flex justify-end">
+    <div class="mt-6 pt-5 border-t border-slate-100 flex justify-end">
       <Button
         label="管理班級"
         icon="pi pi-arrow-right"
         iconPos="right"
         text
-        size="small"
+        class="text-base font-bold text-blue-600"
       />
     </div>
   </div>

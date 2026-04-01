@@ -1,25 +1,26 @@
-import { createCourseClassSchema } from '~/schemas/course-class.schema'
+import { updateCourseClassSchema } from '~/schemas/course-class.schema'
 import { CourseClassService } from '~/../server/services/courseClass.service'
 
 const courseClassService = new CourseClassService()
 
 export default defineEventHandler(async (event) => {
-  const userContext = event.context.user
-  if (!userContext) {
+  const userAbility = event.context.ability
+  if (!userAbility) {
     throw createError({ statusCode: 401, message: '未授權' })
   }
+  const id = getRouterParam(event, 'id')
 
-  // 權限檢查: 需要有 courseClass:manage 才能建立班級
-  requireAbility(event, "manage", "CourseClass");
+  if (!id) {
+    throw createError({ statusCode: 400, message: '遺漏班級 ID' })
+  }
 
   const body = await readBody(event)
   const forceOverride = body.forceOverride === true
   
-  // 移除 forceOverride 以便 zod 解析
   const payloadToParse = { ...body }
   delete payloadToParse.forceOverride
 
-  const result = createCourseClassSchema.safeParse(payloadToParse)
+  const result = updateCourseClassSchema.safeParse(payloadToParse)
   if (!result.success) {
     throw createError({
       statusCode: 400,
@@ -28,5 +29,5 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  return courseClassService.createClass(result.data, forceOverride)
+  return courseClassService.updateClass(id, result.data, userAbility, forceOverride)
 })

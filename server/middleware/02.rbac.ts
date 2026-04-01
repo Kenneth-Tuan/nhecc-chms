@@ -18,6 +18,7 @@ export default defineEventHandler(async (event) => {
     if (url.pathname === "/api/auth/context" && event.context.userId) {
       try {
         const context = await authService.resolveContext(event.context.userId);
+        event.context.user = context;
         event.context.userContext = context;
         event.context.ability = buildAbility(context);
       } catch {
@@ -34,6 +35,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     const userContext = await authService.resolveContext(userId);
+    event.context.user = userContext;
     event.context.userContext = userContext;
     event.context.ability = buildAbility(userContext);
   } catch (error) {

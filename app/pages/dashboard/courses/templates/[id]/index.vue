@@ -5,6 +5,8 @@
 import type { CourseTemplate } from "~/types/course";
 import TemplateForm from "../_components/TemplateForm.vue";
 import { updateCourseTemplateSchema } from "~/schemas/course.schema";
+import BasePageContainer from "~/pages/dashboard/_components/BasePageContainer.vue";
+import BasePageHeader from "~/pages/dashboard/_components/BasePageHeader.vue";
 
 definePageMeta({
   layout: "dashboard",
@@ -78,17 +80,13 @@ function handleCancel(): void {
 </script>
 
 <template>
-  <div>
-    <div class="mb-6">
-      <Button
-        label="返回列表"
-        icon="pi pi-arrow-left"
-        text
-        size="small"
-        @click="handleCancel"
-      />
-      <h1 class="text-2xl font-bold mt-2">編輯課程模板</h1>
-    </div>
+  <BasePageContainer>
+    <!-- Header -->
+    <BasePageHeader
+      title="編輯課程模板"
+      description="修改課程的基本資訊、擋修條件與相關附件"
+      back-to="/dashboard/courses/templates"
+    />
 
     <!-- Loading -->
     <div v-if="isLoading" class="flex justify-center py-12">
@@ -98,7 +96,7 @@ function handleCancel(): void {
     <!-- Form -->
     <div
       v-else-if="template"
-      class="bg-white border border-slate-200 rounded-xl p-6"
+      class="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm"
     >
       <TemplateForm
         :template="template"
@@ -107,5 +105,5 @@ function handleCancel(): void {
         @cancel="handleCancel"
       />
     </div>
-  </div>
+  </BasePageContainer>
 </template>

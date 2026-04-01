@@ -35,6 +35,12 @@ const menuItems = computed(() =>
       to: "/dashboard/courses/templates",
       show: auth.can("manage", "Course"), // or view Course
     },
+    {
+      label: "班級管理",
+      icon: "pi pi-book",
+      to: "/dashboard/courses/classes",
+      show: auth.can("manage", "CourseClass"),
+    },
   ].filter((item) => item.show),
 );
 
