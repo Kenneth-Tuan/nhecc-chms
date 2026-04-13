@@ -19,6 +19,7 @@ import { MemberRepository } from "../repositories/member.repository";
 import { OrganizationRepository } from "../repositories/organization.repository";
 import { RoleRepository } from "../repositories/role.repository";
 import { getMaskFunction } from "../utils/rbac/masking";
+import { applyScopeConstraints, assertScopeAccess } from "../utils/rbac/scopes";
 import { calculateAge, paginateArray } from "../utils/helpers";
 import { createError } from "h3";
 import { getAdminAuth } from "../utils/firebase-admin";
@@ -41,7 +42,7 @@ export class MemberService {
     sortOrder: "asc" | "desc",
   ): Promise<PaginatedResponse<MemberListItem>> {
     // 1. 應用範圍過濾 (Scope filter)
-    const scopedFilters = this.applyScopeFilter(userContext, filters);
+    const scopedFilters = applyScopeConstraints(userContext, filters);
 
     // 2. 獲取資料
     let members = await memberRepo.findAll(scopedFilters);
@@ -99,7 +100,7 @@ export class MemberService {
     }
 
     // 檢查範圍權限
-    this.checkScopeAccess(userContext, member);
+    assertScopeAccess(userContext, member);
 
     const zones = await orgRepo.findAllZones();
     const groups = await orgRepo.findAllGroups();
@@ -187,7 +188,7 @@ export class MemberService {
       throw createError({ statusCode: 404, message: "找不到該會友" });
     }
 
-    this.checkScopeAccess(userContext, member);
+    assertScopeAccess(userContext, member);
 
     const result: Record<string, string> = {};
 
@@ -374,7 +375,7 @@ export class MemberService {
     }
 
     // 檢查是否有權限更新該會友
-    this.checkScopeAccess(userContext, member);
+    assertScopeAccess(userContext, member);
 
     try {
       const auth = getAdminAuth();
@@ -396,79 +397,6 @@ export class MemberService {
   }
 
   // ===== 私有輔助方法 (Private helpers) =====
-
-  /**
-   * 將 RBAC 範圍過濾應用於會友查詢條件。
-   */
-  private applyScopeFilter(
-    ctx: UserContext,
-    filters: MemberFilters,
-  ): MemberFilters {
-    const scopedFilters = { ...filters };
-
-    switch (ctx.scope) {
-      case "Global":
-        // 無須額外過濾
-        break;
-      case "Zone":
-        if (ctx.zoneId) {
-          scopedFilters.zoneId = ctx.zoneId;
-        }
-        break;
-      case "Group":
-        // 對於小組範圍，我們需要採取不同處理方式
-        // 優先在查詢層級處理
-        if (ctx.managedGroupIds.length > 0) {
-          scopedFilters.groupId = ctx.managedGroupIds[0];
-        }
-        break;
-      case "Self":
-        // 將進行特殊處理 - 僅回傳用戶本人資料
-        break;
-    }
-
-    return scopedFilters;
-  }
-
-  /**
-   * 檢查用戶是否具有存取該會友資料的範圍權限。
-   */
-  private checkScopeAccess(ctx: UserContext, member: Member): void {
-    switch (ctx.scope) {
-      case "Global":
-        return;
-      case "Zone":
-        if (member.zoneId !== ctx.zoneId) {
-          throw createError({
-            statusCode: 403,
-            message: "無權存取此會友資料",
-          });
-        }
-        return;
-      case "Group":
-        if (!member.groupId || !ctx.managedGroupIds.includes(member.groupId)) {
-          // 同時檢查功能性小組 (Functional groups)
-          const memberInFunctionalGroup = member.functionalGroupIds?.some(
-            (fgId) => ctx.managedGroupIds.includes(fgId),
-          );
-          if (!memberInFunctionalGroup) {
-            throw createError({
-              statusCode: 403,
-              message: "無權存取此會友資料",
-            });
-          }
-        }
-        return;
-      case "Self":
-        if (member.uuid !== ctx.userId) {
-          throw createError({
-            statusCode: 403,
-            message: "無權存取此會友資料",
-          });
-        }
-        return;
-    }
-  }
 
   /**
    * 驗證小組是否隸屬於指定的牧區。

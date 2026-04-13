@@ -6,7 +6,7 @@ import { OrganizationService } from "../../services/organization.service";
 
 const orgService = new OrganizationService();
 
-export default defineEventHandler(async () => {
-  const structure = await orgService.getStructure();
+export default defineEventHandler(async (event) => {
+  const structure = await orgService.getStructure(event.context.userContext);
   return structure;
 });

@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, message: "未認證" });
   }
 
-  const students = await classService.getClassStudents(id, ability);
+  const students = await classService.getClassStudents(id, ability, event.context.userContext);
 
   return {
     data: students

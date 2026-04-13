@@ -6,6 +6,6 @@ import { OrganizationService } from "../../../services/organization.service";
 
 const orgService = new OrganizationService();
 
-export default defineEventHandler(async () => {
-  return orgService.getZonesWithGroups();
+export default defineEventHandler(async (event) => {
+  return orgService.getZonesWithGroups(event.context.userContext);
 });

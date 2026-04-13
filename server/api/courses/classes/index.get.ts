@@ -14,12 +14,12 @@ export default defineEventHandler(async (event) => {
 
   const query = getQuery(event);
   const ability = event.context.ability;
-  
+
   const filters = {
     teacherId: query.teacherId as string,
     categoryId: query.categoryId as string,
     status: query.status as any,
-    search: query.search as string
+    search: query.search as string,
   };
 
   if (!ability) {
@@ -29,6 +29,6 @@ export default defineEventHandler(async (event) => {
   const classes = await classService.list(filters, ability);
 
   return {
-    data: classes
+    data: classes,
   };
 });

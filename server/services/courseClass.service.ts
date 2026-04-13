@@ -6,8 +6,10 @@ import { MemberRepository } from '../repositories/member.repository'
 import { CourseTemplateService } from './courseTemplate.service'
 import { createError } from 'h3'
 import type { AppAbility } from '~/utils/casl/ability'
+import type { UserContext } from '~/types/auth'
 import type { CourseClass, CreateCourseClassPayload, ClassSession, CourseClassStatus } from '~/types/course-class'
 import type { Prerequisite } from '~/types/course'
+import { filterByScope, applyScopeConstraints } from '../utils/rbac/scopes'
 
 // Repositories are initialized lazily within methods to avoid initialization order issues
 
@@ -170,6 +172,64 @@ export class CourseClassService {
 
   /**
    * 獲取班級列表 (核心權限過濾)
+   */
+  async list(filters: CourseClassFilters, ability: AppAbility): Promise<(CourseClass & { templateName: string, templateCode: string })[]> {
+    const classRepo = new CourseClassRepository()
+    const templateRepo = new CourseTemplateRepository()
+
+    const [classes, templates] = await Promise.all([
+      classRepo.findAll(),
+      templateRepo.findAll()
+    ])
+
+    // 1. Join 模板資訊並進行基礎過濾
+    const joined = classes.map(c => {
+      const template = templates.find(t => t.id === c.templateId)
+      return {
+        ...c,
+        templateName: template?.name || '未知課程',
+        templateCode: template?.code || 'N/A',
+        templateCategoryIds: template?.categoryIds || []
+      }
+    })
+
+    // 2. 核心過濾邏輯
+    let result = joined.filter(c => {
+      // 權限檢查 (CASL)
+      if (!ability.can('view', { ...c, __type: 'CourseClass' } as any)) {
+        return false
+      }
+
+      // 老師過濾
+      if (filters.teacherId && !c.teacherIds.includes(filters.teacherId)) {
+        return false
+      }
+
+      // 狀態過濾
+      if (filters.status && filters.status !== 'all' && c.status !== filters.status) {
+        return false
+      }
+
+      // 類別過濾 (從模板層級判斷)
+      if (filters.categoryId && !c.templateCategoryIds.includes(filters.categoryId)) {
+        return false
+      }
+
+      // 關鍵字搜尋 (班級名稱、模板名稱、模板代碼)
+      if (filters.search) {
+        const s = filters.search.toLowerCase()
+        const match = 
+          c.name.toLowerCase().includes(s) || 
+          c.templateName.toLowerCase().includes(s) || 
+          c.templateCode.toLowerCase().includes(s)
+        if (!match) return false
+      }
+
+      return true
+    })
+
+    return result
+  }
 
   /**
    * 根據 ID 獲取單一班級
@@ -200,7 +260,7 @@ export class CourseClassService {
   /**
    * 獲取班級成員清單
    */
-  async getClassStudents(classId: string, ability: AppAbility): Promise<any[]> {
+  async getClassStudents(classId: string, ability: AppAbility, ctx?: UserContext): Promise<any[]> {
     const classRepo = new CourseClassRepository()
     const enrollmentRepo = new CourseEnrollmentRepository()
     const memberRepo = new MemberRepository()
@@ -216,19 +276,38 @@ export class CourseClassService {
     }
 
     const enrollments = await enrollmentRepo.findByClassId(classId)
-    const members = await memberRepo.findAll() // 效能優化：稍後可在 repo 增加 findByIds
+    
+    // [資料校正機制] 
+    // 如果發現 enrollments 數量與 class 的快取數量不符，自動觸發同步
+    if (enrollments.length !== targetClass.enrollmentCount || 
+       (targetClass.studentIds && enrollments.length !== targetClass.studentIds.length)) {
+      const actualStudentIds = enrollments.map(e => e.userId).filter(Boolean) as string[]
+      await classRepo.update(classId, {
+        studentIds: actualStudentIds,
+        enrollmentCount: actualStudentIds.length
+      })
+    }
+
+    // 將 scope 條件轉換為 repository 查詢過濾條件
+    // 如此一來，Group leader 只能看到自己小組的學生列表
+    const scopedFilters = ctx ? applyScopeConstraints(ctx, {}) : {}
+    const members = await memberRepo.findAll(scopedFilters)
 
     return enrollments.map((enroll: import('~/types/course-enrollment').CourseEnrollment) => {
       const member = members.find((m: import('~/types/member').Member) => m.uuid === enroll.userId)
+      // 如果因為 scope filter 導致找不到該 member (例如某學生不在該小組長的小組內)
+      // 可以選擇過濾掉，或者僅顯示有限資訊
+      if (!member) return null
+
       return {
         id: enroll.id,
         userId: enroll.userId,
-        name: member?.fullName || '未知人員',
-        mobile: member?.mobile || '',
+        name: member.fullName,
+        mobile: member.mobile || '',
         status: enroll.status,
         completedDate: enroll.updatedAt
       }
-    })
+    }).filter(Boolean)
   }
 
   /**
@@ -325,7 +404,9 @@ export class CourseClassService {
     const teacherIds = payload.teachers?.map(t => t.id) || payload.teacherIds || targetClass.teacherIds;
     const sessions = payload.sessions || targetClass.sessions;
     
-    const normalizedPayload = { ...payload, teacherIds };
+    // 排除不應透過此路徑更新的欄位 (避免覆蓋報名狀態)
+    const { studentIds: _, enrollmentCount: __, ...cleanPayload } = payload;
+    const normalizedPayload = { ...cleanPayload, teacherIds };
 
     // 如果有提供 sessions 或 teacherIds，需要重新檢查衝突
     if (payload.sessions || payload.teachers || payload.teacherIds) {

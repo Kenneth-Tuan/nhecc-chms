@@ -6,6 +6,6 @@ import { OrganizationService } from "../../services/organization.service";
 
 const orgService = new OrganizationService();
 
-export default defineEventHandler(async () => {
-  return orgService.getPendingMembers();
+export default defineEventHandler(async (event) => {
+  return orgService.getPendingMembers(event.context.userContext);
 });

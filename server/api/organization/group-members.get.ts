@@ -10,5 +10,5 @@ const orgService = new OrganizationService();
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
   const groupId = query.groupId as string;
-  return orgService.getGroupMembers(groupId);
+  return orgService.getGroupMembers(groupId, event.context.userContext);
 });
