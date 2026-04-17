@@ -30,7 +30,7 @@ const handleLogin = async () => {
       formData.value.password,
     );
     const authStore = useAuthStore();
-    if (authStore.isAdmin) {
+    if (authStore.canAccessDashboard) {
       navigateTo("/dashboard");
     } else {
       navigateTo("/");
@@ -73,7 +73,7 @@ const handleSocialLogin = async (provider: "google" | "line") => {
         });
       } else {
         const authStore = useAuthStore();
-        if (authStore.isAdmin) {
+        if (authStore.canAccessDashboard) {
           navigateTo("/dashboard");
         } else {
           navigateTo("/");

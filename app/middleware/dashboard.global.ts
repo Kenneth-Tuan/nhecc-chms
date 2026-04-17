@@ -18,8 +18,8 @@ export default defineNuxtRouteMiddleware((to) => {
     });
   }
 
-  // 檢查管理者權限
-  if (store.isInitialized && store.userContext && !store.isAdmin) {
+  // 後台入口：dashboard:view 或 DAC admin scope
+  if (store.isInitialized && store.userContext && !store.canAccessDashboard) {
     return navigateTo({
       path: "/",
       query: { error: "unauthorized" },

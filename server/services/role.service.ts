@@ -53,8 +53,7 @@ export class RoleService {
     }
 
     if (existing.isSystem && existing.id === "super_admin") {
-      // 超級管理員不可變更權限或是資料範圍
-      if (payload.permissions || payload.scope || payload.revealAuthority) {
+      if (payload.permissions) {
         throw createError({
           statusCode: 403,
           message: "超級管理員角色的權限不可修改",

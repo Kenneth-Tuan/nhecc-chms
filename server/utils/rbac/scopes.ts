@@ -1,23 +1,16 @@
 /**
- * Data Scope 統一過濾工具
- * 提供 applyScopeConstraints / assertScopeAccess / filterByScope 三個通用函式，
- * 讓所有 Service 可以透過一行呼叫完成 Data Scope 檢查。
+ * Data Scope 統一過濾工具（雙 scope 模式）
+ * 支援 admin / functions 兩種 scope 情境。
  */
 import type { UserContext } from "~/types/auth";
 import { createError } from "h3";
 
-/**
- * 欄位映射介面：允許不同 Entity 使用不同的欄位名稱。
- * 例如 Member 用 `zoneId`，某些 Entity 可能用 `ownerZoneId`。
- */
+export type ScopeType = "admin" | "functions";
+
 export interface ScopeFieldMapping {
-  /** 對應 Entity 中的 zoneId 欄位名稱 */
   zoneId?: string;
-  /** 對應 Entity 中的 groupId 欄位名稱 */
   groupId?: string;
-  /** 對應 Entity 中的 userId/uuid 欄位名稱 */
   userId?: string;
-  /** 對應 Entity 中的 functionalGroupIds 欄位名稱 */
   functionalGroupIds?: string;
 }
 
@@ -30,39 +23,34 @@ const DEFAULT_FIELD_MAPPING: Required<ScopeFieldMapping> = {
 
 /**
  * 將 Scope 限制注入 filters 物件（用於列表查詢前的條件改寫）。
- *
- * @example
- * ```ts
- * const scopedFilters = applyScopeConstraints(userContext, filters)
- * const members = await memberRepo.findAll(scopedFilters)
- * ```
+ * scopeType 預設為 admin。
  */
 export function applyScopeConstraints<T extends Record<string, any>>(
   ctx: UserContext,
   filters: T,
+  scopeType: ScopeType = "admin",
   mapping?: ScopeFieldMapping,
 ): T {
   const m = { ...DEFAULT_FIELD_MAPPING, ...mapping };
   const scoped = { ...filters };
 
-  switch (ctx.scope) {
-    case "Global":
-      // 無須額外過濾
-      break;
-    case "Zone":
-      if (ctx.zoneId) {
-        (scoped as any)[m.zoneId] = ctx.zoneId;
-      }
-      break;
-    case "Group":
-      if (ctx.managedGroupIds.length > 0) {
-        (scoped as any)[m.groupId] = ctx.managedGroupIds[0];
-      }
-      break;
-    case "Self":
-      // Self scope 需要在 Service 層做特殊處理（僅回傳用戶本人資料）
-      // 這裡不注入 filter，由 Service 自行處理
-      break;
+  if (scopeType === "admin") {
+    const admin = ctx.accessScope.admin;
+    if (admin.isGlobal) return scoped;
+
+    if (admin.zone.length > 0) {
+      (scoped as any)[m.zoneId] = admin.zone.length === 1 ? admin.zone[0] : admin.zone;
+    } else if (admin.group.length > 0) {
+      (scoped as any)[m.groupId] = admin.group.length === 1 ? admin.group[0] : admin.group;
+    }
+  } else {
+    const fn = ctx.accessScope.functions;
+    if (fn.isGlobal) return scoped;
+
+    const targetIds = Object.values(fn.targets).flat();
+    if (targetIds.length > 0) {
+      (scoped as any)[m.functionalGroupIds] = targetIds;
+    }
   }
 
   return scoped;
@@ -71,116 +59,102 @@ export function applyScopeConstraints<T extends Record<string, any>>(
 /**
  * 檢查用戶是否具有存取該 Entity 的 Scope 權限（用於單筆存取檢查）。
  * 若不符合，直接 throw 403 錯誤。
- *
- * @example
- * ```ts
- * const member = await memberRepo.findById(uuid)
- * assertScopeAccess(userContext, member) // 不符合時直接 throw
- * ```
+ * scopeType 預設為 admin。
  */
 export function assertScopeAccess(
   ctx: UserContext,
   entity: Record<string, any>,
+  scopeType: ScopeType = "admin",
   mapping?: ScopeFieldMapping,
 ): void {
   const m = { ...DEFAULT_FIELD_MAPPING, ...mapping };
 
-  switch (ctx.scope) {
-    case "Global":
-      return;
+  if (scopeType === "admin") {
+    const admin = ctx.accessScope.admin;
+    if (admin.isGlobal) return;
 
-    case "Zone":
-      if (entity[m.zoneId] !== ctx.zoneId) {
-        throw createError({
-          statusCode: 403,
-          message: "無權存取此資料（牧區範圍限制）",
-        });
-      }
-      return;
+    if (admin.zone.length > 0 && admin.zone.includes(entity[m.zoneId])) return;
 
-    case "Group": {
+    if (admin.group.length > 0) {
       const entityGroupId = entity[m.groupId];
-      const entityFunctionalGroupIds = entity[m.functionalGroupIds];
+      if (entityGroupId && admin.group.includes(entityGroupId)) return;
 
-      // 檢查主小組
-      if (entityGroupId && ctx.managedGroupIds.includes(entityGroupId)) {
-        return;
-      }
-
-      // 檢查功能性小組
+      const entityFgIds = entity[m.functionalGroupIds];
       if (
-        Array.isArray(entityFunctionalGroupIds) &&
-        entityFunctionalGroupIds.some((fgId: string) =>
-          ctx.managedGroupIds.includes(fgId),
-        )
+        Array.isArray(entityFgIds) &&
+        entityFgIds.some((fgId: string) => admin.group.includes(fgId))
       ) {
         return;
       }
-
-      throw createError({
-        statusCode: 403,
-        message: "無權存取此資料（小組範圍限制）",
-      });
     }
+  } else {
+    const fn = ctx.accessScope.functions;
+    if (fn.isGlobal) return;
 
-    case "Self":
-      if (entity[m.userId] !== ctx.userId) {
-        throw createError({
-          statusCode: 403,
-          message: "無權存取此資料（僅限本人）",
-        });
+    const targetIds = Object.values(fn.targets).flat();
+    if (targetIds.length > 0) {
+      const entityFgIds = entity[m.functionalGroupIds];
+      if (
+        Array.isArray(entityFgIds) &&
+        entityFgIds.some((fgId: string) => targetIds.includes(fgId))
+      ) {
+        return;
       }
-      return;
+    }
   }
+
+  if (entity[m.userId] === ctx.userId) return;
+
+  throw createError({
+    statusCode: 403,
+    message: "無權存取此資料",
+  });
 }
 
 /**
  * 在記憶體中過濾已撈出的陣列，只保留符合 Scope 的項目。
- * 適用於無法在 query 層級過濾的場景（如 Firestore 限制或跨 collection join）。
- *
- * @example
- * ```ts
- * const allMembers = await memberRepo.findAll()
- * const scopedMembers = filterByScope(userContext, allMembers)
- * ```
+ * scopeType 預設為 admin。
  */
 export function filterByScope<T extends Record<string, any>>(
   ctx: UserContext,
   items: T[],
+  scopeType: ScopeType = "admin",
   mapping?: ScopeFieldMapping,
 ): T[] {
   const m = { ...DEFAULT_FIELD_MAPPING, ...mapping };
 
-  switch (ctx.scope) {
-    case "Global":
-      return items;
+  if (scopeType === "admin") {
+    const admin = ctx.accessScope.admin;
+    if (admin.isGlobal) return items;
 
-    case "Zone":
-      if (!ctx.zoneId) return items;
-      return items.filter((item) => item[m.zoneId] === ctx.zoneId);
+    if (admin.zone.length > 0) {
+      return items.filter((item) => admin.zone.includes(item[m.zoneId]));
+    }
 
-    case "Group":
-      if (ctx.managedGroupIds.length === 0) return [];
+    if (admin.group.length > 0) {
       return items.filter((item) => {
-        // 主小組匹配
-        if (item[m.groupId] && ctx.managedGroupIds.includes(item[m.groupId])) {
-          return true;
-        }
-        // 功能性小組匹配
+        if (item[m.groupId] && admin.group.includes(item[m.groupId])) return true;
         const fgIds = item[m.functionalGroupIds];
-        if (
-          Array.isArray(fgIds) &&
-          fgIds.some((id: string) => ctx.managedGroupIds.includes(id))
-        ) {
-          return true;
-        }
+        if (Array.isArray(fgIds) && fgIds.some((id: string) => admin.group.includes(id))) return true;
         return false;
       });
+    }
 
-    case "Self":
-      return items.filter((item) => item[m.userId] === ctx.userId);
-
-    default:
-      return items;
+    return items.filter((item) => item[m.userId] === ctx.userId);
   }
+
+  // functions scope
+  const fn = ctx.accessScope.functions;
+  if (fn.isGlobal) return items;
+
+  const targetIds = Object.values(fn.targets).flat();
+  if (targetIds.length > 0) {
+    return items.filter((item) => {
+      const fgIds = item[m.functionalGroupIds];
+      if (Array.isArray(fgIds) && fgIds.some((id: string) => targetIds.includes(id))) return true;
+      return false;
+    });
+  }
+
+  return items.filter((item) => item[m.userId] === ctx.userId);
 }

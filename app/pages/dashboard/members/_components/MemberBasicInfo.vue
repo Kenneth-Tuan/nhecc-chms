@@ -4,15 +4,10 @@
  * Tab 1 content for Quick View Modal.
  */
 import type { MemberDetail } from "~/types/member";
-import MemberRevealButton from "./MemberRevealButton.vue";
 
 const props = defineProps<{
   member: MemberDetail;
 }>();
-
-const auth = useAuth();
-
-const { revealAll, isRevealing: isRevealingAll } = useRevealSensitiveData();
 
 const genderLabel = computed(() =>
   props.member.gender === "Male" ? "男" : "女",
@@ -35,14 +30,6 @@ const statusLabel: Record<string, string> = {
   Inactive: "停用",
   Suspended: "停權",
 };
-
-// Show "Reveal All" dialog
-const showRevealAllDialog = ref(false);
-
-async function confirmRevealAll(): Promise<void> {
-  await revealAll(props.member.uuid);
-  showRevealAllDialog.value = false;
-}
 </script>
 
 <template>
@@ -81,18 +68,6 @@ async function confirmRevealAll(): Promise<void> {
           />
         </div>
       </div>
-
-      <!-- Reveal All Button integrated into sidebar -->
-      <Button
-        v-if="auth.can('reveal', 'Member', 'mobile')"
-        label="顯示敏感資料"
-        icon="pi pi-eye"
-        size="small"
-        severity="warn"
-        text
-        class="mt-4 !text-xs w-full"
-        @click="showRevealAllDialog = true"
-      />
     </div>
 
     <!-- Right Panel: Detailed Info -->
@@ -169,54 +144,28 @@ async function confirmRevealAll(): Promise<void> {
               class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
               >手機</span
             >
-            <MemberRevealButton
-              :member-id="member.uuid"
-              field="mobile"
-              :masked-value="member.mobile"
-              :can-reveal="member.mobileMeta.canReveal"
-            />
+            <p class="text-sm text-slate-900 dark:text-white">{{ member.mobile }}</p>
           </div>
           <div class="space-y-1">
             <span
               class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
               >Email</span
             >
-            <MemberRevealButton
-              :member-id="member.uuid"
-              field="email"
-              :masked-value="member.email"
-              :can-reveal="member.emailMeta.canReveal"
-            />
+            <p class="text-sm text-slate-900 dark:text-white">{{ member.email }}</p>
           </div>
-          <div
-            v-if="member.lineId || member.lineIdMeta.canReveal"
-            class="space-y-1"
-          >
+          <div v-if="member.lineId" class="space-y-1">
             <span
               class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
               >Line ID</span
             >
-            <MemberRevealButton
-              :member-id="member.uuid"
-              field="lineId"
-              :masked-value="member.lineId || '未提供'"
-              :can-reveal="member.lineIdMeta.canReveal"
-            />
+            <p class="text-sm text-slate-900 dark:text-white">{{ member.lineId }}</p>
           </div>
-          <div
-            v-if="member.address || member.addressMeta.canReveal"
-            class="space-y-2"
-          >
+          <div v-if="member.address" class="space-y-2">
             <span
               class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
               >通訊地址</span
             >
-            <MemberRevealButton
-              :member-id="member.uuid"
-              field="address"
-              :masked-value="member.address || '未提供'"
-              :can-reveal="member.addressMeta.canReveal"
-            />
+            <p class="text-sm text-slate-900 dark:text-white">{{ member.address }}</p>
           </div>
         </div>
       </section>
@@ -262,12 +211,9 @@ async function confirmRevealAll(): Promise<void> {
               class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
               >電話</span
             >
-            <MemberRevealButton
-              :member-id="member.uuid"
-              field="emergencyContactPhone"
-              :masked-value="member.emergencyContactPhone || '-'"
-              :can-reveal="member.emergencyContactPhoneMeta.canReveal"
-            />
+            <p class="text-sm text-slate-900 dark:text-white">
+              {{ member.emergencyContactPhone || "-" }}
+            </p>
           </div>
         </div>
       </section>
@@ -332,36 +278,5 @@ async function confirmRevealAll(): Promise<void> {
         </div>
       </section>
     </div>
-
-    <!-- Reveal All Confirmation Dialog -->
-    <Dialog
-      v-model:visible="showRevealAllDialog"
-      header="確認顯示所有敏感資料"
-      :modal="true"
-      :style="{ width: '400px' }"
-    >
-      <div class="flex items-center gap-3">
-        <i class="pi pi-eye text-amber-500 text-3xl" />
-        <p class="text-sm">
-          確定要顯示此會友的所有敏感資料嗎？
-          <br />
-          <span class="text-slate-500">此操作將會記錄於審計日誌中。</span>
-        </p>
-      </div>
-      <template #footer>
-        <Button
-          label="取消"
-          severity="secondary"
-          outlined
-          @click="showRevealAllDialog = false"
-        />
-        <Button
-          label="確認顯示"
-          severity="warn"
-          :loading="isRevealingAll"
-          @click="confirmRevealAll"
-        />
-      </template>
-    </Dialog>
   </div>
 </template>

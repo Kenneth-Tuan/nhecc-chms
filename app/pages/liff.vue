@@ -58,7 +58,7 @@ onMounted(async () => {
       });
     } else {
       const authStore = useAuthStore();
-      if (authStore.isAdmin) {
+      if (authStore.canAccessDashboard) {
         navigateTo("/dashboard");
       } else {
         navigateTo("/");

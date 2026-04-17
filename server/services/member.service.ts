@@ -13,12 +13,10 @@ import type {
   UpdateMemberPayload,
 } from "~/types/member";
 import type { PaginatedResponse } from "~/types/api";
-import type { SensitiveField } from "~/types/role";
 import type { AppAbility } from "~/utils/casl/ability";
 import { MemberRepository } from "../repositories/member.repository";
 import { OrganizationRepository } from "../repositories/organization.repository";
 import { RoleRepository } from "../repositories/role.repository";
-import { getMaskFunction } from "../utils/rbac/masking";
 import { applyScopeConstraints, assertScopeAccess } from "../utils/rbac/scopes";
 import { calculateAge, paginateArray } from "../utils/helpers";
 import { createError } from "h3";
@@ -66,10 +64,8 @@ export class MemberService {
         gender: m.gender,
         dob: m.dob,
         age: calculateAge(m.dob),
-        mobile: getMaskFunction("mobile")(m.mobile),
-        mobileMeta: { canReveal: ability.can("reveal", "Member", "mobile") },
-        email: getMaskFunction("email")(m.email),
-        emailMeta: { canReveal: ability.can("reveal", "Member", "email") },
+        mobile: m.mobile,
+        email: m.email,
         roleIds: m.roleIds,
         roleNames: memberRoles.map((r) => r.name),
         zoneId: m.zoneId,
@@ -124,105 +120,14 @@ export class MemberService {
       },
     );
 
-    // 應用資料遮蔽
-    const sensitiveFields: SensitiveField[] = [
-      "mobile",
-      "email",
-      "lineId",
-      "address",
-      "emergencyContactPhone",
-    ];
-
-    const isSelf = userContext.userId === member.uuid;
-
-    const maskedMember = { ...member };
-    for (const field of sensitiveFields) {
-      if (isSelf || ability.can("reveal", "Member", field)) {
-        continue;
-      }
-
-      const maskFn = getMaskFunction(field);
-      if (field === "mobile") {
-        maskedMember.mobile = maskFn(member.mobile);
-      } else if (field === "email") {
-        maskedMember.email = maskFn(member.email);
-      } else if (field === "lineId" && member.lineId) {
-        maskedMember.lineId = maskFn(member.lineId);
-      } else if (field === "address" && member.address) {
-        maskedMember.address = maskFn(member.address);
-      } else if (field === "emergencyContactPhone") {
-        maskedMember.emergencyContactPhone = maskFn(
-          member.emergencyContactPhone,
-        );
-      }
-    }
-
     return {
-      ...maskedMember,
+      ...member,
       age: calculateAge(member.dob),
       zoneName: zone?.name,
       groupName: group?.name,
       roleNames: memberRoles.map((r) => r.name),
       courseRecords,
-      mobileMeta: { canReveal: ability.can("reveal", "Member", "mobile") },
-      emailMeta: { canReveal: ability.can("reveal", "Member", "email") },
-      lineIdMeta: { canReveal: ability.can("reveal", "Member", "lineId") },
-      addressMeta: { canReveal: ability.can("reveal", "Member", "address") },
-      emergencyContactPhoneMeta: {
-        canReveal: ability.can("reveal", "Member", "emergencyContactPhone"),
-      },
     };
-  }
-
-  /**
-   * 解鎖（顯示）會友的敏感欄位資資料。
-   */
-  async revealFields(
-    userContext: UserContext,
-    ability: AppAbility,
-    uuid: string,
-    fields: string[],
-  ): Promise<Record<string, string>> {
-    const member = await memberRepo.findById(uuid);
-    if (!member) {
-      throw createError({ statusCode: 404, message: "找不到該會友" });
-    }
-
-    assertScopeAccess(userContext, member);
-
-    const result: Record<string, string> = {};
-
-    for (const field of fields) {
-      if (!ability.can("reveal", "Member", field)) {
-        throw createError({
-          statusCode: 403,
-          message: `無權解鎖欄位: ${field}`,
-        });
-      }
-
-      // 回傳原始明文值
-      switch (field) {
-        case "mobile":
-          result[field] = member.mobile;
-          break;
-        case "email":
-          result[field] = member.email;
-          break;
-        case "lineId":
-          result[field] = member.lineId || "";
-          break;
-        case "address":
-          result[field] = member.address || "";
-          break;
-        case "emergencyContactPhone":
-          result[field] = member.emergencyContactPhone;
-          break;
-      }
-    }
-
-    // TODO: 記錄解鎖操作的稽核軌跡 (Audit trail)
-
-    return result;
   }
 
   /**

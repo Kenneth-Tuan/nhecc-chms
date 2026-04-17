@@ -19,22 +19,28 @@ export const useAuthStore = defineStore("auth", () => {
     () => userContext.value?.fullName || "未登入",
   );
 
-  const scopeLabels: Record<string, string> = {
-    Global: "全域",
-    Zone: "牧區",
-    Group: "小組",
-    Self: "個人",
-  };
-
-  const currentScope = computed(() => userContext.value?.scope || "Self");
-
-  const currentScopeLabel = computed(
-    () => scopeLabels[userContext.value?.scope || "Self"] || "個人",
-  );
-
+  /** 有資料範圍上的「行政」scope（DAC admin） */
   const isAdmin = computed(() => {
-    const scope = userContext.value?.scope;
-    return scope === "Global" || scope === "Zone" || scope === "Group";
+    const admin = userContext.value?.accessScope?.admin;
+    if (!admin) return false;
+    return admin.isGlobal || admin.zone.length > 0 || admin.group.length > 0;
+  });
+
+  const hasAdminAccess = isAdmin;
+
+  /**
+   * 能否進入 /dashboard（middleware 用）。
+   * 角色上的 dashboard:view 與 DAC admin scope 任一滿足即可，避免只靠 data_access 把人擋在門外。
+   */
+  const canAccessDashboard = computed(() => {
+    if (userContext.value?.permissions?.["dashboard:view"]) return true;
+    return isAdmin.value;
+  });
+
+  const hasFunctionsAccess = computed(() => {
+    const fn = userContext.value?.accessScope?.functions;
+    if (!fn) return false;
+    return fn.isGlobal || Object.values(fn.targets).some((arr) => arr.length > 0);
   });
 
   async function loadContext(): Promise<void> {
@@ -70,9 +76,10 @@ export const useAuthStore = defineStore("auth", () => {
     isLoading,
     isInitialized,
     currentUserName,
-    currentScope,
-    currentScopeLabel,
     isAdmin,
+    canAccessDashboard,
+    hasAdminAccess,
+    hasFunctionsAccess,
     loadContext,
     $reset,
   };

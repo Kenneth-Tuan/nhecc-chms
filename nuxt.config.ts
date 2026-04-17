@@ -89,7 +89,7 @@ const AppPreset = definePreset(Aura, {
 
 export default defineNuxtConfig({
   devServer: {
-    port: 7000,
+    port: 7070,
     https: true,
   },
 

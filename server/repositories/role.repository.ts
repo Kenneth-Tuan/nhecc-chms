@@ -5,6 +5,7 @@
 import type { Role } from "~/types/role";
 import type { CreateRolePayload, UpdateRolePayload } from "~/types/role";
 import { getAdminFirestore } from "../utils/firebase-admin";
+import { queryInChunks } from "../utils/firestore-helpers";
 
 const COLLECTION = "roles";
 
@@ -54,24 +55,7 @@ export class RoleRepository {
    */
   async findByIds(ids: string[]): Promise<Role[]> {
     if (ids.length === 0) return [];
-
-    // Firestore 的 'in' 查詢限制為 10 個元素
-    const chunks = [];
-    for (let i = 0; i < ids.length; i += 10) {
-      chunks.push(ids.slice(i, i + 10));
-    }
-
-    const results: Role[] = [];
-    for (const chunk of chunks) {
-      const snapshot = await this.collection
-        .where("__name__", "in", chunk)
-        .get();
-      snapshot.docs.forEach((doc: any) => {
-        results.push({ ...doc.data(), id: doc.id } as Role);
-      });
-    }
-
-    return results;
+    return queryInChunks<Role>(this.collection, "__name__", ids, "in", 30);
   }
 
   /**
@@ -84,8 +68,6 @@ export class RoleRepository {
       description: payload.description,
       isSystem: false,
       permissions: payload.permissions,
-      scope: payload.scope,
-      revealAuthority: payload.revealAuthority,
       createdAt: now,
       updatedAt: now,
       createdBy: "system",

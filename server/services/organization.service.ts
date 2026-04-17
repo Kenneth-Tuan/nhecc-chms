@@ -10,7 +10,6 @@ import type {
   Group,
 } from "~/types/organization";
 import type { UserContext } from "~/types/auth";
-import type { DataScope } from "~/types/role";
 import { OrganizationRepository } from "../repositories/organization.repository";
 import { MemberRepository } from "../repositories/member.repository";
 import { RoleRepository } from "../repositories/role.repository";
@@ -28,33 +27,28 @@ export class OrganizationService {
    */
   async getStructure(ctx?: UserContext): Promise<OrganizationStructure> {
     const structure = await orgRepo.getStructure();
+    if (!ctx) return structure;
 
-    if (!ctx || ctx.scope === "Global") {
-      return structure;
-    }
+    const admin = ctx.accessScope.admin;
+    if (admin.isGlobal) return structure;
 
-    // Zone scope: 只回傳自己牧區的子樹
-    if (ctx.scope === "Zone") {
+    if (admin.zone.length > 0) {
       return {
-        zones: structure.zones.filter((z) => z.id === ctx.zoneId),
+        zones: structure.zones.filter((z) => admin.zone.includes(z.id)),
         functionalGroups: structure.functionalGroups,
       };
     }
 
-    // Group scope: 只回傳自己小組所在的牧區
-    if (ctx.scope === "Group") {
+    if (admin.group.length > 0) {
       const filteredZones = structure.zones
         .map((zone) => ({
           ...zone,
-          groups: zone.groups.filter((g) =>
-            ctx.managedGroupIds.includes(g.id),
-          ),
+          groups: zone.groups.filter((g) => admin.group.includes(g.id)),
         }))
         .filter((zone) => zone.groups.length > 0);
 
-      // 功能性小組只保留使用者管理的
       const filteredFunctionalGroups = structure.functionalGroups.filter((g) =>
-        ctx.managedGroupIds.includes(g.id),
+        admin.group.includes(g.id),
       );
 
       return {
@@ -63,7 +57,6 @@ export class OrganizationService {
       };
     }
 
-    // Self scope: 回傳最小範圍（空結構）
     return { zones: [], functionalGroups: [] };
   }
 
@@ -167,12 +160,10 @@ export class OrganizationService {
   async getPendingMembers(ctx?: UserContext) {
     const members = await orgRepo.findPendingMembers();
 
-    if (!ctx || ctx.scope === "Global") {
+    if (!ctx || ctx.accessScope.admin.isGlobal) {
       return members;
     }
 
-    // Pending members 沒有 groupId（本來就是 null），所以只能用 zoneId 過濾
-    // 但他們也可能沒有 zoneId，所以 Zone/Group/Self scope 看到的會是空的或有限的
     return filterByScope(ctx, members, { userId: "uuid" });
   }
 
@@ -225,20 +216,7 @@ export class OrganizationService {
     ctx?: UserContext,
     options?: { zoneId?: string; groupId?: string },
   ): Promise<{ id: string; name: string }[]> {
-    // 1. 根據領袖類型決定目標 scope 範圍
-    const roles = await roleRepo.findAll();
-    let targetScopes: DataScope[] = [];
-    if (type === "zone") {
-      targetScopes = ["Global", "Zone"];
-    } else {
-      targetScopes = ["Global", "Zone", "Group"];
-    }
-
-    const validRoleIds = roles
-      .filter((r: any) => targetScopes.includes(r.scope))
-      .map((r: any) => r.id);
-
-    // 2. 獲取活動中的會友
+    // 1. 獲取活動中的會友
     let members = await memberRepo.findAll({ status: "Active" } as any);
 
     // 3. 根據類型過濾
@@ -255,13 +233,10 @@ export class OrganizationService {
       members = filterByScope(ctx, members);
     }
 
-    // 5. 過濾具有正確角色 scope 的成員
-    return members
-      .filter((m) => m.roleIds?.some((rId: string) => validRoleIds.includes(rId)))
-      .map((m) => ({
-        id: m.uuid,
-        name: m.fullName,
-      }));
+    return members.map((m) => ({
+      id: m.uuid,
+      name: m.fullName,
+    }));
   }
 
   // ===== 私有輔助方法 =====
@@ -270,26 +245,14 @@ export class OrganizationService {
    * 檢查使用者是否有權存取指定小組。
    */
   private assertGroupAccess(ctx: UserContext, groupId: string): void {
-    switch (ctx.scope) {
-      case "Global":
-        return;
-      case "Zone":
-        // Zone scope 需要查驗小組是否屬於該牧區，但這裡沒有小組的 zoneId 資訊
-        // 暫時允許通過，由 repository 層級的資料自然過濾
-        return;
-      case "Group":
-        if (!ctx.managedGroupIds.includes(groupId)) {
-          throw createError({
-            statusCode: 403,
-            message: "無權查看此小組成員（小組範圍限制）",
-          });
-        }
-        return;
-      case "Self":
-        throw createError({
-          statusCode: 403,
-          message: "無權查看小組成員（僅限本人範圍）",
-        });
-    }
+    const admin = ctx.accessScope.admin;
+    if (admin.isGlobal) return;
+    if (admin.zone.length > 0) return;
+    if (admin.group.length > 0 && admin.group.includes(groupId)) return;
+
+    throw createError({
+      statusCode: 403,
+      message: "無權查看此小組成員",
+    });
   }
 }

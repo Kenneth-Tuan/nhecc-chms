@@ -4,9 +4,7 @@
  */
 import type {
   PermissionKey,
-  SensitiveField,
   PermissionGroup,
-  DataScope,
 } from "~/types/role";
 
 /** All permission keys */
@@ -106,61 +104,11 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
   },
 ];
 
-/** All sensitive fields */
-export const ALL_SENSITIVE_FIELDS: SensitiveField[] = [
-  "mobile",
-  "email",
-  "lineId",
-  "address",
-  "emergencyContactPhone",
-];
-
-/** Sensitive field labels */
-export const SENSITIVE_FIELD_LABELS: Record<SensitiveField, string> = {
-  mobile: "手機號碼",
-  email: "Email",
-  lineId: "Line ID",
-  address: "通訊地址",
-  emergencyContactPhone: "緊急聯絡人電話",
-};
-
-/** Data scope hierarchy (higher index = broader scope) */
-export const SCOPE_HIERARCHY = ["Self", "Group", "Zone", "Global"] as const;
-
-/** Data scope options for UI display */
-export const SCOPE_OPTIONS: {
-  label: string;
-  value: DataScope;
-  description: string;
-}[] = [
-  {
-    label: "全教會 (Global)",
-    value: "Global",
-    description: "可存取全教會資料",
-  },
-  { label: "牧區 (Zone)", value: "Zone", description: "僅限所屬牧區" },
-  {
-    label: "小組/事工團隊/課程 (Group)",
-    value: "Group",
-    description: "僅限所屬小組/事工團隊/課程",
-  },
-  { label: "個人 (Self)", value: "Self", description: "僅限本人資料" },
-];
-
 /** Create empty permissions record (all false) */
 export function createEmptyPermissions(): Record<PermissionKey, boolean> {
   const record = {} as Record<PermissionKey, boolean>;
   for (const key of ALL_PERMISSION_KEYS) {
     record[key] = false;
-  }
-  return record;
-}
-
-/** Create empty reveal authority record (all false) */
-export function createEmptyRevealAuthority(): Record<SensitiveField, boolean> {
-  const record = {} as Record<SensitiveField, boolean>;
-  for (const field of ALL_SENSITIVE_FIELDS) {
-    record[field] = false;
   }
   return record;
 }

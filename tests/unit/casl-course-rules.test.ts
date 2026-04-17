@@ -2,17 +2,23 @@ import { describe, it, expect } from 'vitest'
 import { buildAbility } from '../../app/utils/casl/ability'
 import type { UserContext } from '../../app/types/auth'
 
+function createMockContext(overrides: Partial<UserContext> = {}): UserContext {
+  return {
+    userId: 'user_1',
+    fullName: 'Test User',
+    permissions: {} as any,
+    accessScope: {
+      admin: { isGlobal: false, zone: [], group: [] },
+      functions: { isGlobal: false, targets: {} },
+    },
+    linkedProviders: { google: false, line: false, email: true },
+    ...overrides,
+  }
+}
+
 describe('CASL Course ABAC Rules', () => {
   it('allows teacher to teach their own class', () => {
-    const userContext: UserContext = {
-      userId: 'teacher_123',
-      roleId: 'role_1',
-      permissions: {} as any, // No course:manage permission
-      scope: 'Self',
-      revealAuthority: {} as any,
-      managedGroupIds: [],
-      orgRoles: []
-    }
+    const userContext = createMockContext({ userId: 'teacher_123' })
 
     const ability = buildAbility(userContext)
     const myClass = { __type: 'CourseClass', teacherIds: ['teacher_123'] }
@@ -23,15 +29,14 @@ describe('CASL Course ABAC Rules', () => {
   })
 
   it('allows admin with course:manage to teach any class', () => {
-    const adminContext: UserContext = {
+    const adminContext = createMockContext({
       userId: 'admin_1',
-      roleId: 'role_admin',
       permissions: { 'course:manage': true } as any,
-      scope: 'Global',
-      revealAuthority: {} as any,
-      managedGroupIds: [],
-      orgRoles: []
-    }
+      accessScope: {
+        admin: { isGlobal: true, zone: [], group: [] },
+        functions: { isGlobal: false, targets: {} },
+      },
+    })
 
     const ability = buildAbility(adminContext)
     const someClass = { __type: 'CourseClass', teacherIds: ['teacher_123'] }

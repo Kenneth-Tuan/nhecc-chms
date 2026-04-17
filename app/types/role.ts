@@ -2,9 +2,6 @@
  * 角色與權限型別定義 (ST002)
  */
 
-/** 資料範圍等級 (Y 軸) */
-export type DataScope = "Global" | "Zone" | "Group" | "Self";
-
 /** 權限鍵值 (X 軸) */
 export type PermissionKey =
   // 儀表板
@@ -33,14 +30,6 @@ export type PermissionKey =
   | "courseClass:delete"
   | "courseClass:grade";
 
-/** Z 軸敏感資料解鎖權限的欄位列舉 */
-export type SensitiveField =
-  | "mobile"
-  | "email"
-  | "lineId"
-  | "address"
-  | "emergencyContactPhone";
-
 /** 角色實體介面 */
 export interface Role {
   id: string;
@@ -48,8 +37,6 @@ export interface Role {
   description: string;
   isSystem: boolean;
   permissions: Record<PermissionKey, boolean>;
-  scope: DataScope;
-  revealAuthority: Record<SensitiveField, boolean>;
   createdAt: string;
   updatedAt: string;
   createdBy: string;
@@ -60,8 +47,6 @@ export interface CreateRolePayload {
   name: string;
   description: string;
   permissions: Record<PermissionKey, boolean>;
-  scope: DataScope;
-  revealAuthority: Record<SensitiveField, boolean>;
 }
 
 /** 更新角色請求資料 */

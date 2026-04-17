@@ -84,13 +84,7 @@ const auth = useAuth();
     >
       <h2 class="text-lg font-semibold mb-4">歡迎使用 NHECC ChMS</h2>
       <p class="text-slate-600 dark:text-slate-400">
-        您目前以 <strong>{{ auth.currentUserName.value }}</strong> 身分登入，
-        資料範圍為
-        <Tag
-          :value="auth.currentScopeLabel.value"
-          severity="info"
-          class="!text-xs"
-        />。
+        您目前以 <strong>{{ auth.currentUserName.value }}</strong> 身分登入。
       </p>
     </div>
   </div>

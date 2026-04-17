@@ -205,7 +205,7 @@ const onStep2Submit = async () => {
     });
 
     await authStore.loadContext();
-    if (authStore.isAdmin) {
+    if (authStore.canAccessDashboard) {
       navigateTo("/dashboard");
     } else {
       navigateTo("/");
@@ -224,7 +224,7 @@ const onStep2Submit = async () => {
 
 const handleSkip = async () => {
   await authStore.loadContext();
-  if (authStore.isAdmin) {
+  if (authStore.canAccessDashboard) {
     navigateTo("/dashboard");
   } else {
     navigateTo("/");

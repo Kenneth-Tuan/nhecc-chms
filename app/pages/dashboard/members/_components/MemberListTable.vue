@@ -80,7 +80,7 @@ function onRowClick(event: { data: MemberListItem }): void {
         </template>
       </Column>
 
-      <!-- Contact (masked) -->
+      <!-- Contact -->
       <Column header="聯絡資訊" :style="{ minWidth: '150px' }">
         <template #body="{ data }">
           <div class="text-sm">

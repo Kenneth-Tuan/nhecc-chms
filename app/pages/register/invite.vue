@@ -118,7 +118,7 @@ async function handleSubmit(): Promise<void> {
       life: 3000,
     });
 
-    navigateTo(authStore.isAdmin ? "/dashboard" : "/");
+    navigateTo(authStore.canAccessDashboard ? "/dashboard" : "/");
   } catch (err: any) {
     toast.add({
       severity: "error",

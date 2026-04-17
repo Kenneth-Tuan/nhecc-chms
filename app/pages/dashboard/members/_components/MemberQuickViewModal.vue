@@ -18,15 +18,12 @@ const emit = defineEmits<{
   close: [];
 }>();
 
-const { cleanup } = useRevealSensitiveData();
 const activeTab = ref(0);
 
-// Reset state when opening/closing
 watch(
   () => props.visible,
   (val) => {
     if (val) activeTab.value = 0;
-    cleanup(); // Clear any previous reveal state
   },
 );
 </script>

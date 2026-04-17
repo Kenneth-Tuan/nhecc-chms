@@ -4,8 +4,6 @@
 
 /** 稽核操作類型列舉 */
 export type AuditAction =
-  | "REVEAL_SENSITIVE_DATA"
-  | "REVEAL_ATTEMPT_FAILED"
   | "member:create"
   | "member:update"
   | "member:delete";
@@ -38,8 +36,3 @@ export interface CreateAuditLogPayload {
   details?: Record<string, unknown>;
 }
 
-/** API 回應中的解鎖操作結果介面 */
-export interface RevealResult {
-  revealedFields: Record<string, { value: string; auditLogId: string }>;
-  failedFields: Record<string, { error: string; message: string }>;
-}

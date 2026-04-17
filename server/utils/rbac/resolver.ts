@@ -4,51 +4,43 @@
  */
 import type {
   Role,
-  DataScope,
   PermissionKey,
-  SensitiveField,
 } from "~/types/role";
 import type { UserContext } from "~/types/auth";
 import type { Member } from "~/types/member";
+import type { DataAccess } from "~/types/data-access";
 import {
   ALL_PERMISSION_KEYS,
-  ALL_SENSITIVE_FIELDS,
-  SCOPE_HIERARCHY,
   createEmptyPermissions,
-  createEmptyRevealAuthority,
 } from "./permissions";
 
 /**
- * 根據會友資料與角色集解析使用者上下文。
- * 使用聯集策略：採用最廣泛的資料範圍，任意角色擁有的權限皆會被授予。
+ * 根據會友資料、角色集與 data_access 文件解析使用者上下文。
+ * 使用聯集策略：任意角色擁有的權限皆會被授予。
+ * 資料範圍由 data_access 文件決定。
  */
-export function resolveUserContext(member: Member, roles: Role[]): UserContext {
-  // 解析資料範圍 (Y 軸)：採用最廣泛者
-  const scope = resolveBroadestScope(roles);
-
-  // 解析功能權限 (X 軸)：所有角色的權限聯集
+export function resolveUserContext(
+  member: Member,
+  roles: Role[],
+  dataAccess: DataAccess | null,
+): UserContext {
   const permissions = resolveUnionPermissions(roles);
 
-  // 解析敏感資料解鎖權限 (Z 軸)：所有角色的權限聯集
-  const revealAuthority = resolveUnionRevealAuthority(roles);
-
-  // 組合管理的小組 ID 清單
-  const groupIds = member.groupId ? [member.groupId] : [];
-  const functionalGroupIds = member.functionalGroupIds || [];
-  const managedGroupIds = [...new Set([...groupIds, ...functionalGroupIds])];
+  const emptyAdmin = { isGlobal: false, zone: [] as string[], group: [] as string[] };
+  const emptyFunctions = { isGlobal: false, targets: {} as Record<string, string[]> };
 
   return {
     userId: member.uuid,
     fullName: member.fullName,
     email: member.email,
     avatar: member.avatar,
-    scope,
     zoneId: member.zoneId || undefined,
-    groupIds,
-    functionalGroupIds,
-    managedGroupIds,
+    groupId: member.groupId || undefined,
+    accessScope: {
+      admin: dataAccess?.admin ?? emptyAdmin,
+      functions: dataAccess?.functions ?? emptyFunctions,
+    },
     permissions,
-    revealAuthority,
     linkedProviders: {
       google:
         !!member.linkedProviders?.google ||
@@ -65,25 +57,6 @@ export function resolveUserContext(member: Member, roles: Role[]): UserContext {
 }
 
 /**
- * 從所有角色中獲取最廣泛的資料範圍。
- * 全域 (Global) > 牧區 (Zone) > 小組 (Group) > 本人 (Self)
- */
-function resolveBroadestScope(roles: Role[]): DataScope {
-  let maxIndex = 0;
-
-  for (const role of roles) {
-    const index = SCOPE_HIERARCHY.indexOf(
-      role.scope as (typeof SCOPE_HIERARCHY)[number],
-    );
-    if (index > maxIndex) {
-      maxIndex = index;
-    }
-  }
-
-  return SCOPE_HIERARCHY[maxIndex] as DataScope;
-}
-
-/**
  * 功能權限聯集：若任何一個角色擁有該權限，則授予該權限。
  */
 function resolveUnionPermissions(
@@ -95,25 +68,6 @@ function resolveUnionPermissions(
     for (const key of ALL_PERMISSION_KEYS) {
       if (role.permissions[key]) {
         result[key] = true;
-      }
-    }
-  }
-
-  return result;
-}
-
-/**
- * 解鎖權限聯集：若任何一個角色擁有該解鎖權限，則授予該權限。
- */
-function resolveUnionRevealAuthority(
-  roles: Role[],
-): Record<SensitiveField, boolean> {
-  const result = createEmptyRevealAuthority();
-
-  for (const role of roles) {
-    for (const field of ALL_SENSITIVE_FIELDS) {
-      if (role.revealAuthority[field]) {
-        result[field] = true;
       }
     }
   }

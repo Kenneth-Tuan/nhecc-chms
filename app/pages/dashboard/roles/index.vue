@@ -70,20 +70,6 @@ async function deleteRole(role: Role): Promise<void> {
   }
 }
 
-const scopeLabel: Record<string, string> = {
-  Global: "全教會",
-  Zone: "牧區",
-  Group: "小組",
-  Self: "個人",
-};
-
-const scopeSeverity: Record<string, string> = {
-  Global: "danger",
-  Zone: "warn",
-  Group: "info",
-  Self: "secondary",
-};
-
 onMounted(() => {
   fetchRoles();
 });
@@ -145,16 +131,6 @@ function openInviteDialog(role: Role): void {
             <span class="text-sm text-slate-500 dark:text-slate-400">{{
               data.description
             }}</span>
-          </template>
-        </Column>
-
-        <Column field="scope" header="資料範圍">
-          <template #body="{ data }">
-            <Tag
-              :value="scopeLabel[data.scope] || data.scope"
-              :severity="(scopeSeverity[data.scope] as any) || 'info'"
-              class="!text-xs"
-            />
           </template>
         </Column>
 

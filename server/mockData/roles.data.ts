@@ -1,8 +1,8 @@
 /**
  * Mock Role Data (ST002)
- * System roles with XYZ permissions
+ * System roles with X-axis permissions only
  */
-import type { Role, PermissionKey, SensitiveField } from '~/types/role';
+import type { Role, PermissionKey } from '~/types/role';
 
 /** Helper: create a full permission record */
 function createPermissions(
@@ -36,24 +36,6 @@ function createPermissions(
   return record;
 }
 
-/** Helper: create a full reveal authority record */
-function createRevealAuthority(
-  granted: SensitiveField[],
-): Record<SensitiveField, boolean> {
-  const allFields: SensitiveField[] = [
-    'mobile',
-    'email',
-    'lineId',
-    'address',
-    'emergencyContactPhone',
-  ];
-  const record = {} as Record<SensitiveField, boolean>;
-  for (const field of allFields) {
-    record[field] = granted.includes(field);
-  }
-  return record;
-}
-
 export const mockRoles: Role[] = [
   {
     id: 'super_admin',
@@ -81,14 +63,6 @@ export const mockRoles: Role[] = [
       'courseClass:grade',
       'courseClass:delete',
     ]),
-    scope: 'Global',
-    revealAuthority: createRevealAuthority([
-      'mobile',
-      'email',
-      'lineId',
-      'address',
-      'emergencyContactPhone',
-    ]),
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
     createdBy: 'system',
@@ -112,14 +86,6 @@ export const mockRoles: Role[] = [
       'courseClass:view_inprogress',
       'courseClass:view_completed',
     ]),
-    scope: 'Zone',
-    revealAuthority: createRevealAuthority([
-      'mobile',
-      'email',
-      'lineId',
-      'address',
-      'emergencyContactPhone',
-    ]),
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
     createdBy: 'system',
@@ -139,12 +105,6 @@ export const mockRoles: Role[] = [
       'courseClass:view_inprogress',
       'courseClass:view_completed',
     ]),
-    scope: 'Group',
-    revealAuthority: createRevealAuthority([
-      'mobile',
-      'email',
-      'emergencyContactPhone',
-    ]),
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
     createdBy: 'system',
@@ -163,8 +123,6 @@ export const mockRoles: Role[] = [
       'courseClass:manage',
       'courseClass:grade',
     ]),
-    scope: 'Group',
-    revealAuthority: createRevealAuthority(['mobile', 'email']),
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
     createdBy: 'system',
@@ -175,8 +133,6 @@ export const mockRoles: Role[] = [
     description: '僅能檢視與編輯本人資料',
     isSystem: true,
     permissions: createPermissions(['member:view', 'member:edit']),
-    scope: 'Self',
-    revealAuthority: createRevealAuthority([]),
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
     createdBy: 'system',

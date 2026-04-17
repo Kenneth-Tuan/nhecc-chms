@@ -45,12 +45,3 @@ export interface ApiErrorResponse {
 /** API 聯合回應型別 */
 export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
 
-/** 解鎖敏感資造請求介面 */
-export interface RevealRequest {
-  fields: string[];
-}
-
-/** 解鎖敏感資料回應結果 */
-export interface RevealResponse {
-  [field: string]: string;
-}

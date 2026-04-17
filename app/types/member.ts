@@ -85,11 +85,6 @@ export interface Member {
   requiresPasswordChange?: boolean;
 }
 
-/** 附在 API 回應中的敏感欄位中繼資料 */
-export interface SensitiveFieldMeta {
-  canReveal: boolean;
-}
-
 /** 會友清單項目（用於 DataTable） */
 export interface MemberListItem {
   uuid: string;
@@ -98,9 +93,7 @@ export interface MemberListItem {
   dob: string;
   age: number;
   mobile: string;
-  mobileMeta: SensitiveFieldMeta;
   email: string;
-  emailMeta: SensitiveFieldMeta;
   roleIds: string[];
   roleNames: string[];
   zoneId?: string | null;
@@ -119,13 +112,6 @@ export interface MemberDetail extends Member {
   groupName?: string;
   roleNames: string[];
   courseRecords: MemberCourseRecord[];
-
-  // 敏感欄位中繼資料
-  mobileMeta: SensitiveFieldMeta;
-  emailMeta: SensitiveFieldMeta;
-  lineIdMeta: SensitiveFieldMeta;
-  addressMeta: SensitiveFieldMeta;
-  emergencyContactPhoneMeta: SensitiveFieldMeta;
 }
 
 /** 會友清單 API 過濾條件 */

@@ -30,6 +30,12 @@ const menuItems = computed(() =>
       show: auth.can("manage", "System"),
     },
     {
+      label: "權限管理",
+      icon: "pi pi-lock",
+      to: "/dashboard/access-control",
+      show: auth.can("manage", "System"),
+    },
+    {
       label: "課程管理",
       icon: "pi pi-book",
       to: "/dashboard/courses/templates",

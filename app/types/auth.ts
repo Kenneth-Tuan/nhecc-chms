@@ -4,7 +4,7 @@
 
 import type { RawRuleOf } from "@casl/ability";
 import type { PackRule } from "@casl/ability/extra";
-import type { DataScope, PermissionKey, SensitiveField } from "./role";
+import type { PermissionKey } from "./role";
 import type { AppAbility } from "~/utils/casl/ability";
 
 /** 經過 RBAC 中間件解析後的用戶上下文 */
@@ -13,13 +13,20 @@ export interface UserContext {
   fullName: string;
   email?: string;
   avatar?: string | null;
-  scope: DataScope;
   zoneId?: string;
-  groupIds: string[];
-  functionalGroupIds: string[];
-  managedGroupIds: string[];
+  groupId?: string;
+  accessScope: {
+    admin: {
+      isGlobal: boolean;
+      zone: string[];
+      group: string[];
+    };
+    functions: {
+      isGlobal: boolean;
+      targets: Record<string, string[]>;
+    };
+  };
   permissions: Record<PermissionKey, boolean>;
-  revealAuthority: Record<SensitiveField, boolean>;
   /** 帳號連結狀態（只含 boolean，不暴露實際 UID） */
   linkedProviders: {
     google: boolean;

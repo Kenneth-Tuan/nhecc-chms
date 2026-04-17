@@ -17,8 +17,10 @@ export function useAuth() {
   return {
     userContext: computed(() => store.userContext),
     currentUserName: computed(() => store.currentUserName),
-    currentScope: computed(() => store.currentScope),
-    currentScopeLabel: computed(() => store.currentScopeLabel),
+    isAdmin: computed(() => store.isAdmin),
+    canAccessDashboard: computed(() => store.canAccessDashboard),
+    hasAdminAccess: computed(() => store.hasAdminAccess),
+    hasFunctionsAccess: computed(() => store.hasFunctionsAccess),
     isLoading: computed(() => store.isLoading),
     isInitialized: computed(() => store.isInitialized),
     can,

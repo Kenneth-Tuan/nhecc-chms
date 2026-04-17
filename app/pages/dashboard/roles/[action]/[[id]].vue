@@ -2,16 +2,8 @@
 /**
  * Create/Edit Role Page (ST002)
  */
-import type {
-  Role,
-  PermissionKey,
-  SensitiveField,
-  DataScope,
-} from "~/types/role";
-import {
-  createEmptyPermissions,
-  createEmptyRevealAuthority,
-} from "~/utils/rbac/permissions";
+import type { Role, PermissionKey } from "~/types/role";
+import { createEmptyPermissions } from "~/utils/rbac/permissions";
 import RoleFormFields from "../_components/RoleFormFields.vue";
 
 definePageMeta({
@@ -37,9 +29,7 @@ const isSubmitting = ref(false);
 const formData = ref({
   name: "",
   description: "",
-  scope: "Self" as DataScope,
   permissions: createEmptyPermissions(),
-  revealAuthority: createEmptyRevealAuthority(),
 });
 
 const isSystemRole = computed(() => role.value?.isSystem === true);
@@ -54,9 +44,7 @@ async function loadData(): Promise<void> {
       formData.value = {
         name: data.name,
         description: data.description || "",
-        scope: data.scope,
         permissions: { ...data.permissions },
-        revealAuthority: { ...data.revealAuthority },
       };
     } catch {
       toast.add({

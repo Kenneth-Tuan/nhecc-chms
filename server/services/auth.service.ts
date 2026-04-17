@@ -9,6 +9,7 @@ import { MemberRepository } from "../repositories/member.repository";
 import { RoleRepository } from "../repositories/role.repository";
 import { resolveUserContext } from "../utils/rbac/resolver";
 import { buildAbility } from "~/utils/casl/ability";
+import { getDataAccess, clearDacCache } from "../utils/dacEngine";
 
 const memberRepo = new MemberRepository();
 const roleRepo = new RoleRepository();
@@ -40,7 +41,8 @@ export class AuthService {
       }
     }
 
-    const context = resolveUserContext(member, roles);
+    const dataAccess = await getDataAccess(userId);
+    const context = resolveUserContext(member, roles, dataAccess);
 
     contextCache.set(userId, {
       context,
@@ -53,8 +55,10 @@ export class AuthService {
   clearCache(userId?: string): void {
     if (userId) {
       contextCache.delete(userId);
+      clearDacCache(userId);
     } else {
       contextCache.clear();
+      clearDacCache();
     }
   }
 
