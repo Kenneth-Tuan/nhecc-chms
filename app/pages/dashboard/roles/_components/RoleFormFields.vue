@@ -7,6 +7,9 @@ import {
   SCOPE_OPTIONS,
 } from "~/utils/rbac/permissions";
 
+/** 前端暫不顯示「敏感資料解鎖權限」區塊；改為 `true` 即可恢復 UI（後端 Z 軸仍保留） */
+const SHOW_REVEAL_AUTHORITY_UI = false;
+
 type RoleFormData = {
   name: string;
   description: string;
@@ -136,8 +139,9 @@ function setScope(value: DataScope): void {
     </div>
   </div>
 
-  <!-- Z-axis: Reveal Authority -->
+  <!-- Z-axis: Reveal Authority（暫時隱藏，見 SHOW_REVEAL_AUTHORITY_UI） -->
   <div
+    v-if="SHOW_REVEAL_AUTHORITY_UI"
     class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6"
   >
     <h2 class="text-lg font-semibold mb-4">

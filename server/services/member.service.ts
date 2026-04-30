@@ -13,12 +13,10 @@ import type {
   UpdateMemberPayload,
 } from "~/types/member";
 import type { PaginatedResponse } from "~/types/api";
-import type { SensitiveField } from "~/types/role";
 import type { AppAbility } from "~/utils/casl/ability";
 import { MemberRepository } from "../repositories/member.repository";
 import { OrganizationRepository } from "../repositories/organization.repository";
 import { RoleRepository } from "../repositories/role.repository";
-import { getMaskFunction } from "../utils/rbac/masking";
 import { applyScopeConstraints, assertScopeAccess } from "../utils/rbac/scopes";
 import { calculateAge, paginateArray } from "../utils/helpers";
 import { createError } from "h3";
@@ -30,7 +28,8 @@ const roleRepo = new RoleRepository();
 
 export class MemberService {
   /**
-   * 獲取分頁會友清單，包含範圍過濾與資料遮蔽處理。
+   * 獲取分頁會友清單，包含範圍過濾。
+   * 敏感欄位目前一律回傳明碼（前端暫不使用遮罩／解鎖 UI）；Z 軸 reveal API 仍保留。
    */
   async list(
     userContext: UserContext,
@@ -50,7 +49,7 @@ export class MemberService {
     // 3. 排序
     members = this.sortMembers(members, sortBy, sortOrder);
 
-    // 4. 轉換為清單項目並進行資料遮蔽 (Masking)
+    // 4. 轉換為清單項目（敏感欄位明碼；meta 仍反映 Z 軸權限供未來使用）
     const zones = await orgRepo.findAllZones();
     const groups = await orgRepo.findAllGroups();
     const roles = await roleRepo.findAll();
@@ -66,9 +65,9 @@ export class MemberService {
         gender: m.gender,
         dob: m.dob,
         age: calculateAge(m.dob),
-        mobile: getMaskFunction("mobile")(m.mobile),
+        mobile: m.mobile,
         mobileMeta: { canReveal: ability.can("reveal", "Member", "mobile") },
-        email: getMaskFunction("email")(m.email),
+        email: m.email,
         emailMeta: { canReveal: ability.can("reveal", "Member", "email") },
         roleIds: m.roleIds,
         roleNames: memberRoles.map((r) => r.name),
@@ -87,7 +86,8 @@ export class MemberService {
   }
 
   /**
-   * 獲取單一會友詳情與資料遮蔽處理。
+   * 獲取單一會友詳情。
+   * 敏感欄位目前一律回傳明碼；Z 軸 reveal API 仍保留。
    */
   async getDetail(
     userContext: UserContext,
@@ -124,41 +124,8 @@ export class MemberService {
       },
     );
 
-    // 應用資料遮蔽
-    const sensitiveFields: SensitiveField[] = [
-      "mobile",
-      "email",
-      "lineId",
-      "address",
-      "emergencyContactPhone",
-    ];
-
-    const isSelf = userContext.userId === member.uuid;
-
-    const maskedMember = { ...member };
-    for (const field of sensitiveFields) {
-      if (isSelf || ability.can("reveal", "Member", field)) {
-        continue;
-      }
-
-      const maskFn = getMaskFunction(field);
-      if (field === "mobile") {
-        maskedMember.mobile = maskFn(member.mobile);
-      } else if (field === "email") {
-        maskedMember.email = maskFn(member.email);
-      } else if (field === "lineId" && member.lineId) {
-        maskedMember.lineId = maskFn(member.lineId);
-      } else if (field === "address" && member.address) {
-        maskedMember.address = maskFn(member.address);
-      } else if (field === "emergencyContactPhone") {
-        maskedMember.emergencyContactPhone = maskFn(
-          member.emergencyContactPhone,
-        );
-      }
-    }
-
     return {
-      ...maskedMember,
+      ...member,
       age: calculateAge(member.dob),
       zoneName: zone?.name,
       groupName: group?.name,
