@@ -2,21 +2,21 @@
 /**
  * 課程模板列表 DataTable (ST015)
  */
-import type { CourseTemplateListItem } from '~/types/course'
+import type { CourseTemplateListItem } from "~/types/course";
 
 defineProps<{
-  templates: CourseTemplateListItem[]
-  isLoading: boolean
-  getFormatLabel: (value?: string) => string
-  getFrequencyLabel: (value?: string) => string
-}>()
+  templates: CourseTemplateListItem[];
+  isLoading: boolean;
+  getFormatLabel: (value?: string) => string;
+  getFrequencyLabel: (value?: string) => string;
+}>();
 
 const emit = defineEmits<{
-  edit: [template: CourseTemplateListItem]
-  viewClasses: [template: CourseTemplateListItem]
-  createClass: [template: CourseTemplateListItem]
-  toggleStatus: [template: CourseTemplateListItem]
-}>()
+  edit: [template: CourseTemplateListItem];
+  viewClasses: [template: CourseTemplateListItem];
+  createClass: [template: CourseTemplateListItem];
+  toggleStatus: [template: CourseTemplateListItem];
+}>();
 </script>
 
 <template>
@@ -27,32 +27,27 @@ const emit = defineEmits<{
     responsive-layout="scroll"
     class="text-base"
   >
-    <Column field="code" header="課程代號" sortable style="min-width: 120px" class="text-base">
+    <Column field="code" header="課程代號" sortable>
       <template #body="{ data }">
         <span class="font-mono font-bold text-slate-600">{{ data.code }}</span>
       </template>
     </Column>
 
-    <Column field="name" header="課程名稱" sortable style="min-width: 250px" class="font-bold text-slate-800 text-base" />
+    <Column field="name" header="課程名稱" sortable />
 
-    <Column field="format" header="授課方式" style="min-width: 140px" class="text-base">
+    <Column field="format" header="授課方式">
       <template #body="{ data }">
         {{ getFormatLabel(data.format) }}
       </template>
     </Column>
 
-    <Column field="frequency" header="開課頻率" style="min-width: 140px" class="text-base">
+    <Column field="frequency" header="開課頻率">
       <template #body="{ data }">
         {{ getFrequencyLabel(data.frequency) }}
       </template>
     </Column>
 
-    <Column
-      field="prerequisiteCount"
-      header="擋修條件"
-      style="min-width: 120px"
-      class="text-base"
-    >
+    <Column field="prerequisiteCount" header="擋修條件">
       <template #body="{ data }">
         <Tag
           v-if="data.prerequisiteCount > 0"
@@ -64,7 +59,7 @@ const emit = defineEmits<{
       </template>
     </Column>
 
-    <Column field="status" header="狀態" style="min-width: 120px" class="text-base">
+    <Column field="status" header="狀態">
       <template #body="{ data }">
         <ToggleSwitch
           :model-value="data.status === 'ACTIVE'"
@@ -73,7 +68,7 @@ const emit = defineEmits<{
       </template>
     </Column>
 
-    <Column header="操作" style="min-width: 150px" class="text-base">
+    <Column header="操作">
       <template #body="{ data }">
         <div class="flex gap-3">
           <Button

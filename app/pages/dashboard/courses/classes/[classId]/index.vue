@@ -14,9 +14,12 @@ const router = useRouter();
 const toast = useToast();
 
 const classId = computed(() => route.params.classId as string);
-const { fetchClassById, fetchClassStudents, updateClass, isCreating } = useCourseClass();
-const currentClass = ref<(CourseClass & { templateName: string, templateCode: string }) | null>(null);
-const students = ref<any[]>([]); 
+const { fetchClassById, fetchClassStudents, updateClass, isCreating } =
+  useCourseClass();
+const currentClass = ref<
+  (CourseClass & { templateName: string; templateCode: string }) | null
+>(null);
+const students = ref<any[]>([]);
 const isLoading = ref(false);
 const showEditDialog = ref(false);
 
@@ -45,7 +48,7 @@ onMounted(async () => {
 function goBack() {
   if (currentClass.value) {
     router.push(
-      `/dashboard/courses/templates/${currentClass.value.templateId}/classes`,
+      `/dashboard/courses/templates/${currentClass.value.templateId}/classes`
     );
   } else {
     router.push("/dashboard/courses/templates");
@@ -56,9 +59,9 @@ async function handleUpdateClass(formData: any) {
   if (!currentClass.value) return;
   try {
     const updated = await updateClass(classId.value, formData);
-    currentClass.value = { 
-      ...currentClass.value, 
-      ...updated 
+    currentClass.value = {
+      ...currentClass.value,
+      ...updated,
     };
     showEditDialog.value = false;
     toast.add({
@@ -115,7 +118,7 @@ async function handleUpdateClass(formData: any) {
     <template v-else-if="currentClass">
       <!-- Summary Card: 狀態與操作 -->
       <div
-        class="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8"
+        class="bg-surface-0 dark:bg-surface-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8"
       >
         <div>
           <div class="flex items-center gap-3 mb-2">
@@ -130,10 +133,13 @@ async function handleUpdateClass(formData: any) {
               >ID: {{ currentClass.id }}</span
             >
           </div>
-          <h1 class="text-3xl font-bold text-slate-800">
+          <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100">
             {{ currentClass.name }}
           </h1>
-          <p v-if="currentClass.description" class="text-slate-500 text-base mt-2 max-w-2xl">
+          <p
+            v-if="currentClass.description"
+            class="text-slate-500 text-base mt-2 max-w-2xl"
+          >
             {{ currentClass.description }}
           </p>
         </div>
@@ -143,14 +149,14 @@ async function handleUpdateClass(formData: any) {
             label="編輯班級"
             icon="pi pi-cog"
             outlined
-            class="text-slate-600 border-slate-300 text-base px-6"
+            class="text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-700 text-base px-6"
             @click="showEditDialog = true"
           />
           <Button
             v-if="currentClass.status === 'SETUP'"
             label="正式開課"
             icon="pi pi-play"
-            class="bg-emerald-600 hover:bg-emerald-700 border-none shadow-lg shadow-emerald-100 text-base px-8 py-3 font-bold"
+            class="bg-emerald-600 dark:bg-emerald-700 hover:bg-emerald-700 dark:hover:bg-emerald-800 border-none shadow-lg shadow-emerald-100 dark:shadow-emerald-900 text-base px-8 py-3 font-bold text-white dark:text-white"
           />
         </div>
       </div>
@@ -166,15 +172,19 @@ async function handleUpdateClass(formData: any) {
         <div class="space-y-8">
           <!-- Info Card -->
           <div
-            class="bg-white border border-slate-200 rounded-xl p-8 shadow-sm"
+            class="bg-surface-0 dark:bg-surface-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8 shadow-sm"
           >
-            <h3 class="text-xl font-bold text-slate-800 mb-6 border-b pb-3">
+            <h3
+              class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6 border-b pb-3"
+            >
               班級概況
             </h3>
             <div class="space-y-6">
               <div class="flex justify-between items-center">
                 <span class="text-slate-500 text-base">授課老師</span>
-                <span class="font-bold text-slate-700 text-base">
+                <span
+                  class="font-bold dark:font-bold text-slate-700 dark:text-slate-300 text-base"
+                >
                   {{
                     currentClass.teachers.length > 0
                       ? currentClass.teachers.map((t: any) => t.name).join(", ")
@@ -184,41 +194,53 @@ async function handleUpdateClass(formData: any) {
               </div>
               <div class="flex justify-between items-center">
                 <span class="text-slate-500 text-base">上課地點</span>
-                <span class="font-bold text-slate-700 text-base">{{
-                  currentClass.location
-                }}</span>
+                <span
+                  class="font-bold dark:font-bold text-slate-700 dark:text-slate-300 text-base"
+                  >{{ currentClass.location }}</span
+                >
               </div>
-              <div v-if="currentClass.meetingLink" class="flex justify-between items-center">
+              <div
+                v-if="currentClass.meetingLink"
+                class="flex justify-between items-center"
+              >
                 <span class="text-slate-500 text-base">線上連結</span>
-                <a 
-                  :href="currentClass.meetingLink" 
-                  target="_blank" 
-                  class="text-blue-600 hover:underline font-bold text-sm truncate max-w-[150px]"
+                <a
+                  :href="currentClass.meetingLink"
+                  target="_blank"
+                  class="text-blue-600 dark:text-blue-400 hover:underline font-bold text-sm truncate max-w-[150px]"
                 >
                   {{ currentClass.meetingLink }}
                 </a>
               </div>
-              <div v-if="currentClass.scheduleDescription" class="flex justify-between items-center">
+              <div
+                v-if="currentClass.scheduleDescription"
+                class="flex justify-between items-center"
+              >
                 <span class="text-slate-500 text-base">時間備註</span>
-                <span class="font-bold text-slate-700 text-sm text-right max-w-[150px]">
+                <span
+                  class="font-bold dark:font-bold text-slate-700 dark:text-slate-300 text-sm text-right max-w-[150px]"
+                >
                   {{ currentClass.scheduleDescription }}
                 </span>
               </div>
               <div class="flex justify-between items-center">
                 <span class="text-slate-500 text-base">建立日期</span>
-                <span class="font-bold text-slate-700 text-base">{{
-                  new Date(currentClass.createdAt).toLocaleDateString("zh-TW")
-                }}</span>
+                <span
+                  class="font-bold dark:font-bold text-slate-700 dark:text-slate-300 text-base"
+                  >{{
+                    new Date(currentClass.createdAt).toLocaleDateString("zh-TW")
+                  }}</span
+                >
               </div>
             </div>
           </div>
 
           <!-- Schedule Card -->
           <div
-            class="bg-white border border-slate-200 rounded-xl p-8 shadow-sm"
+            class="bg-surface-0 dark:bg-surface-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8 shadow-sm"
           >
             <div class="flex justify-between items-center border-b pb-3 mb-6">
-              <h3 class="text-xl font-bold text-slate-800">
+              <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">
                 課程表 ({{ currentClass.sessions.length }} 堂)
               </h3>
             </div>
@@ -227,15 +249,17 @@ async function handleUpdateClass(formData: any) {
               <div
                 v-for="(session, idx) in currentClass.sessions"
                 :key="session.sessionId"
-                class="flex gap-4 items-start p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors"
+                class="flex gap-4 items-start p-4 bg-slate-50 dark:bg-slate-800 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
               >
                 <div
-                  class="bg-slate-200 text-slate-700 font-bold px-4 py-1 rounded text-base mt-1"
+                  class="bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold px-4 py-1 rounded text-base mt-1"
                 >
                   {{ idx + 1 }}
                 </div>
                 <div>
-                  <div class="font-bold text-slate-800 text-base leading-tight">
+                  <div
+                    class="font-bold dark:font-bold text-slate-900 dark:text-slate-100 text-base leading-tight"
+                  >
                     {{
                       new Date(session.startTime).toLocaleDateString("zh-TW", {
                         month: "short",

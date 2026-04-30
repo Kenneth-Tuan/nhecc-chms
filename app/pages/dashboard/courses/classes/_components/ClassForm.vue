@@ -57,7 +57,7 @@ const form = ref({
 // 初始化資料
 onMounted(async () => {
   teachers.value = await fetchTeachers();
-  
+
   if (props.initialData) {
     const d = props.initialData;
     form.value = {
@@ -78,20 +78,28 @@ onMounted(async () => {
 
 function generateSessions() {
   if (!form.value.startDate || !form.value.endDate) {
-    toast.add({ severity: "warn", summary: "無法產生", detail: "請先設定開課與結課日期", life: 3000 });
+    toast.add({
+      severity: "warn",
+      summary: "無法產生",
+      detail: "請先設定開課與結課日期",
+      life: 3000,
+    });
     return;
   }
 
   const start = dayjs(form.value.startDate);
   const end = dayjs(form.value.endDate);
   const newSessions: any[] = [];
-  
+
   const startTime = dayjs(genTimeRange.value[0]);
   const endTime = dayjs(genTimeRange.value[1]);
 
   let current = start;
   // 尋找第一個符合星期的日子
-  while (current.day() !== genWeekday.value && (current.isBefore(end) || current.isSame(end, "day"))) {
+  while (
+    current.day() !== genWeekday.value &&
+    (current.isBefore(end) || current.isSame(end, "day"))
+  ) {
     current = current.add(1, "day");
   }
 
@@ -100,7 +108,7 @@ function generateSessions() {
       .set("hour", startTime.hour())
       .set("minute", startTime.minute())
       .set("second", 0);
-    
+
     const sessionEnd = current
       .set("hour", endTime.hour())
       .set("minute", endTime.minute())
@@ -111,18 +119,26 @@ function generateSessions() {
       startTime: sessionStart.toISOString(),
       endTime: sessionEnd.toISOString(),
     });
-    
+
     current = current.add(1, "week");
   }
 
   form.value.sessions = newSessions;
-  
+
   // 自動更新描述
-  const weekdayLabel = weekdays.find(w => w.value === genWeekday.value)?.label || "";
-  const timeStr = `${dayjs(startTime).format("HH:mm")} - ${dayjs(endTime).format("HH:mm")}`;
+  const weekdayLabel =
+    weekdays.find((w) => w.value === genWeekday.value)?.label || "";
+  const timeStr = `${dayjs(startTime).format("HH:mm")} - ${dayjs(
+    endTime
+  ).format("HH:mm")}`;
   form.value.scheduleDescription = `${weekdayLabel} ${timeStr}`;
 
-  toast.add({ severity: "success", summary: "產生成功", detail: `已產生 ${newSessions.length} 堂課`, life: 3000 });
+  toast.add({
+    severity: "success",
+    summary: "產生成功",
+    detail: `已產生 ${newSessions.length} 堂課`,
+    life: 3000,
+  });
 }
 
 function removeSession(index: number) {
@@ -165,7 +181,9 @@ async function onFormSubmit() {
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <!-- 班級名稱 -->
       <div class="flex flex-col gap-2 md:col-span-2">
-        <label class="font-bold text-slate-700 text-base">正式班級名稱 *</label>
+        <label class="font-bold text-slate-700 dark:text-slate-300"
+          >正式班級名稱 *</label
+        >
         <InputText
           v-model="form.name"
           placeholder="例：啟發課程 2026 第一期"
@@ -176,7 +194,7 @@ async function onFormSubmit() {
 
       <!-- 授課老師 -->
       <div class="flex flex-col gap-2 md:col-span-2">
-        <label class="font-bold text-slate-700 text-base"
+        <label class="font-bold text-slate-700 dark:text-slate-300"
           >指派授課老師 / 同伴者 *</label
         >
         <MultiSelect
@@ -192,7 +210,9 @@ async function onFormSubmit() {
 
       <!-- 日期範圍 -->
       <div class="flex flex-col gap-2">
-        <label class="font-bold text-slate-700 text-base">預計開課日期 *</label>
+        <label class="font-bold text-slate-700 dark:text-slate-300"
+          >預計開課日期 *</label
+        >
         <DatePicker
           v-model="form.startDate"
           date-format="yy-mm-dd"
@@ -202,7 +222,9 @@ async function onFormSubmit() {
         />
       </div>
       <div class="flex flex-col gap-2">
-        <label class="font-bold text-slate-700 text-base">預計結課日期 *</label>
+        <label class="font-bold text-slate-700 dark:text-slate-300"
+          >預計結課日期 *</label
+        >
         <DatePicker
           v-model="form.endDate"
           date-format="yy-mm-dd"
@@ -214,7 +236,9 @@ async function onFormSubmit() {
 
       <!-- 地點 -->
       <div class="flex flex-col gap-2">
-        <label class="font-bold text-slate-700 text-base">上課地點 *</label>
+        <label class="font-bold text-slate-700 dark:text-slate-300"
+          >上課地點 *</label
+        >
         <InputText
           v-model="form.location"
           placeholder="例：三樓副堂 / 線上 Zoom"
@@ -225,7 +249,9 @@ async function onFormSubmit() {
 
       <!-- 線上連結 -->
       <div class="flex flex-col gap-2">
-        <label class="font-bold text-slate-700 text-base">線上會議連結</label>
+        <label class="font-bold text-slate-700 dark:text-slate-300"
+          >線上會議連結</label
+        >
         <InputText
           v-model="form.meetingLink"
           placeholder="例：https://zoom.us/j/..."
@@ -236,7 +262,9 @@ async function onFormSubmit() {
 
       <!-- 上課時間描述 -->
       <div class="flex flex-col gap-2 md:col-span-2">
-        <label class="font-bold text-slate-700 text-base">上課時間描述</label>
+        <label class="font-bold text-slate-700 dark:text-slate-300"
+          >上課時間描述</label
+        >
         <div class="flex gap-2">
           <InputText
             v-model="form.scheduleDescription"
@@ -244,21 +272,25 @@ async function onFormSubmit() {
             class="grow text-base"
           />
         </div>
-        <p class="text-sm text-slate-400">
+        <p class="text-sm text-slate-400 dark:text-slate-600">
           手動填寫或使用下方的「課程時間產生器」自動生成。
         </p>
       </div>
 
       <!-- 課程時間產生器 -->
       <div
-        class="bg-blue-50/50 p-6 rounded-2xl md:col-span-2 border border-blue-100/50 space-y-4"
+        class="bg-blue-50/50 dark:bg-blue-900/50 p-6 rounded-2xl md:col-span-2 border border-blue-100/50 dark:border-blue-800/50 space-y-4"
       >
-        <h4 class="font-bold text-blue-900 flex items-center gap-2">
+        <h4
+          class="font-bold text-blue-900 dark:text-blue-100 flex items-center gap-2"
+        >
           <i class="pi pi-calendar-plus" /> 課程時間產生器 (自動產生機器課表)
         </h4>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="flex flex-col gap-2">
-            <label class="text-sm text-slate-500">選擇星期</label>
+            <label class="text-sm text-slate-700 dark:text-slate-300"
+              >選擇星期</label
+            >
             <Select
               v-model="genWeekday"
               :options="weekdays"
@@ -268,7 +300,9 @@ async function onFormSubmit() {
             />
           </div>
           <div class="flex flex-col gap-2 md:col-span-2">
-            <label class="text-sm text-slate-500">設定時段 (開始 - 結束)</label>
+            <label class="text-sm text-slate-700 dark:text-slate-300"
+              >設定時段 (開始 - 結束)</label
+            >
             <DatePicker
               v-model="genTimeRange"
               selection-mode="range"
@@ -291,19 +325,20 @@ async function onFormSubmit() {
 
         <!-- 課程清單預覽 -->
         <div v-if="form.sessions.length > 0" class="mt-4 border-t pt-4">
-          <label class="text-sm font-bold text-slate-600 block mb-2"
+          <label
+            class="text-sm font-bold text-slate-700 dark:text-slate-300 block mb-2"
             >預覽課程清單 ({{ form.sessions.length }} 堂)</label
           >
           <div class="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-2">
             <div
               v-for="(s, i) in form.sessions"
               :key="s.sessionId"
-              class="bg-white border rounded px-3 py-1 text-sm flex items-center gap-2"
+              class="bg-surface-0 dark:bg-surface-900 border border-slate-200 dark:border-slate-800 rounded px-3 py-1 text-sm flex items-center gap-2"
             >
-              <span class="text-slate-600">
+              <span class="text-slate-600 dark:text-slate-400">
                 {{ dayjs(s.startTime).format("MM/DD (dd)") }}
               </span>
-              <span class="text-slate-400">
+              <span class="text-slate-400 dark:text-slate-600">
                 {{ dayjs(s.startTime).format("HH:mm") }}
               </span>
               <Button
@@ -322,7 +357,9 @@ async function onFormSubmit() {
 
       <!-- 人數上限 -->
       <div class="flex flex-col gap-2">
-        <label class="font-bold text-slate-700 text-base">人數上限 *</label>
+        <label class="font-bold text-slate-700 dark:text-slate-300"
+          >人數上限 *</label
+        >
         <InputNumber
           v-model="form.maxCapacity"
           :min="1"
@@ -333,7 +370,9 @@ async function onFormSubmit() {
 
       <!-- 班級簡介 -->
       <div class="flex flex-col gap-2 md:col-span-2">
-        <label class="font-bold text-slate-700 text-base">班級簡介</label>
+        <label class="font-bold text-slate-700 dark:text-slate-300"
+          >班級簡介</label
+        >
         <Textarea
           v-model="form.description"
           rows="3"
@@ -345,12 +384,16 @@ async function onFormSubmit() {
 
       <!-- 公開狀態 -->
       <div
-        class="flex items-center gap-4 p-6 bg-slate-50 rounded-2xl md:col-span-2 border border-slate-100"
+        class="flex items-center gap-4 p-6 bg-slate-50 dark:bg-slate-900 rounded-2xl md:col-span-2 border border-slate-100 dark:border-slate-800"
       >
         <ToggleSwitch v-model="form.isPublished" />
         <div>
-          <p class="font-bold text-slate-800 text-lg">同步發佈至前台</p>
-          <p class="text-base text-slate-500 font-normal mt-1">
+          <p class="font-bold text-slate-800 dark:text-slate-100 text-lg">
+            同步發佈至前台
+          </p>
+          <p
+            class="text-base text-slate-500 dark:text-slate-400 font-normal mt-1"
+          >
             開啟後，學員可以在會友端看到此班級並進行報名。
           </p>
         </div>
@@ -363,7 +406,7 @@ async function onFormSubmit() {
         label="上一步"
         severity="secondary"
         text
-        class="text-base px-6"
+        class="text-base dark:text-slate-300 px-6"
         @click="emit('cancel')"
       />
       <Button
@@ -371,7 +414,7 @@ async function onFormSubmit() {
         :label="submitLabel || '確認提交'"
         icon="pi pi-check"
         :loading="isSubmitting"
-        class="px-10 py-3 shadow-xl shadow-blue-100 text-base font-bold"
+        class="px-10 py-3 shadow-md shadow-blue-100 dark:shadow-blue-800 text-base font-bold"
       />
     </div>
   </form>

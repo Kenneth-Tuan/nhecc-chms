@@ -53,7 +53,7 @@ function onRowClick(event: { data: MemberListItem }): void {
       @row-click="onRowClick"
     >
       <!-- Avatar + Name -->
-      <Column header="會友" :style="{ minWidth: '200px' }">
+      <Column header="會友">
         <template #body="{ data }">
           <div class="flex items-center gap-3">
             <Avatar
@@ -81,7 +81,7 @@ function onRowClick(event: { data: MemberListItem }): void {
       </Column>
 
       <!-- Contact (masked) -->
-      <Column header="聯絡資訊" :style="{ minWidth: '150px' }">
+      <Column header="聯絡資訊">
         <template #body="{ data }">
           <div class="text-sm">
             <p class="text-slate-500">{{ data.mobile }}</p>
@@ -90,7 +90,7 @@ function onRowClick(event: { data: MemberListItem }): void {
       </Column>
 
       <!-- Roles -->
-      <Column header="角色" :style="{ minWidth: '140px' }">
+      <Column header="角色">
         <template #body="{ data }">
           <div class="flex items-center gap-1 flex-wrap">
             <Tag
@@ -111,7 +111,7 @@ function onRowClick(event: { data: MemberListItem }): void {
       </Column>
 
       <!-- Group -->
-      <Column header="歸屬小組" :style="{ minWidth: '120px' }">
+      <Column header="歸屬小組">
         <template #body="{ data }">
           <Tag
             v-if="data.groupName"
@@ -129,7 +129,7 @@ function onRowClick(event: { data: MemberListItem }): void {
       </Column>
 
       <!-- Baptism -->
-      <Column header="受洗" :style="{ width: '80px' }">
+      <Column header="受洗">
         <template #body="{ data }">
           <i
             :class="[
@@ -143,7 +143,7 @@ function onRowClick(event: { data: MemberListItem }): void {
       </Column>
 
       <!-- Status -->
-      <Column header="狀態" :style="{ width: '80px' }">
+      <Column header="狀態">
         <template #body="{ data }">
           <Tag
             :value="statusLabel[data.status] || data.status"
@@ -154,7 +154,7 @@ function onRowClick(event: { data: MemberListItem }): void {
       </Column>
 
       <!-- Actions -->
-      <Column header="操作" :style="{ width: '100px' }">
+      <Column header="操作">
         <template #body="{ data }">
           <div class="flex items-center gap-1" @click.stop>
             <Button

@@ -60,7 +60,7 @@ watch(
     filters.value.status,
   ],
   () => refreshClassList(),
-  { deep: true },
+  { deep: true }
 );
 
 function getStatusSeverity(status: string) {
@@ -158,7 +158,7 @@ function getStatusLabel(status: string) {
 
     <!-- Data Table -->
     <div
-      class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
+      class="bg-surface-0 dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
     >
       <DataTable
         :value="classes"
@@ -174,11 +174,7 @@ function getStatusLabel(status: string) {
           </div>
         </template>
 
-        <Column
-          field="name"
-          header="班級名稱"
-          class="font-bold text-slate-700 text-base"
-        >
+        <Column field="name" header="班級名稱">
           <template #body="{ data }">
             <div class="flex flex-col">
               <span class="text-base">{{ data.name }}</span>
@@ -189,11 +185,7 @@ function getStatusLabel(status: string) {
           </template>
         </Column>
 
-        <Column
-          field="templateName"
-          header="所屬模板"
-          class="text-slate-600 text-base"
-        />
+        <Column field="templateName" header="所屬模板" />
 
         <Column header="授課老師">
           <template #body="{ data }">
@@ -253,7 +245,7 @@ function getStatusLabel(status: string) {
           </template>
         </Column>
 
-        <Column header="操作" class="w-24 text-base">
+        <Column header="操作">
           <template #body="{ data }">
             <div class="flex gap-2">
               <NuxtLink :to="`/dashboard/courses/classes/${data.id}`">

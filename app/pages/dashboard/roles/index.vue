@@ -126,7 +126,7 @@ function openInviteDialog(role: Role): void {
         stripedRows
         class="!border-none"
       >
-        <Column field="name" header="角色名稱" class="!font-semibold">
+        <Column field="name" header="角色名稱">
           <template #body="{ data }">
             <div class="flex items-center gap-2">
               <span class="font-semibold">{{ data.name }}</span>
@@ -140,7 +140,7 @@ function openInviteDialog(role: Role): void {
           </template>
         </Column>
 
-        <Column field="description" header="描述" class="!text-slate-500">
+        <Column field="description" header="描述">
           <template #body="{ data }">
             <span class="text-sm text-slate-500 dark:text-slate-400">{{
               data.description
@@ -166,7 +166,7 @@ function openInviteDialog(role: Role): void {
           </template>
         </Column>
 
-        <Column header="操作" :style="{ width: '120px' }">
+        <Column header="操作">
           <template #body="{ data }">
             <div class="flex items-center gap-1">
               <Button

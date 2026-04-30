@@ -49,8 +49,7 @@ const filteredTemplates = computed(() => {
   const term = searchTemplate.value.toLowerCase();
   return templates.value.filter(
     (t) =>
-      t.name.toLowerCase().includes(term) ||
-      t.code.toLowerCase().includes(term),
+      t.name.toLowerCase().includes(term) || t.code.toLowerCase().includes(term)
   );
 });
 
@@ -106,25 +105,26 @@ async function handleSubmit(formData: any) {
     <!-- Step 1: Template Selection -->
     <div v-if="activeStep === 0" class="space-y-8 animate-fade-in">
       <div
-        class="bg-blue-50 p-8 rounded-2xl border border-blue-100 flex items-center gap-6 mb-8"
+        class="bg-blue-50 dark:bg-blue-900 p-8 rounded-2xl border border-blue-100 dark:border-blue-800 flex items-center gap-6 mb-8"
       >
-        <i class="pi pi-info-circle text-blue-500 text-3xl" />
+        <i
+          class="pi pi-info-circle text-blue-500 dark:text-blue-400 text-3xl"
+        />
         <div>
-          <p class="font-bold text-blue-900 text-lg">
+          <p class="font-bold text-blue-900 dark:text-blue-100 text-lg">
             首先，請選擇一個課程模板 (Template)
           </p>
-          <p class="text-blue-700 text-base">
+          <p class="text-blue-700 dark:text-blue-300 text-base">
             系統將繼承該模板的教材與基本資料，以便快速開班
           </p>
         </div>
       </div>
 
       <IconField>
-        <InputIcon class="pi pi-search text-base" />
+        <InputIcon class="pi pi-search" />
         <InputText
           v-model="searchTemplate"
           placeholder="搜尋模板名稱或代號..."
-          class="text-base"
           fluid
         />
       </IconField>
@@ -133,21 +133,21 @@ async function handleSubmit(formData: any) {
         <div
           v-for="t in filteredTemplates"
           :key="t.id"
-          class="p-6 bg-white border border-slate-200 rounded-2xl hover:border-blue-400 hover:shadow-md transition-all cursor-pointer group"
+          class="p-6 bg-surface-0 dark:bg-surface-900 border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-blue-400 hover:shadow-md transition-all cursor-pointer group"
           @click="handleSelectTemplate(t)"
         >
           <div class="flex justify-between items-start mb-4">
             <Tag
               :value="t.code"
               severity="secondary"
-              class="bg-slate-100 text-slate-600 font-mono text-base px-3"
+              class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono text-base px-3"
             />
             <i
               class="pi pi-arrow-right text-slate-300 group-hover:text-blue-500 transition-colors text-lg"
             />
           </div>
           <h3
-            class="font-bold text-xl text-slate-800 group-hover:text-blue-600 transition-colors"
+            class="font-bold text-xl text-slate-800 dark:text-slate-100 group-hover:text-blue-600 transition-colors"
           >
             {{ t.name }}
           </h3>
@@ -166,25 +166,35 @@ async function handleSubmit(formData: any) {
     <!-- Step 2: Class Details Form -->
     <div
       v-else
-      class="bg-white border border-slate-200 rounded-2xl p-6 md:p-10 shadow-sm animate-slide-up"
+      class="bg-surface-0 dark:bg-surface-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 md:p-10 shadow-sm animate-slide-up"
     >
       <div
         v-if="selectedTemplate"
         class="flex items-center gap-6 border-b pb-8 mb-8"
       >
-        <div class="bg-blue-100 p-4 rounded-xl">
-          <i class="pi pi-book text-blue-600 text-xl" />
+        <div class="bg-blue-100 dark:bg-blue-800 p-4 rounded-xl">
+          <i class="pi pi-book text-blue-600 dark:text-blue-400 text-xl" />
         </div>
         <div>
-          <p class="text-base text-slate-500 font-medium">已選擇模板</p>
-          <p class="font-bold text-slate-900 text-2xl">
+          <p class="text-base text-slate-500 dark:text-slate-400 font-medium">
+            已選擇模板
+          </p>
+          <p class="font-bold text-slate-900 dark:text-slate-100 text-2xl">
             {{ selectedTemplate.name }} ({{ selectedTemplate.code }})
           </p>
         </div>
       </div>
 
       <ClassForm
-        :initial-data="selectedTemplate ? { name: `${selectedTemplate.name} - ${new Date().getFullYear()}秋季班` } : null"
+        :initial-data="
+          selectedTemplate
+            ? {
+                name: `${
+                  selectedTemplate.name
+                } - ${new Date().getFullYear()}秋季班`,
+              }
+            : null
+        "
         submit-label="確認建立班級"
         :is-submitting="isCreating"
         @submit="handleSubmit"
