@@ -319,7 +319,7 @@ definePageMeta({
             :class="[
               'flex items-center justify-center gap-2',
               '!rounded-xl',
-              'shadow-md shadow-surface-200',
+              'shadow-md shadow-surface-200 dark:shadow-surface-800',
             ]"
             @click="handleSocialLogin('line')"
           >
@@ -339,7 +339,7 @@ definePageMeta({
             :class="[
               'flex items-center justify-center gap-2',
               '!rounded-xl',
-              'shadow-md shadow-surface-200',
+              'shadow-md shadow-surface-200 dark:shadow-surface-800',
             ]"
             @click="handleSocialLogin('google')"
           >
