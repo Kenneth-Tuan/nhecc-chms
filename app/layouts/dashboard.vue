@@ -41,7 +41,7 @@ const menuItems = computed(() =>
       to: "/dashboard/courses/classes",
       show: auth.can("manage", "CourseClass"),
     },
-  ].filter((item) => item.show),
+  ].filter((item) => item.show)
 );
 
 onMounted(async () => {
@@ -51,7 +51,7 @@ onMounted(async () => {
 
 <template>
   <div
-    class="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300"
+    class="flex h-screen overflow-hidde dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300"
   >
     <!-- Desktop Sidebar -->
     <AppSidebar :menu-items="menuItems" />

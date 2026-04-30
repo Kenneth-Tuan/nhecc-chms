@@ -26,10 +26,10 @@ body {
 
   /* --- 自動色彩切換機制 --- */
 
-  /* 背景色 */
-  /* Light: #ffffff (surface.0) */
+  /* 背景色（light 微暖白，降低刺眼感） */
+  /* Light: #f4f7fb (soft bluish off-white, subtle) */
   /* Dark:  #0f172a (surface.900) */
-  background-color: var(--p-content-background);
+  background-color: #f4f7fb;
 
   /* 文字基本顏色 */
   /* Light: #334155 (surface.700) - 這是深灰藍色，閱讀舒適 */
@@ -70,6 +70,7 @@ body {
 /* 4. (可選) 針對 Dark Mode 的額外微調 */
 /* 如果您覺得 Dark Mode 下的某些原生捲軸太亮，可以加上這段 */
 .dark body {
+  background-color: var(--p-content-background);
   color-scheme: dark; /* 告訴瀏覽器這是暗色模式，它會自動把捲軸變黑 */
 }
 

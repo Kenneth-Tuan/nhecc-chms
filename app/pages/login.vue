@@ -27,7 +27,7 @@ const handleLogin = async () => {
   try {
     await firebaseAuth.loginWithEmail(
       formData.value.account,
-      formData.value.password,
+      formData.value.password
     );
     const authStore = useAuthStore();
     if (authStore.isAdmin) {
@@ -40,10 +40,10 @@ const handleLogin = async () => {
       e.code === "auth/invalid-credential"
         ? "帳號或密碼錯誤"
         : e.code === "auth/user-not-found"
-          ? "找不到此帳號"
-          : e.code === "auth/wrong-password"
-            ? "密碼錯誤"
-            : "登入失敗，請稍後再試";
+        ? "找不到此帳號"
+        : e.code === "auth/wrong-password"
+        ? "密碼錯誤"
+        : "登入失敗，請稍後再試";
     toast.add({
       severity: "error",
       summary: "登入失敗",
@@ -101,112 +101,117 @@ definePageMeta({
 
 <template>
   <LayoutAuthCard>
-    <main
-      :class="[
-        'flex-1 flex flex-col', // layout
-        'p-6 sm:p-8', // spacing
-      ]"
+    <div
+      class="rounded-[56px] p-[0.3rem] bg-[linear-gradient(180deg,_var(--p-primary-color)_10%,_rgba(33,150,243,0)_30%)]"
     >
-      <!-- Header -->
-      <div class="flex items-end justify-center mb-6">
-        <div
-          :class="[
-            'flex items-center justify-center', // layout
-            'w-16 h-16', // scaling
-          ]"
-        >
-          <img
-            src="@/assets/icons/NHECC_ICON-01.png"
-            alt="Logo"
-            :class="[
-              'object-contain', // etc
-            ]"
-          />
-        </div>
-        <div
-          :class="[
-            'text-left', // layout
-          ]"
-        >
-          <h1
-            :class="[
-              'text-2xl font-bold', // font
-              'text-slate-800 dark:text-white', // colors
-            ]"
-          >
-            歡迎回來
-          </h1>
-          <p
-            :class="[
-              'text-sm', // font
-              'mt-2', // spacing
-              'text-slate-500 dark:text-slate-400', // colors
-            ]"
-          >
-            請登入您的帳號以繼續使用
-          </p>
-        </div>
-      </div>
-
-      <!-- Form -->
-      <form
+      <main
         :class="[
-          'space-y-6', // spacing
+          'bg-surface-0 dark:bg-surface-900',
+          'flex-1 flex flex-col', // layout
+          'p-6 sm:p-8', // spacing
+          'rounded-52px',
         ]"
-        @submit.prevent="handleLogin"
       >
-        <div
-          :class="[
-            'space-y-4', // spacing
-          ]"
-        >
+        <!-- Header -->
+        <div class="flex items-end justify-center mb-6">
           <div
             :class="[
-              'flex flex-col gap-2', // layout
+              'flex items-center justify-center', // layout
+              'w-16 h-16', // scaling
             ]"
           >
-            <label
+            <img
+              src="@/assets/icons/NHECC_ICON-01.png"
+              alt="Logo"
               :class="[
-                'text-sm font-semibold', // font
-                'ml-1', // spacing
-                'text-slate-700 dark:text-slate-300', // colors
+                'object-contain', // etc
               ]"
-              >帳號</label
-            >
-            <InputText
-              v-model="formData.account"
-              placeholder="Email 或 手機號碼"
-              :class="[
-                'py-3 px-4', // spacing
-                'bg-inherit',
-              ]"
-              style="
-                --p-inputtext-padding-x: 1rem;
-                --p-inputtext-padding-y: 0.75rem;
-              "
-              fluid
             />
           </div>
-
           <div
             :class="[
-              'flex flex-col gap-2', // layout
+              'text-left', // layout
+            ]"
+          >
+            <h1
+              :class="[
+                'text-2xl font-bold', // font
+                'text-slate-800 dark:text-white', // colors
+              ]"
+            >
+              歡迎回來
+            </h1>
+            <p
+              :class="[
+                'text-sm', // font
+                'mt-2', // spacing
+                'text-slate-500 dark:text-slate-400', // colors
+              ]"
+            >
+              請登入您的帳號以繼續使用
+            </p>
+          </div>
+        </div>
+
+        <!-- Form -->
+        <form
+          :class="[
+            'space-y-6', // spacing
+          ]"
+          @submit.prevent="handleLogin"
+        >
+          <div
+            :class="[
+              'space-y-4', // spacing
             ]"
           >
             <div
               :class="[
-                'flex justify-between items-center', // layout
-                'px-1', // spacing
+                'flex flex-col gap-2', // layout
               ]"
             >
               <label
                 :class="[
                   'text-sm font-semibold', // font
+                  'ml-1', // spacing
                   'text-slate-700 dark:text-slate-300', // colors
                 ]"
-                >密碼</label
+                >帳號</label
               >
-              <!-- <NuxtLink
+              <InputText
+                v-model="formData.account"
+                placeholder="Email 或 手機號碼"
+                :class="[
+                  'py-3 px-4', // spacing
+                  'bg-inherit',
+                ]"
+                style="
+                  --p-inputtext-padding-x: 1rem;
+                  --p-inputtext-padding-y: 0.75rem;
+                "
+                fluid
+              />
+            </div>
+
+            <div
+              :class="[
+                'flex flex-col gap-2', // layout
+              ]"
+            >
+              <div
+                :class="[
+                  'flex justify-between items-center', // layout
+                  'px-1', // spacing
+                ]"
+              >
+                <label
+                  :class="[
+                    'text-sm font-semibold', // font
+                    'text-slate-700 dark:text-slate-300', // colors
+                  ]"
+                  >密碼</label
+                >
+                <!-- <NuxtLink
                 to="#"
                 :class="[
                   'text-xs font-medium', // font
@@ -215,24 +220,24 @@ definePageMeta({
                 ]"
                 >忘記密碼？</NuxtLink
               > -->
+              </div>
+              <Password
+                v-model="formData.password"
+                placeholder="請輸入密碼"
+                toggleMask
+                :feedback="false"
+                fluid
+                :class="[
+                  'w-full', // scaling
+                ]"
+                :input-class="[
+                  '!py-3 !px-4 !w-full', // spacing/scaling
+                  'bg-inherit',
+                ]"
+              />
             </div>
-            <Password
-              v-model="formData.password"
-              placeholder="請輸入密碼"
-              toggleMask
-              :feedback="false"
-              fluid
-              :class="[
-                'w-full', // scaling
-              ]"
-              :input-class="[
-                '!py-3 !px-4 !w-full', // spacing/scaling
-                'bg-inherit',
-              ]"
-            />
-          </div>
 
-          <!-- <div
+            <!-- <div
             :class="[
               'flex items-center gap-2', // layout
               'px-1', // spacing
@@ -253,153 +258,154 @@ definePageMeta({
               >記住我</label
             >
           </div> -->
-        </div>
+          </div>
 
-        <Button
-          label="立即登入"
-          type="submit"
-          :loading="loading"
-          :class="[
-            '!text-lg !font-bold', // font
-            '!w-full', // scaling
-            'transition-all hover:scale-[1.01] active:scale-98', // animation
-            'shadow-md shadow-surface-500', // shadow
-          ]"
-        />
-      </form>
+          <Button
+            label="立即登入"
+            type="submit"
+            :loading="loading"
+            :class="[
+              '!text-lg !font-bold', // font
+              '!w-full', // scaling
+              'transition-all hover:scale-[1.01] active:scale-98', // animation
+              'shadow-md shadow-surface-500', // shadow
+            ]"
+          />
+        </form>
 
-      <!-- Divider -->
-      <div
-        :class="[
-          'text-center', // layout
-          'relative', // position
-          'my-6', // spacing
-        ]"
-      >
+        <!-- Divider -->
         <div
           :class="[
-            'flex items-center', // layout
-            'absolute inset-0', // position
+            'text-center', // layout
+            'relative', // position
+            'my-6', // spacing
           ]"
         >
           <div
             :class="[
-              'w-full', // scaling
-              'border-t border-slate-200 dark:border-slate-800', // border
+              'flex items-center', // layout
+              'absolute inset-0', // position
             ]"
-          ></div>
-        </div>
-        <span
-          :class="[
-            'text-xs font-medium uppercase tracking-widest', // font
-            'relative', // position
-            'px-4', // spacing
-            'bg-white dark:bg-slate-900', // colors
-            'text-slate-400', // etc
-          ]"
-        >
-          或使用社交帳號登入
-        </span>
-      </div>
-
-      <!-- Social Login -->
-      <div
-        :class="[
-          'grid grid-cols-2 gap-4', // layout
-        ]"
-      >
-        <Button
-          severity="secondary"
-          outlined
-          :class="[
-            'flex items-center justify-center gap-2',
-            '!rounded-xl',
-            'shadow-md shadow-surface-200',
-          ]"
-          @click="handleSocialLogin('line')"
-        >
-          <img
-            src="@/assets/icons/line.svg"
-            alt="Line"
-            :class="['w-10 h-10']"
-          />
-          <span :class="['font-bold', 'text-slate-700 dark:text-slate-200']"
-            >LINE</span
           >
-        </Button>
-
-        <Button
-          severity="secondary"
-          outlined
-          :class="[
-            'flex items-center justify-center gap-2',
-            '!rounded-xl',
-            'shadow-md shadow-surface-200',
-          ]"
-          @click="handleSocialLogin('google')"
-        >
-          <img
-            src="@/assets/icons/google.svg"
-            alt="Google"
-            :class="['w-10 h-10']"
-          />
-          <span :class="['font-bold', 'text-slate-700 dark:text-slate-200']"
-            >Google</span
-          >
-        </Button>
-      </div>
-
-      <!-- Footer -->
-      <div
-        :class="[
-          'text-center', // layout
-          'mt-auto pt-6', // spacing
-        ]"
-      >
-        <p
-          :class="[
-            'text-sm', // font
-            'text-slate-500 dark:text-slate-400', // colors
-          ]"
-        >
-          還沒有帳號？
-          <NuxtLink
-            to="/register"
+            <div
+              :class="[
+                'w-full', // scaling
+                'border-t border-slate-200 dark:border-slate-800', // border
+              ]"
+            ></div>
+          </div>
+          <span
             :class="[
-              'font-bold', // font
-              'text-primary', // colors
-              'hover:underline', // etc
+              'text-xs font-medium uppercase tracking-widest', // font
+              'relative', // position
+              'px-4', // spacing
+              'bg-white dark:bg-slate-900', // colors
+              'text-slate-400', // etc
             ]"
-            >立即註冊</NuxtLink
           >
-        </p>
+            或使用社交帳號登入
+          </span>
+        </div>
+
+        <!-- Social Login -->
         <div
           :class="[
-            'flex justify-center gap-4', // layout
-            'mt-4', // spacing
+            'grid grid-cols-2 gap-4', // layout
           ]"
         >
-          <NuxtLink
-            to="#"
+          <Button
+            severity="secondary"
+            outlined
             :class="[
-              'text-[11px]', // font
-              'text-slate-400 hover:text-slate-600', // colors
-              'underline', // etc
+              'flex items-center justify-center gap-2',
+              '!rounded-xl',
+              'shadow-md shadow-surface-200',
             ]"
-            >服務條款</NuxtLink
+            @click="handleSocialLogin('line')"
           >
-          <NuxtLink
-            to="#"
+            <img
+              src="@/assets/icons/line.svg"
+              alt="Line"
+              :class="['w-10 h-10']"
+            />
+            <span :class="['font-bold', 'text-slate-700 dark:text-slate-200']"
+              >LINE</span
+            >
+          </Button>
+
+          <Button
+            severity="secondary"
+            outlined
             :class="[
-              'text-[11px]', // font
-              'text-slate-400 hover:text-slate-600', // colors
-              'underline', // etc
+              'flex items-center justify-center gap-2',
+              '!rounded-xl',
+              'shadow-md shadow-surface-200',
             ]"
-            >隱私政策</NuxtLink
+            @click="handleSocialLogin('google')"
           >
+            <img
+              src="@/assets/icons/google.svg"
+              alt="Google"
+              :class="['w-10 h-10']"
+            />
+            <span :class="['font-bold', 'text-slate-700 dark:text-slate-200']"
+              >Google</span
+            >
+          </Button>
         </div>
-      </div>
-    </main>
+
+        <!-- Footer -->
+        <div
+          :class="[
+            'text-center', // layout
+            'mt-auto pt-6', // spacing
+          ]"
+        >
+          <p
+            :class="[
+              'text-sm', // font
+              'text-slate-500 dark:text-slate-400', // colors
+            ]"
+          >
+            還沒有帳號？
+            <NuxtLink
+              to="/register"
+              :class="[
+                'font-bold', // font
+                'text-primary', // colors
+                'hover:underline', // etc
+              ]"
+              >立即註冊</NuxtLink
+            >
+          </p>
+          <div
+            :class="[
+              'flex justify-center gap-4', // layout
+              'mt-4', // spacing
+            ]"
+          >
+            <NuxtLink
+              to="#"
+              :class="[
+                'text-[11px]', // font
+                'text-slate-400 hover:text-slate-600', // colors
+                'underline', // etc
+              ]"
+              >服務條款</NuxtLink
+            >
+            <NuxtLink
+              to="#"
+              :class="[
+                'text-[11px]', // font
+                'text-slate-400 hover:text-slate-600', // colors
+                'underline', // etc
+              ]"
+              >隱私政策</NuxtLink
+            >
+          </div>
+        </div>
+      </main>
+    </div>
   </LayoutAuthCard>
 </template>
 

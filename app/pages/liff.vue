@@ -85,35 +85,39 @@ definePageMeta({
 
 <template>
   <LayoutAuthCard>
-    <main
-      class="flex flex-col items-center justify-center p-8 sm:p-12 text-center animate-fade-in animate-duration-500"
+    <div
+      class="rounded-[56px] p-[0.3rem] bg-[linear-gradient(180deg,_var(--p-primary-color)_10%,_rgba(33,150,243,0)_30%)]"
     >
-      <div class="flex items-center justify-center w-20 h-20 mb-8">
-        <img
-          src="@/assets/icons/NHECC_ICON-01.png"
-          alt="Logo"
-          class="object-contain drop-shadow-sm"
+      <main
+        class="flex flex-col items-center justify-center p-8 sm:p-12 text-center animate-fade-in animate-duration-500 bg-surface-0 dark:bg-surface-900 rounded-52px"
+      >
+        <div class="flex items-center justify-center w-20 h-20 mb-8">
+          <img
+            src="@/assets/icons/NHECC_ICON-01.png"
+            alt="Logo"
+            class="object-contain drop-shadow-sm"
+          />
+        </div>
+
+        <ProgressSpinner
+          class="w-12 h-12 mb-8 text-primary"
+          strokeWidth="4"
+          animationDuration="1s"
         />
-      </div>
 
-      <ProgressSpinner
-        class="w-12 h-12 mb-8 text-primary"
-        strokeWidth="4"
-        animationDuration="1s"
-      />
+        <h1
+          class="text-xl font-bold tracking-wide text-slate-800 dark:text-white mb-3"
+        >
+          LINE 安全驗證中
+        </h1>
 
-      <h1
-        class="text-xl font-bold tracking-wide text-slate-800 dark:text-white mb-3"
-      >
-        LINE 安全驗證中
-      </h1>
-
-      <p
-        class="text-sm font-medium text-slate-500 dark:text-slate-400 max-w-[280px] mx-auto leading-relaxed"
-      >
-        正在與 LINE 伺服器連線以完成登入，請稍候片刻...
-      </p>
-    </main>
+        <p
+          class="text-sm font-medium text-slate-500 dark:text-slate-400 max-w-[280px] mx-auto leading-relaxed"
+        >
+          正在與 LINE 伺服器連線以完成登入，請稍候片刻...
+        </p>
+      </main>
+    </div>
   </LayoutAuthCard>
 </template>
 
