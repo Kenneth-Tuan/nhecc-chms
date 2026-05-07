@@ -3,10 +3,13 @@
  * 獲取班級成員清單 (ST015)
  */
 import { CourseClassService } from "../../../../services/courseClass.service";
+import { requireAbility } from "../../../../utils/validation";
 
 const classService = new CourseClassService();
 
 export default defineEventHandler(async (event) => {
+  requireAbility(event, "view", "CourseClass");
+
   const id = getRouterParam(event, "id");
   if (!id) {
     throw createError({ statusCode: 400, message: "缺少班級 ID" });

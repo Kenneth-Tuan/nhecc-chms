@@ -3,6 +3,7 @@
  */
 import { createError, type H3Event } from "h3";
 import type { ZodSchema, ZodError } from "zod";
+import type { AppAction } from "~/utils/casl/ability";
 
 /**
  * 根據 Zod schema 驗證資料。
@@ -42,8 +43,8 @@ function formatZodErrors(error: ZodError): Record<string, string[]> {
  */
 export function requireAbility(
   event: H3Event,
-  action: import("~/utils/casl/ability").AppAction,
-  subject: any,
+  action: AppAction,
+  subject: any
 ): void {
   const ability = event.context.ability;
   if (!ability) {

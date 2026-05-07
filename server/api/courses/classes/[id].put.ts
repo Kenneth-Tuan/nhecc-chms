@@ -1,9 +1,12 @@
 import { updateCourseClassSchema } from '~/schemas/course-class.schema'
 import { CourseClassService } from '~/../server/services/courseClass.service'
+import { requireAbility } from "../../../utils/validation";
 
 const courseClassService = new CourseClassService()
 
 export default defineEventHandler(async (event) => {
+  requireAbility(event, "update", "CourseClass");
+
   const userAbility = event.context.ability
   if (!userAbility) {
     throw createError({ statusCode: 401, message: '未授權' })

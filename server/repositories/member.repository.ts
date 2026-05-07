@@ -73,7 +73,7 @@ export class MemberRepository {
 
         if (searchField === "fullName") {
           results = results.filter((m) =>
-            m.fullName.toLowerCase().includes(searchTerm),
+            m.fullName.toLowerCase().includes(searchTerm)
           );
         } else if (searchField === "mobile") {
           results = results.filter((m) => m.mobile === filters.search);
@@ -151,7 +151,7 @@ export class MemberRepository {
    * 建立新會友。
    */
   async create(
-    payload: CreateMemberPayload & { uuid?: string },
+    payload: CreateMemberPayload & { uuid?: string }
   ): Promise<Member> {
     const now = new Date().toISOString();
     const docId = payload.uuid;
@@ -197,7 +197,7 @@ export class MemberRepository {
    */
   async update(
     uuid: string,
-    payload: UpdateMemberPayload,
+    payload: UpdateMemberPayload
   ): Promise<Member | undefined> {
     const docRef = this.collection.doc(uuid);
     const doc = await docRef.get();
@@ -219,7 +219,7 @@ export class MemberRepository {
    */
   async softDelete(
     uuid: string,
-    deletion?: { reason: string; notes?: string },
+    deletion?: { reason: string; notes?: string }
   ): Promise<boolean> {
     const docRef = this.collection.doc(uuid);
     const doc = await docRef.get();
@@ -260,7 +260,7 @@ export class MemberRepository {
    */
   async findByLinkedProvider(
     provider: "google" | "line",
-    uid: string,
+    uid: string
   ): Promise<Member | undefined> {
     const field = `linkedProviders.${provider}`;
     const snapshot = await this.collection
@@ -282,7 +282,7 @@ export class MemberRepository {
       google: string | null;
       line: string | null;
       email: string | null;
-    }>,
+    }>
   ): Promise<void> {
     const { FieldValue } = await import("firebase-admin/firestore");
     const updateData: Record<string, any> = {

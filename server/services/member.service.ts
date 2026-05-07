@@ -14,6 +14,8 @@ import type {
 } from "~/types/member";
 import type { PaginatedResponse } from "~/types/api";
 import type { AppAbility } from "~/utils/casl/ability";
+import type { Zone, Group } from "~/types/organization";
+import type { Role } from "~/types/role";
 import { MemberRepository } from "../repositories/member.repository";
 import { OrganizationRepository } from "../repositories/organization.repository";
 import { RoleRepository } from "../repositories/role.repository";
@@ -25,8 +27,39 @@ import { getAdminAuth } from "../utils/firebase-admin";
 const memberRepo = new MemberRepository();
 const orgRepo = new OrganizationRepository();
 const roleRepo = new RoleRepository();
+const REFERENCE_CACHE_TTL_MS = 5 * 60 * 1000;
+
+type CacheEntry<T> = {
+  data: T;
+  expiresAt: number;
+};
+
+// 參照資料快取（process-memory）：
+// - 主要用於 members list/detail 的 zone/group/role 名稱映射，降低重複讀取 Firestore 的成本。
+// - 搭配 TTL + CRUD 成功後主動 invalidation，兼顧效能與資料新鮮度。
+let zoneLookupCache: CacheEntry<Zone[]> | null = null;
+let groupLookupCache: CacheEntry<Group[]> | null = null;
+let roleLookupCache: CacheEntry<Role[]> | null = null;
 
 export class MemberService {
+  /**
+   * 清除會友服務使用的參照資料快取。
+   * 當 zone/group/role CRUD 成功後，由其他 service 主動呼叫，避免名稱變更後仍回傳舊值。
+   */
+  static invalidateReferenceCache(
+    targets: Array<"zones" | "groups" | "roles"> = ["zones", "groups", "roles"],
+  ): void {
+    if (targets.includes("zones")) {
+      zoneLookupCache = null;
+    }
+    if (targets.includes("groups")) {
+      groupLookupCache = null;
+    }
+    if (targets.includes("roles")) {
+      roleLookupCache = null;
+    }
+  }
+
   /**
    * 獲取分頁會友清單，包含範圍過濾。
    * 敏感欄位目前一律回傳明碼（前端暫不使用遮罩／解鎖 UI）；Z 軸 reveal API 仍保留。
@@ -50,9 +83,7 @@ export class MemberService {
     members = this.sortMembers(members, sortBy, sortOrder);
 
     // 4. 轉換為清單項目（敏感欄位明碼；meta 仍反映 Z 軸權限供未來使用）
-    const zones = await orgRepo.findAllZones();
-    const groups = await orgRepo.findAllGroups();
-    const roles = await roleRepo.findAll();
+    const { zones, groups, roles } = await this.getReferenceData();
 
     const listItems: MemberListItem[] = members.map((m) => {
       const zone = zones.find((z) => z.id === m.zoneId);
@@ -102,9 +133,7 @@ export class MemberService {
     // 檢查範圍權限
     assertScopeAccess(userContext, member);
 
-    const zones = await orgRepo.findAllZones();
-    const groups = await orgRepo.findAllGroups();
-    const roles = await roleRepo.findAll();
+    const { zones, groups, roles } = await this.getReferenceData();
     const courses = await orgRepo.findAllCourses();
 
     const zone = zones.find((z) => z.id === member.zoneId);
@@ -197,7 +226,7 @@ export class MemberService {
    */
   async listTeachers(): Promise<{ id: string; name: string }[]> {
     // 1. 獲取所有角色並找出具備課程管理權限的角色 ID
-    const roles = await roleRepo.findAll()
+    const roles = await this.getCachedRoles()
     const teacherRoleIds = roles
       .filter((r) => r.permissions["courseClass:manage"] || r.permissions["courseClass:grade"])
       .map((r) => r.id)
@@ -425,5 +454,58 @@ export class MemberService {
           );
       }
     });
+  }
+
+  private async getReferenceData(): Promise<{
+    zones: Zone[];
+    groups: Group[];
+    roles: Role[];
+  }> {
+    // 三種參照資料並行載入：命中快取時不會打 DB，miss 時一次補齊後回填快取。
+    const [zones, groups, roles] = await Promise.all([
+      this.getCachedZones(),
+      this.getCachedGroups(),
+      this.getCachedRoles(),
+    ]);
+    return { zones, groups, roles };
+  }
+
+  private async getCachedZones(): Promise<Zone[]> {
+    if (zoneLookupCache && zoneLookupCache.expiresAt > Date.now()) {
+      return zoneLookupCache.data;
+    }
+    // Cache miss / expired -> 回源查詢並刷新 TTL。
+    const zones = await orgRepo.findAllZones();
+    zoneLookupCache = {
+      data: zones,
+      expiresAt: Date.now() + REFERENCE_CACHE_TTL_MS,
+    };
+    return zones;
+  }
+
+  private async getCachedGroups(): Promise<Group[]> {
+    if (groupLookupCache && groupLookupCache.expiresAt > Date.now()) {
+      return groupLookupCache.data;
+    }
+    // Cache miss / expired -> 回源查詢並刷新 TTL。
+    const groups = await orgRepo.findAllGroups();
+    groupLookupCache = {
+      data: groups,
+      expiresAt: Date.now() + REFERENCE_CACHE_TTL_MS,
+    };
+    return groups;
+  }
+
+  private async getCachedRoles(): Promise<Role[]> {
+    if (roleLookupCache && roleLookupCache.expiresAt > Date.now()) {
+      return roleLookupCache.data;
+    }
+    // Cache miss / expired -> 回源查詢並刷新 TTL。
+    const roles = await roleRepo.findAll();
+    roleLookupCache = {
+      data: roles,
+      expiresAt: Date.now() + REFERENCE_CACHE_TTL_MS,
+    };
+    return roles;
   }
 }

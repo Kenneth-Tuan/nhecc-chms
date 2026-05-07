@@ -6,6 +6,7 @@ import type { Role, CreateRolePayload, UpdateRolePayload } from "~/types/role";
 import type { PaginatedResponse } from "~/types/api";
 import { RoleRepository } from "../repositories/role.repository";
 import { MemberRepository } from "../repositories/member.repository";
+import { MemberService } from "./member.service";
 import { paginateArray } from "../utils/helpers";
 import { createError } from "h3";
 
@@ -40,7 +41,10 @@ export class RoleService {
    * 建立新角色。
    */
   async create(payload: CreateRolePayload): Promise<Role> {
-    return roleRepo.create(payload);
+    const created = await roleRepo.create(payload);
+    // Role 主資料異動成功後，立即清掉會友清單參照快取。
+    MemberService.invalidateReferenceCache(["roles"]);
+    return created;
   }
 
   /**
@@ -66,6 +70,8 @@ export class RoleService {
     if (!updated) {
       throw createError({ statusCode: 500, message: "更新失敗" });
     }
+    // Role 主資料異動成功後，立即清掉會友清單參照快取。
+    MemberService.invalidateReferenceCache(["roles"]);
     return updated;
   }
 
@@ -98,5 +104,7 @@ export class RoleService {
     if (!success) {
       throw createError({ statusCode: 500, message: "刪除失敗" });
     }
+    // Role 主資料異動成功後，立即清掉會友清單參照快取。
+    MemberService.invalidateReferenceCache(["roles"]);
   }
 }

@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
     filters.page,
     filters.pageSize,
     filters.sortBy,
-    filters.sortOrder,
+    filters.sortOrder
   );
 
   return result;

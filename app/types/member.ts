@@ -136,6 +136,8 @@ export interface MemberFilters {
   baptismStatus?: "all" | "baptized" | "notBaptized";
   zoneId?: string | null;
   groupId?: string | null;
+  groupIds?: string[]; // intl.array, 多組管理時使用
+  userId?: string; // intl.string, 自我管理時使用
   unassigned?: boolean; // 未分配小組的會友
 }
 

@@ -40,7 +40,7 @@ const DEFAULT_FIELD_MAPPING: Required<ScopeFieldMapping> = {
 export function applyScopeConstraints<T extends Record<string, any>>(
   ctx: UserContext,
   filters: T,
-  mapping?: ScopeFieldMapping,
+  mapping?: ScopeFieldMapping
 ): T {
   const m = { ...DEFAULT_FIELD_MAPPING, ...mapping };
   const scoped = { ...filters };
@@ -56,12 +56,15 @@ export function applyScopeConstraints<T extends Record<string, any>>(
       break;
     case "Group":
       if (ctx.managedGroupIds.length > 0) {
-        (scoped as any)[m.groupId] = ctx.managedGroupIds[0];
+        // 多組：交由 repository 支援記憶體過濾
+        (scoped as any).groupIds = [...ctx.managedGroupIds];
+      } else {
+        // 沒有可管理群組時，直接讓結果為空
+        (scoped as any).groupIds = [];
       }
       break;
     case "Self":
-      // Self scope 需要在 Service 層做特殊處理（僅回傳用戶本人資料）
-      // 這裡不注入 filter，由 Service 自行處理
+      (scoped as any)[m.userId] = ctx.userId; // 預設 m.userId = "uuid"
       break;
   }
 
@@ -81,7 +84,7 @@ export function applyScopeConstraints<T extends Record<string, any>>(
 export function assertScopeAccess(
   ctx: UserContext,
   entity: Record<string, any>,
-  mapping?: ScopeFieldMapping,
+  mapping?: ScopeFieldMapping
 ): void {
   const m = { ...DEFAULT_FIELD_MAPPING, ...mapping };
 
@@ -111,7 +114,7 @@ export function assertScopeAccess(
       if (
         Array.isArray(entityFunctionalGroupIds) &&
         entityFunctionalGroupIds.some((fgId: string) =>
-          ctx.managedGroupIds.includes(fgId),
+          ctx.managedGroupIds.includes(fgId)
         )
       ) {
         return;
@@ -147,7 +150,7 @@ export function assertScopeAccess(
 export function filterByScope<T extends Record<string, any>>(
   ctx: UserContext,
   items: T[],
-  mapping?: ScopeFieldMapping,
+  mapping?: ScopeFieldMapping
 ): T[] {
   const m = { ...DEFAULT_FIELD_MAPPING, ...mapping };
 

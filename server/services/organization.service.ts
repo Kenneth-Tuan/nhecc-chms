@@ -14,6 +14,7 @@ import type { DataScope } from "~/types/role";
 import { OrganizationRepository } from "../repositories/organization.repository";
 import { MemberRepository } from "../repositories/member.repository";
 import { RoleRepository } from "../repositories/role.repository";
+import { MemberService } from "./member.service";
 import { filterByScope } from "../utils/rbac/scopes";
 import { createError } from "h3";
 
@@ -87,7 +88,12 @@ export class OrganizationService {
     if (existingZones.some((z) => z.name === data.name)) {
       throw createError({ statusCode: 400, message: "該牧區名稱已存在" });
     }
-    return orgRepo.createZone(data);
+    const result = await orgRepo.createZone(data);
+    if (result.success) {
+      // Zone 主資料異動成功後，立即清掉會友清單參照快取。
+      MemberService.invalidateReferenceCache(["zones"]);
+    }
+    return result;
   }
 
   async updateZone(
@@ -103,14 +109,24 @@ export class OrganizationService {
         throw createError({ statusCode: 400, message: "該牧區名稱已存在" });
       }
     }
-    return orgRepo.updateZone(id, data);
+    const result = await orgRepo.updateZone(id, data);
+    if (result.success) {
+      // Zone 主資料異動成功後，立即清掉會友清單參照快取。
+      MemberService.invalidateReferenceCache(["zones"]);
+    }
+    return result;
   }
 
   async deleteZone(id: string): Promise<{ success: boolean; message: string }> {
     if (!id) {
       throw createError({ statusCode: 400, message: "需提供牧區 ID" });
     }
-    return orgRepo.deleteZone(id);
+    const result = await orgRepo.deleteZone(id);
+    if (result.success) {
+      // Zone 主資料異動成功後，立即清掉會友清單參照快取。
+      MemberService.invalidateReferenceCache(["zones"]);
+    }
+    return result;
   }
 
   // --- Group CRUD --- //
@@ -125,7 +141,12 @@ export class OrganizationService {
     if (existingGroups.some((g) => g.name === data.name)) {
       throw createError({ statusCode: 400, message: "該小組名稱已存在" });
     }
-    return orgRepo.createGroup(data);
+    const result = await orgRepo.createGroup(data);
+    if (result.success) {
+      // Group 主資料異動成功後，立即清掉會友清單參照快取。
+      MemberService.invalidateReferenceCache(["groups"]);
+    }
+    return result;
   }
 
   async updateGroup(
@@ -141,7 +162,12 @@ export class OrganizationService {
         throw createError({ statusCode: 400, message: "該小組名稱已存在" });
       }
     }
-    return orgRepo.updateGroup(id, data);
+    const result = await orgRepo.updateGroup(id, data);
+    if (result.success) {
+      // Group 主資料異動成功後，立即清掉會友清單參照快取。
+      MemberService.invalidateReferenceCache(["groups"]);
+    }
+    return result;
   }
 
   async deleteGroup(
@@ -150,7 +176,12 @@ export class OrganizationService {
     if (!id) {
       throw createError({ statusCode: 400, message: "需提供小組 ID" });
     }
-    return orgRepo.deleteGroup(id);
+    const result = await orgRepo.deleteGroup(id);
+    if (result.success) {
+      // Group 主資料異動成功後，立即清掉會友清單參照快取。
+      MemberService.invalidateReferenceCache(["groups"]);
+    }
+    return result;
   }
 
   /**
