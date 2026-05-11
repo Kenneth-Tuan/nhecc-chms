@@ -55,9 +55,22 @@ vi.mock("../../server/repositories/member.repository", () => ({
   },
 }));
 
+import type { UserContext } from "../../app/types/auth";
 import { MemberService } from "../../server/services/member.service";
 import { OrganizationService } from "../../server/services/organization.service";
 import { RoleService } from "../../server/services/role.service";
+
+const testGlobalCtx = {
+  userId: "test-user",
+  fullName: "Test",
+  scope: "Global",
+  groupIds: [],
+  functionalGroupIds: [],
+  managedGroupIds: [],
+  permissions: {} as UserContext["permissions"],
+  revealAuthority: {} as UserContext["revealAuthority"],
+  linkedProviders: { google: false, line: false, email: false },
+} satisfies UserContext;
 
 describe("Reference cache invalidation", () => {
   beforeEach(() => {
@@ -75,7 +88,7 @@ describe("Reference cache invalidation", () => {
       success: false,
       message: "failed",
     });
-    await service.createZone({ name: "Zone A" });
+    await service.createZone({ name: "Zone A" }, testGlobalCtx);
     // CRUD 失敗不應清 cache，避免不必要 cache miss。
     expect(invalidateSpy).not.toHaveBeenCalled();
 
@@ -84,7 +97,7 @@ describe("Reference cache invalidation", () => {
       message: "ok",
       id: "z1",
     });
-    await service.createZone({ name: "Zone B" });
+    await service.createZone({ name: "Zone B" }, testGlobalCtx);
     // CRUD 成功才清 cache，避免後續讀到舊的 zone 參照資料。
     expect(invalidateSpy).toHaveBeenCalledWith(["zones"]);
   });

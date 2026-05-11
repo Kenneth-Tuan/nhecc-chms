@@ -10,6 +10,7 @@ import type {
   Group,
 } from "~/types/organization";
 import type { UserContext } from "~/types/auth";
+import type { Member } from "~/types/member";
 import type { DataScope } from "~/types/role";
 import { OrganizationRepository } from "../repositories/organization.repository";
 import { MemberRepository } from "../repositories/member.repository";
@@ -80,7 +81,14 @@ export class OrganizationService {
 
   async createZone(
     data: Partial<Zone>,
+    ctx: UserContext,
   ): Promise<{ success: boolean; message: string; id?: string }> {
+    if (ctx.scope !== "Global") {
+      throw createError({
+        statusCode: 403,
+        message: "僅全會管理員可新增牧區",
+      });
+    }
     if (!data.name) {
       throw createError({ statusCode: 400, message: "牧區名稱為必填" });
     }
@@ -99,10 +107,12 @@ export class OrganizationService {
   async updateZone(
     id: string,
     data: Partial<Zone>,
+    ctx: UserContext,
   ): Promise<{ success: boolean; message: string }> {
     if (!id) {
       throw createError({ statusCode: 400, message: "需提供牧區 ID" });
     }
+    this.assertZoneWriteAccess(ctx, id);
     if (data.name) {
       const existingZones = await orgRepo.findAllZones();
       if (existingZones.some((z) => z.id !== id && z.name === data.name)) {
@@ -117,9 +127,18 @@ export class OrganizationService {
     return result;
   }
 
-  async deleteZone(id: string): Promise<{ success: boolean; message: string }> {
+  async deleteZone(
+    id: string,
+    ctx: UserContext,
+  ): Promise<{ success: boolean; message: string }> {
     if (!id) {
       throw createError({ statusCode: 400, message: "需提供牧區 ID" });
+    }
+    if (ctx.scope !== "Global") {
+      throw createError({
+        statusCode: 403,
+        message: "僅全會管理員可刪除牧區",
+      });
     }
     const result = await orgRepo.deleteZone(id);
     if (result.success) {
@@ -133,9 +152,20 @@ export class OrganizationService {
 
   async createGroup(
     data: Partial<Group>,
+    ctx: UserContext,
   ): Promise<{ success: boolean; message: string; id?: string }> {
     if (!data.name || !data.zoneId) {
       throw createError({ statusCode: 400, message: "小組名稱及牧區為必填" });
+    }
+    if (ctx.scope === "Zone") {
+      if (!ctx.zoneId || data.zoneId !== ctx.zoneId) {
+        throw createError({
+          statusCode: 403,
+          message: "僅能於所屬牧區內新增小組",
+        });
+      }
+    } else if (ctx.scope !== "Global") {
+      throw createError({ statusCode: 403, message: "無權新增小組" });
     }
     const existingGroups = await orgRepo.findAllGroups();
     if (existingGroups.some((g) => g.name === data.name)) {
@@ -152,9 +182,25 @@ export class OrganizationService {
   async updateGroup(
     id: string,
     data: Partial<Group>,
+    ctx: UserContext,
   ): Promise<{ success: boolean; message: string }> {
     if (!id) {
       throw createError({ statusCode: 400, message: "需提供小組 ID" });
+    }
+    const existingGroup = await orgRepo.findGroupById(id);
+    if (!existingGroup) {
+      throw createError({ statusCode: 404, message: "找不到該小組" });
+    }
+    this.assertGroupStructureWriteAccess(ctx, existingGroup);
+    if (
+      data.zoneId != null &&
+      data.zoneId !== existingGroup.zoneId &&
+      ctx.scope !== "Global"
+    ) {
+      throw createError({
+        statusCode: 403,
+        message: "無權將小組移轉至其他牧區",
+      });
     }
     if (data.name) {
       const existingGroups = await orgRepo.findAllGroups();
@@ -172,10 +218,16 @@ export class OrganizationService {
 
   async deleteGroup(
     id: string,
+    ctx: UserContext,
   ): Promise<{ success: boolean; message: string }> {
     if (!id) {
       throw createError({ statusCode: 400, message: "需提供小組 ID" });
     }
+    const existingGroup = await orgRepo.findGroupById(id);
+    if (!existingGroup) {
+      throw createError({ statusCode: 404, message: "找不到該小組" });
+    }
+    this.assertGroupStructureWriteAccess(ctx, existingGroup);
     const result = await orgRepo.deleteGroup(id);
     if (result.success) {
       // Group 主資料異動成功後，立即清掉會友清單參照快取。
@@ -185,26 +237,38 @@ export class OrganizationService {
   }
 
   /**
-   * 獲取各小組的成員人數。
+   * 獲取各小組的成員人數（依使用者資料範圍過濾 groupId）。
    */
-  async getMemberCounts(): Promise<Record<string, number>> {
-    return orgRepo.getMemberCounts();
+  async getMemberCounts(ctx: UserContext): Promise<Record<string, number>> {
+    const raw = await orgRepo.getMemberCounts();
+    const structure = await this.getStructure(ctx);
+    const allowed = new Set<string>();
+    for (const z of structure.zones) {
+      for (const g of z.groups) {
+        allowed.add(g.id);
+      }
+    }
+    for (const fg of structure.functionalGroups) {
+      allowed.add(fg.id);
+    }
+    const scoped: Record<string, number> = {};
+    for (const [groupId, count] of Object.entries(raw)) {
+      if (allowed.has(groupId)) {
+        scoped[groupId] = count;
+      }
+    }
+    return scoped;
   }
 
   /**
    * 獲取待分配（Pending）的會友。
    * 根據 userContext 的 scope 過濾可見範圍。
    */
-  async getPendingMembers(ctx?: UserContext) {
+  async getPendingMembers(ctx: UserContext) {
     const members = await orgRepo.findPendingMembers();
-
-    if (!ctx || ctx.scope === "Global") {
-      return members;
-    }
-
-    // Pending members 沒有 groupId（本來就是 null），所以只能用 zoneId 過濾
-    // 但他們也可能沒有 zoneId，所以 Zone/Group/Self scope 看到的會是空的或有限的
-    return filterByScope(ctx, members, { userId: "uuid" });
+    return filterByScope(ctx, members as Record<string, any>[], {
+      userId: "uuid",
+    });
   }
 
   /**
@@ -230,6 +294,7 @@ export class OrganizationService {
   async assignMember(
     memberId: string,
     groupId: string,
+    ctx: UserContext,
   ): Promise<{ success: boolean; message: string }> {
     if (!memberId || !groupId) {
       throw createError({
@@ -237,6 +302,15 @@ export class OrganizationService {
         message: "需提供 memberId 與 groupId",
       });
     }
+    const member = await memberRepo.findById(memberId);
+    if (!member) {
+      throw createError({ statusCode: 404, message: "找不到該會友" });
+    }
+    const group = await orgRepo.findGroupById(groupId);
+    if (!group) {
+      throw createError({ statusCode: 404, message: "找不到該小組" });
+    }
+    await this.assertAssignMemberAllowed(ctx, member, group);
     return orgRepo.assignMemberToGroup(memberId, groupId);
   }
 
@@ -296,6 +370,123 @@ export class OrganizationService {
   }
 
   // ===== 私有輔助方法 =====
+
+  /**
+   * 牧區主檔變更：全會可改任意牧區；牧區長僅能改自己牧區。
+   */
+  private assertZoneWriteAccess(ctx: UserContext, zoneId: string): void {
+    if (ctx.scope === "Global") {
+      return;
+    }
+    if (ctx.scope === "Zone") {
+      if (ctx.zoneId !== zoneId) {
+        throw createError({
+          statusCode: 403,
+          message: "無權變更此牧區（牧區範圍限制）",
+        });
+      }
+      return;
+    }
+    throw createError({
+      statusCode: 403,
+      message: "無權變更牧區",
+    });
+  }
+
+  /**
+   * 小組主檔變更：全會任意；牧區長限所屬牧區內；小組長限所管理小組。
+   */
+  private assertGroupStructureWriteAccess(ctx: UserContext, group: Group): void {
+    switch (ctx.scope) {
+      case "Global":
+        return;
+      case "Zone":
+        if (!ctx.zoneId || group.zoneId !== ctx.zoneId) {
+          throw createError({
+            statusCode: 403,
+            message: "無權變更此小組（牧區範圍限制）",
+          });
+        }
+        return;
+      case "Group":
+        if (!ctx.managedGroupIds.includes(group.id)) {
+          throw createError({
+            statusCode: 403,
+            message: "無權變更此小組（小組範圍限制）",
+          });
+        }
+        return;
+      default:
+        throw createError({
+          statusCode: 403,
+          message: "無權變更小組",
+        });
+    }
+  }
+
+  private async assertAssignMemberAllowed(
+    ctx: UserContext,
+    member: Member,
+    group: Group,
+  ): Promise<void> {
+    switch (ctx.scope) {
+      case "Global":
+        return;
+      case "Zone": {
+        if (!ctx.zoneId || group.zoneId !== ctx.zoneId) {
+          throw createError({
+            statusCode: 403,
+            message: "無權將會友分配至此牧區下的小組",
+          });
+        }
+        if (member.groupId) {
+          const fromGroup = await orgRepo.findGroupById(member.groupId);
+          if (!fromGroup || fromGroup.zoneId !== ctx.zoneId) {
+            throw createError({
+              statusCode: 403,
+              message: "無權移動此會友（非本牧區）",
+            });
+          }
+        } else if (member.zoneId && member.zoneId !== ctx.zoneId) {
+          throw createError({
+            statusCode: 403,
+            message: "無權分配此會友（非本牧區待分配）",
+          });
+        }
+        return;
+      }
+      case "Group": {
+        if (!ctx.managedGroupIds.includes(group.id)) {
+          throw createError({
+            statusCode: 403,
+            message: "無權將會友分配至此小組",
+          });
+        }
+        if (member.groupId && !ctx.managedGroupIds.includes(member.groupId)) {
+          throw createError({
+            statusCode: 403,
+            message: "無權移動此會友",
+          });
+        }
+        if (
+          !member.groupId &&
+          member.zoneId &&
+          member.zoneId !== group.zoneId
+        ) {
+          throw createError({
+            statusCode: 403,
+            message: "無權分配此會友至此小組",
+          });
+        }
+        return;
+      }
+      case "Self":
+        throw createError({
+          statusCode: 403,
+          message: "無權分配會友",
+        });
+    }
+  }
 
   /**
    * 檢查使用者是否有權存取指定小組。

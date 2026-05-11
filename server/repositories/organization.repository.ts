@@ -247,7 +247,14 @@ export class OrganizationRepository {
   async findPendingMembers(): Promise<
     Pick<
       Member,
-      "uuid" | "fullName" | "gender" | "baptismStatus" | "status" | "createdAt"
+      | "uuid"
+      | "fullName"
+      | "gender"
+      | "baptismStatus"
+      | "status"
+      | "createdAt"
+      | "zoneId"
+      | "groupId"
     >[]
   > {
     const snapshot = await this.db
@@ -265,6 +272,8 @@ export class OrganizationRepository {
         baptismStatus: m.baptismStatus,
         status: m.status,
         createdAt: m.createdAt,
+        zoneId: m.zoneId ?? undefined,
+        groupId: m.groupId ?? undefined,
       };
     });
   }
