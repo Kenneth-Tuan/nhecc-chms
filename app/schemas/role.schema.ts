@@ -2,31 +2,13 @@
  * 角色 Zod 驗證架構 (ST002)
  */
 import { z } from "zod";
+import { PERMISSION_KEYS, type PermissionKey } from "~/types/role";
 
-/** 所有有效的權限鍵值 */
-const permissionKeys = [
-  "dashboard:view",
-  "dashboard:export",
-  "member:view",
-  "member:create",
-  "member:edit",
-  "member:delete",
-  "member:export",
-  "org:view",
-  "org:manage",
-  "system:config",
-  // 課程模板管理
-  "courseTemplate:view",
-  "courseTemplate:manage",
-  "courseTemplate:delete",
-  // 課程班級管理
-  "courseClass:view_setup",
-  "courseClass:view_inprogress",
-  "courseClass:view_completed",
-  "courseClass:manage",
-  "courseClass:delete",
-  "courseClass:grade",
-] as const;
+/** Zod enum 需至少一個元素的 tuple；與 `PERMISSION_KEYS` 同步 */
+const permissionKeyEnum = PERMISSION_KEYS as unknown as [
+  PermissionKey,
+  ...PermissionKey[],
+];
 
 /** 所有敏感欄位 */
 const sensitiveFields = [
@@ -49,12 +31,12 @@ const permissionsRecordSchema = z.preprocess((val) => {
   
   // 僅保留現行定義中的權限鍵值，並將 undefined/null 轉換為 false
   // 這樣即便前端傳入舊的 keys (course:manage 等) 或遺漏新的 keys 也不會噴錯
-  permissionKeys.forEach(key => {
+  permissionKeyEnum.forEach((key) => {
     result[key] = !!record[key];
   });
-  
+
   return result;
-}, z.record(z.enum(permissionKeys), z.boolean()));
+}, z.record(z.enum(permissionKeyEnum), z.boolean()));
 
 /** 解鎖權限記錄架構 - 增加容錯處理 */
 const revealAuthorityRecordSchema = z.preprocess((val) => {

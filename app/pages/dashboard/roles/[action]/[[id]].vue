@@ -2,12 +2,7 @@
 /**
  * Create/Edit Role Page (ST002)
  */
-import type {
-  Role,
-  PermissionKey,
-  SensitiveField,
-  DataScope,
-} from "~/types/role";
+import type { Role, DataScope } from "~/types/role";
 import {
   createEmptyPermissions,
   createEmptyRevealAuthority,

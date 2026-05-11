@@ -2,38 +2,19 @@
  * RBAC Permission Constants & Groups
  * Shared between client and server.
  */
-import type {
-  PermissionKey,
-  SensitiveField,
-  PermissionGroup,
-  DataScope,
+import {
+  PERMISSION_KEYS,
+  type PermissionKey,
+  type SensitiveField,
+  type PermissionGroup,
+  type DataScope,
 } from "~/types/role";
 
-/** All permission keys */
-export const ALL_PERMISSION_KEYS: PermissionKey[] = [
-  "dashboard:view",
-  "dashboard:export",
-  "member:view",
-  "member:create",
-  "member:edit",
-  "member:delete",
-  "member:export",
-  "org:view",
-  "org:manage",
-  "system:config",
-  "courseTemplate:view",
-  "courseTemplate:manage",
-  "courseTemplate:delete",
-  "courseClass:view_setup",
-  "courseClass:view_inprogress",
-  "courseClass:view_completed",
-  "courseClass:manage",
-  "courseClass:delete",
-  "courseClass:grade",
-];
+/** 與 `PERMISSION_KEYS` 相同順序；供迭代／建立預設 `Record` 用 */
+export const ALL_PERMISSION_KEYS: PermissionKey[] = [...PERMISSION_KEYS];
 
-/** Permission labels (Chinese) */
-export const PERMISSION_LABELS: Record<PermissionKey, string> = {
+/** Permission labels (Chinese)；鍵須與 `PERMISSION_KEYS` 完全一致 */
+export const PERMISSION_LABELS = {
   "dashboard:view": "檢視儀表板",
   "dashboard:export": "匯出儀表板資料",
   "member:view": "檢視會友資料",
@@ -53,7 +34,7 @@ export const PERMISSION_LABELS: Record<PermissionKey, string> = {
   "courseClass:manage": "管理班級(開班/編輯)",
   "courseClass:delete": "刪除班級",
   "courseClass:grade": "班級評分",
-};
+} satisfies Record<PermissionKey, string>;
 
 /** Permission groups for UI display */
 export const PERMISSION_GROUPS: PermissionGroup[] = [

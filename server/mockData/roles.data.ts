@@ -2,35 +2,19 @@
  * Mock Role Data (ST002)
  * System roles with XYZ permissions
  */
-import type { Role, PermissionKey, SensitiveField } from '~/types/role';
+import {
+  PERMISSION_KEYS,
+  type Role,
+  type PermissionKey,
+  type SensitiveField,
+} from '~/types/role';
 
 /** Helper: create a full permission record */
 function createPermissions(
   granted: PermissionKey[],
 ): Record<PermissionKey, boolean> {
-  const allKeys: PermissionKey[] = [
-    'dashboard:view',
-    'dashboard:export',
-    'member:view',
-    'member:create',
-    'member:edit',
-    'member:delete',
-    'member:export',
-    'org:view',
-    'org:manage',
-    'system:config',
-    'courseTemplate:view',
-    'courseTemplate:manage',
-    'courseTemplate:delete',
-    'courseClass:view_setup',
-    'courseClass:view_inprogress',
-    'courseClass:view_completed',
-    'courseClass:manage',
-    'courseClass:grade',
-    'courseClass:delete',
-  ];
   const record = {} as Record<PermissionKey, boolean>;
-  for (const key of allKeys) {
+  for (const key of PERMISSION_KEYS) {
     record[key] = granted.includes(key);
   }
   return record;
