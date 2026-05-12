@@ -161,6 +161,34 @@ export function useFirebaseAuth() {
     }
   }
 
+  /**
+   * Emulator 專用：以 Custom Token 切換至另一測試帳（無需密碼）。
+   * 僅在 NUXT_PUBLIC_USE_EMULATOR=true 且後端偵測到 Emulator 時可用。
+   */
+  async function switchEmulatorTestUser(uid: string): Promise<void> {
+    loading.value = true;
+    error.value = null;
+    try {
+      const { customToken } = await $fetch<{ customToken: string }>(
+        "/api/dev/emulator-switch",
+        { method: "POST", body: { uid } },
+      );
+      const credential = await signInWithCustomToken(auth, customToken);
+      const idToken = await credential.user.getIdToken();
+      await createSessionCookie(idToken);
+      await authStore.loadContext();
+    } catch (e: any) {
+      error.value =
+        e?.data?.message ||
+        e?.data?.statusMessage ||
+        e?.message ||
+        "切換失敗";
+      throw e;
+    } finally {
+      loading.value = false;
+    }
+  }
+
   /** 登出並清除會期 */
   async function logout(): Promise<void> {
     loading.value = true;
@@ -293,6 +321,7 @@ export function useFirebaseAuth() {
     registerWithEmail,
     loginWithGoogle,
     loginWithLine,
+    switchEmulatorTestUser,
     logout,
     linkWithGoogle,
     linkWithLine,

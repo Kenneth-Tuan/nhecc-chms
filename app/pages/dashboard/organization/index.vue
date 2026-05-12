@@ -114,7 +114,7 @@ function openAssignDialog(member: { uuid: string; fullName: string }): void {
 /** Confirm click-based assignment */
 async function handleConfirmAssign(
   targetId: string,
-  groupId: string,
+  groupId: string
 ): Promise<void> {
   const result = await assignMember(targetId, groupId);
   toast.add({
@@ -213,10 +213,60 @@ onMounted(() => {
       </div>
 
       <!-- 3-Panel Layout -->
-      <div class="grid grid-cols-12 gap-4 flex-1 min-h-0">
-        <!-- Panel 1: Structure Tree (4 cols) -->
+      <div class="flex justify-between gap-4 flex-1 min-h-0">
+        <!-- Panel 1: Pending Pool -->
         <div
-          class="col-span-12 lg:col-span-4 flex flex-col bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden"
+          v-if="pendingMembers.length > 0"
+          class="flex-shrink-0 flex flex-col bg-amber-50/60 dark:bg-amber-900/10 rounded-xl border-2 border-dashed border-amber-200 dark:border-amber-800/50 overflow-hidden"
+        >
+          <div class="p-4 flex items-center justify-between gap-2">
+            <i class="pi pi-inbox text-lg text-amber-600" />
+            <div class="flex flex-col">
+              <p class="text-slate-800 dark:text-white font-bold">待分發區</p>
+              <span class="text-xs text-slate-400 italic hidden sm:block">
+                拖曳卡片至右側小組以分配
+              </span>
+            </div>
+            <Tag
+              :value="`共 ${pendingMembers.length} 人`"
+              severity="secondary"
+              class="!text-xs"
+            />
+          </div>
+
+          <div class="flex-1 overflow-y-auto">
+            <ProgressSpinner
+              v-if="isLoadingPending"
+              class="!w-6 !h-6 mx-auto"
+            />
+
+            <Tree
+              v-else
+              :value="pendingTreeNodes"
+              dragdropScope="member-assign"
+              :draggableNodes="true"
+              :droppableNodes="true"
+              class="pending-tree !bg-transparent !border-0"
+              :pt="{
+                nodelabel: {
+                  class: 'flex-1',
+                },
+              }"
+              @nodeDrop="onNodeDrop"
+            >
+              <template #pending-member="slotProps">
+                <PendingMemberCard
+                  :member="slotProps.node.data"
+                  @assign="openAssignDialog"
+                />
+              </template>
+            </Tree>
+          </div>
+        </div>
+
+        <!-- Panel 2: Structure Tree -->
+        <div
+          class="flex-shrink-0 flex flex-col bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden"
         >
           <div
             class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/30"
@@ -357,7 +407,7 @@ onMounted(() => {
                       @click.stop="
                         openGroupDialog(
                           slotProps.node.data.zoneId,
-                          slotProps.node.data,
+                          slotProps.node.data
                         )
                       "
                     />
@@ -377,122 +427,67 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- Panel 2+3: Right Side (8 cols) -->
-        <div class="col-span-12 lg:col-span-8 flex flex-col gap-4 min-h-0">
-          <!-- Panel 2: Pending Pool -->
+        <!-- Panel 3: Group Member List -->
+        <div
+          class="flex-1 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden"
+        >
+          <!-- Header -->
           <div
-            class="flex-shrink-0 bg-amber-50/60 dark:bg-amber-900/10 rounded-xl border-2 border-dashed border-amber-200 dark:border-amber-800/50 p-4"
+            class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between"
           >
-            <div class="flex items-center justify-between mb-3">
-              <h3
-                class="font-bold text-slate-800 dark:text-white flex items-center gap-2 text-sm"
-              >
-                <i class="pi pi-inbox text-amber-600" />
-                待分發區 (Pending Pool)
-                <Tag
-                  :value="`共 ${pendingMembers.length} 人`"
-                  severity="secondary"
-                  class="!text-xs"
-                />
-              </h3>
-              <span class="text-xs text-slate-400 italic hidden sm:block">
-                拖曳卡片至左側小組以分配
-              </span>
-            </div>
-
-            <ProgressSpinner
-              v-if="isLoadingPending"
-              class="!w-6 !h-6 mx-auto"
-            />
-
-            <div
-              v-else-if="pendingMembers.length === 0"
-              class="text-center py-4 text-sm text-slate-400"
+            <h3
+              class="font-bold text-slate-900 dark:text-white flex items-center gap-2 text-sm"
             >
-              <i class="pi pi-check-circle text-2xl mb-2 text-green-400" />
-              <p>所有會友已分配完畢</p>
-            </div>
-
-            <div v-else>
-              <Tree
-                :value="pendingTreeNodes"
-                dragdropScope="member-assign"
-                :draggableNodes="true"
-                :droppableNodes="true"
-                class="pending-tree !p-0 !bg-transparent !border-0"
-                @nodeDrop="onNodeDrop"
-              >
-                <template #pending-member="slotProps">
-                  <PendingMemberCard
-                    :member="slotProps.node.data"
-                    @assign="openAssignDialog"
-                  />
-                </template>
-              </Tree>
-            </div>
+              <i class="pi pi-list text-slate-400" />
+              {{
+                selectedGroup
+                  ? `${selectedGroup.name} 成員列表`
+                  : "請選擇一個小組"
+              }}
+            </h3>
           </div>
 
-          <!-- Panel 3: Group Member List -->
+          <!-- No selection state -->
           <div
-            class="flex-1 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden"
+            v-if="!selectedGroup"
+            class="flex-1 flex flex-col items-center justify-center text-slate-400"
           >
-            <!-- Header -->
-            <div
-              class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between"
+            <i class="pi pi-arrow-left text-4xl mb-3 opacity-30" />
+            <p class="text-sm">點擊左側小組以查看成員</p>
+          </div>
+
+          <!-- Loading state -->
+          <div
+            v-else-if="isLoadingMembers"
+            class="flex-1 flex items-center justify-center"
+          >
+            <ProgressSpinner class="!w-8 !h-8" />
+          </div>
+
+          <!-- Member Tree -->
+          <div v-else class="flex-1 overflow-auto p-4">
+            <Tree
+              :value="groupMemberTreeNodes"
+              dragdropScope="member-assign"
+              :draggableNodes="true"
+              :droppableNodes="true"
+              class="member-tree !p-0 !bg-transparent !border-0 w-full"
+              @nodeDrop="onNodeDrop"
+              :pt="{
+                nodelabel: {
+                  class: 'w-full',
+                },
+              }"
             >
-              <h3
-                class="font-bold text-slate-900 dark:text-white flex items-center gap-2 text-sm"
-              >
-                <i class="pi pi-list text-slate-400" />
-                {{
-                  selectedGroup
-                    ? `${selectedGroup.name} 成員列表`
-                    : "請選擇一個小組"
-                }}
-              </h3>
-            </div>
+              <!-- Empty state handled by check above -->
 
-            <!-- No selection state -->
-            <div
-              v-if="!selectedGroup"
-              class="flex-1 flex flex-col items-center justify-center text-slate-400"
-            >
-              <i class="pi pi-arrow-left text-4xl mb-3 opacity-30" />
-              <p class="text-sm">點擊左側小組以查看成員</p>
-            </div>
-
-            <!-- Loading state -->
-            <div
-              v-else-if="isLoadingMembers"
-              class="flex-1 flex items-center justify-center"
-            >
-              <ProgressSpinner class="!w-8 !h-8" />
-            </div>
-
-            <!-- Member Tree -->
-            <div v-else class="flex-1 overflow-auto p-4">
-              <Tree
-                :value="groupMemberTreeNodes"
-                dragdropScope="member-assign"
-                :draggableNodes="true"
-                :droppableNodes="true"
-                class="member-tree !p-0 !bg-transparent !border-0 w-full"
-                @nodeDrop="onNodeDrop"
-                :pt="{
-                  nodelabel: {
-                    class: 'w-full',
-                  },
-                }"
-              >
-                <!-- Empty state handled by check above -->
-
-                <template #group-member="slotProps">
-                  <GroupMemberCard :member="slotProps.node.data" />
-                </template>
-              </Tree>
-            </div>
+              <template #group-member="slotProps">
+                <GroupMemberCard :member="slotProps.node.data" />
+              </template>
+            </Tree>
           </div>
         </div>
+        <!-- </div> -->
       </div>
     </div>
 
@@ -563,19 +558,7 @@ onMounted(() => {
 }
 
 /* Member tree: simple vertical list */
-:deep(.member-tree .p-tree-node-list) {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 0;
-}
-:deep(.member-tree .p-tree-node) {
-  padding: 0;
-}
-:deep(.member-tree .p-tree-node-content) {
-  padding: 0;
-  background: transparent !important;
-}
+
 :deep(.member-tree .p-tree-node-toggle-button) {
   display: none !important;
 }

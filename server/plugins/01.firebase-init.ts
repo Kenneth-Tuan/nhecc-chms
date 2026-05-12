@@ -4,6 +4,21 @@ export default defineNitroPlugin(() => {
   if (getApps().length) return;
 
   const config = useRuntimeConfig();
+
+  // Emulator 模式：偵測到 emulator host env var 時跳過憑證驗證
+  const isEmulator =
+    process.env.FIREBASE_AUTH_EMULATOR_HOST ||
+    process.env.FIRESTORE_EMULATOR_HOST;
+
+  if (isEmulator) {
+    initializeApp({
+      projectId: config.public.firebaseProjectId || "nhecc-chms",
+      storageBucket: config.public.firebaseStorageBucket,
+    });
+    console.log("[Firebase Admin] Initialized in Emulator mode");
+    return;
+  }
+
   const credentialJson = config.firebaseAdminCredential;
 
   if (!credentialJson) {

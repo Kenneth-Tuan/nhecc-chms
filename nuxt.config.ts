@@ -108,6 +108,7 @@ export default defineNuxtConfig({
       firebaseMessagingSenderId:
         process.env.NUXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
       firebaseAppId: process.env.NUXT_PUBLIC_FIREBASE_APP_ID,
+      useEmulator: process.env.NUXT_PUBLIC_USE_EMULATOR === "true",
     },
   },
 

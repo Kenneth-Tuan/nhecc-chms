@@ -1,6 +1,6 @@
 /**
  * Mock Member Data
- * 60 members with diverse attributes covering all zones, groups, statuses, and roles.
+ * 67 members with diverse attributes covering all zones, groups, statuses, and roles.
  */
 import type { Member } from '~/types/member';
 
@@ -206,17 +206,17 @@ export const mockMembers: Member[] = [
       { uuid: 'member-003', fullName: '錢和平', gender: 'Male' as const, dob: '1997-03-08', mobile: '0911-001-003', email: 'qian.hp@example.com' },
       { uuid: 'member-004', fullName: '周愛心', gender: 'Female' as const, dob: '1996-11-30', mobile: '0911-001-004', email: 'zhou.ax@example.com' },
     ]},
-    { group: 'group-peace', members: [
+    { group: 'group-peace', leaderUuid: 'member-005', members: [
       { uuid: 'member-005', fullName: '吳忠誠', gender: 'Male' as const, dob: '1994-04-15', mobile: '0911-001-005', email: 'wu.zc@example.com' },
       { uuid: 'member-006', fullName: '鄭美善', gender: 'Female' as const, dob: '1998-08-25', mobile: '0911-001-006', email: 'zheng.ms@example.com' },
       { uuid: 'member-007', fullName: '馮溫柔', gender: 'Female' as const, dob: '1995-12-03', mobile: '0911-001-007', email: 'feng.wr@example.com' },
     ]},
-    { group: 'group-grace', members: [
+    { group: 'group-grace', leaderUuid: 'member-008', members: [
       { uuid: 'member-008', fullName: '陸節制', gender: 'Male' as const, dob: '1991-09-17', mobile: '0911-001-008', email: 'lu.jz@example.com' },
       { uuid: 'member-009', fullName: '何良善', gender: 'Female' as const, dob: '1999-02-28', mobile: '0911-001-009', email: 'he.ls@example.com' },
       { uuid: 'member-010', fullName: '施恩惠', gender: 'Female' as const, dob: '1996-07-14', mobile: '0911-001-010', email: 'shi.eh@example.com' },
     ]},
-    { group: 'group-faith', members: [
+    { group: 'group-faith', leaderUuid: 'member-011', members: [
       { uuid: 'member-011', fullName: '張堅定', gender: 'Male' as const, dob: '1993-10-05', mobile: '0911-001-011', email: 'zhang.jd@example.com' },
       { uuid: 'member-012', fullName: '黃盼望', gender: 'Female' as const, dob: '1997-05-20', mobile: '0911-001-012', email: 'huang.pw@example.com' },
     ]},
@@ -224,33 +224,33 @@ export const mockMembers: Member[] = [
 
   // ===== 家庭牧區 members =====
   ...generateZoneMembers('zone-family', [
-    { group: 'group-love', members: [
+    { group: 'group-love', leaderUuid: 'member-013', members: [
       { uuid: 'member-013', fullName: '蔡仁愛', gender: 'Female' as const, dob: '1980-03-21', mobile: '0911-002-001', email: 'cai.ra@example.com' },
       { uuid: 'member-014', fullName: '許忍耐', gender: 'Male' as const, dob: '1978-11-15', mobile: '0911-002-002', email: 'xu.rn@example.com' },
       { uuid: 'member-015', fullName: '呂恩寵', gender: 'Female' as const, dob: '1982-06-08', mobile: '0911-002-003', email: 'lv.ec@example.com' },
     ]},
-    { group: 'group-blessing', members: [
+    { group: 'group-blessing', leaderUuid: 'member-016', members: [
       { uuid: 'member-016', fullName: '蘇感恩', gender: 'Male' as const, dob: '1975-09-10', mobile: '0911-002-004', email: 'su.ge@example.com' },
       { uuid: 'member-017', fullName: '葉慈愛', gender: 'Female' as const, dob: '1983-12-25', mobile: '0911-002-005', email: 'ye.ca@example.com' },
       { uuid: 'member-018', fullName: '彭公義', gender: 'Male' as const, dob: '1979-01-30', mobile: '0911-002-006', email: 'peng.gy@example.com' },
     ]},
-    { group: 'group-harvest', members: [
+    { group: 'group-harvest', leaderUuid: 'member-019', members: [
       { uuid: 'member-019', fullName: '段豐盛', gender: 'Male' as const, dob: '1985-07-04', mobile: '0911-002-007', email: 'duan.fs@example.com' },
     ]},
   ]),
 
   // ===== 學生牧區 members =====
   ...generateZoneMembers('zone-student', [
-    { group: 'group-light', members: [
+    { group: 'group-light', leaderUuid: 'member-036', members: [
       { uuid: 'member-036', fullName: '高聰慧', gender: 'Female' as const, dob: '2002-04-12', mobile: '0911-003-001', email: 'gao.ch@example.com' },
       { uuid: 'member-037', fullName: '鄒勤奮', gender: 'Male' as const, dob: '2001-09-30', mobile: '0911-003-002', email: 'zou.qf@example.com' },
       { uuid: 'member-038', fullName: '范正直', gender: 'Male' as const, dob: '2003-01-18', mobile: '0911-003-003', email: 'fan.zz@example.com' },
     ]},
-    { group: 'group-salt', members: [
+    { group: 'group-salt', leaderUuid: 'member-039', members: [
       { uuid: 'member-039', fullName: '夏真誠', gender: 'Female' as const, dob: '2002-07-22', mobile: '0911-003-004', email: 'xia.zc@example.com' },
       { uuid: 'member-040', fullName: '秦謙卑', gender: 'Male' as const, dob: '2001-03-14', mobile: '0911-003-005', email: 'qin.qb@example.com' },
     ]},
-    { group: 'group-hope', members: [
+    { group: 'group-hope', leaderUuid: 'member-041', members: [
       { uuid: 'member-041', fullName: '尤信靠', gender: 'Female' as const, dob: '2003-11-28', mobile: '0911-003-006', email: 'you.xk@example.com' },
       { uuid: 'member-042', fullName: '江剛強', gender: 'Male' as const, dob: '2002-05-06', mobile: '0911-003-007', email: 'jiang.gq@example.com' },
     ]},
@@ -258,12 +258,12 @@ export const mockMembers: Member[] = [
 
   // ===== 長青牧區 members =====
   ...generateZoneMembers('zone-senior', [
-    { group: 'group-wisdom', members: [
+    { group: 'group-wisdom', leaderUuid: 'member-043', members: [
       { uuid: 'member-043', fullName: '宋安詳', gender: 'Male' as const, dob: '1955-02-20', mobile: '0911-004-001', email: 'song.ax@example.com' },
       { uuid: 'member-044', fullName: '郭慧靈', gender: 'Female' as const, dob: '1960-08-15', mobile: '0911-004-002', email: 'guo.hl@example.com' },
       { uuid: 'member-045', fullName: '田溫暖', gender: 'Female' as const, dob: '1958-04-03', mobile: '0911-004-003', email: 'tian.wn@example.com' },
     ]},
-    { group: 'group-olive', members: [
+    { group: 'group-olive', leaderUuid: 'member-046', members: [
       { uuid: 'member-046', fullName: '方堅韌', gender: 'Male' as const, dob: '1952-10-12', mobile: '0911-004-004', email: 'fang.jr@example.com' },
       { uuid: 'member-047', fullName: '石持守', gender: 'Female' as const, dob: '1957-06-28', mobile: '0911-004-005', email: 'shi.cs@example.com' },
     ]},
@@ -271,18 +271,60 @@ export const mockMembers: Member[] = [
 
   // ===== 新人牧區 members =====
   ...generateZoneMembers('zone-new', [
-    { group: 'group-welcome', members: [
+    { group: 'group-welcome', leaderUuid: 'member-048', members: [
       { uuid: 'member-048', fullName: '白新生', gender: 'Male' as const, dob: '1995-08-18', mobile: '0911-005-001', email: 'bai.xs@example.com' },
       { uuid: 'member-049', fullName: '曹盼望', gender: 'Female' as const, dob: '2000-01-25', mobile: '0911-005-002', email: 'cao.pw@example.com' },
     ]},
-    { group: 'group-seedling', members: [
+    { group: 'group-seedling', leaderUuid: 'member-050', members: [
       { uuid: 'member-050', fullName: '魏渴慕', gender: 'Male' as const, dob: '1998-11-10', mobile: '0911-005-003', email: 'wei.km@example.com' },
       { uuid: 'member-051', fullName: '姜追求', gender: 'Female' as const, dob: '1999-05-15', mobile: '0911-005-004', email: 'jiang.zq@example.com' },
     ]},
-    { group: 'group-root', members: [
+    { group: 'group-root', leaderUuid: 'member-052', members: [
       { uuid: 'member-052', fullName: '傅扎根', gender: 'Male' as const, dob: '1997-03-22', mobile: '0911-005-005', email: 'fu.zg@example.com' },
     ]},
   ]),
+
+  // ===== 功能組負責人（僅隸屬功能組，無牧區／牧區小組） =====
+  m({
+    uuid: 'member-034',
+    fullName: '錢財務',
+    gender: 'Male',
+    dob: '1983-04-22',
+    email: 'qian.cw@example.com',
+    mobile: '0912-340-034',
+    address: '台北市文山區木柵路一段77號',
+    lineId: 'qian_cw',
+    emergencyContactName: '錢太太',
+    emergencyContactRelationship: '配偶',
+    emergencyContactPhone: '0923-340-034',
+    baptismStatus: true,
+    baptismDate: '2010-09-15',
+    status: 'Active',
+    roleIds: ['group_leader'],
+    functionalGroupIds: ['func-finance'],
+    createdAt: '2024-01-15T08:00:00Z',
+    updatedAt: '2024-01-15T08:00:00Z',
+  }),
+  m({
+    uuid: 'member-035',
+    fullName: '蘇媒體',
+    gender: 'Female',
+    dob: '1991-12-08',
+    email: 'su.media@example.com',
+    mobile: '0912-350-035',
+    address: '台北市士林區德行西路45號',
+    lineId: 'su_media',
+    emergencyContactName: '蘇先生',
+    emergencyContactRelationship: '配偶',
+    emergencyContactPhone: '0923-350-035',
+    baptismStatus: true,
+    baptismDate: '2014-05-20',
+    status: 'Active',
+    roleIds: ['group_leader'],
+    functionalGroupIds: ['func-media'],
+    createdAt: '2024-01-15T08:00:00Z',
+    updatedAt: '2024-01-15T08:00:00Z',
+  }),
 
   // ===== Unassigned members (待分發) =====
   m({
@@ -326,6 +368,76 @@ export const mockMembers: Member[] = [
     status: 'Active',
     createdAt: '2025-02-01T08:00:00Z',
     updatedAt: '2025-02-01T08:00:00Z',
+  }),
+  m({
+    uuid: 'member-058',
+    fullName: '嚴報名',
+    gender: 'Female',
+    dob: '1996-02-14',
+    email: 'yan.bm@example.com',
+    mobile: '0911-006-004',
+    emergencyContactName: '嚴媽媽',
+    emergencyContactRelationship: '母親',
+    emergencyContactPhone: '0922-006-004',
+    status: 'Active',
+    createdAt: '2025-02-10T08:00:00Z',
+    updatedAt: '2025-02-10T08:00:00Z',
+  }),
+  m({
+    uuid: 'member-059',
+    fullName: '侯慕道',
+    gender: 'Male',
+    dob: '1993-11-22',
+    email: 'hou.md@example.com',
+    mobile: '0911-006-005',
+    emergencyContactName: '侯爸爸',
+    emergencyContactRelationship: '父親',
+    emergencyContactPhone: '0922-006-005',
+    status: 'Active',
+    createdAt: '2025-02-18T08:00:00Z',
+    updatedAt: '2025-02-18T08:00:00Z',
+  }),
+  m({
+    uuid: 'member-060',
+    fullName: '邵尋道',
+    gender: 'Female',
+    dob: '2000-05-30',
+    email: 'shao.xd@example.com',
+    mobile: '0911-006-006',
+    emergencyContactName: '邵先生',
+    emergencyContactRelationship: '配偶',
+    emergencyContactPhone: '0922-006-006',
+    status: 'Active',
+    createdAt: '2025-03-01T08:00:00Z',
+    updatedAt: '2025-03-01T08:00:00Z',
+  }),
+  m({
+    uuid: 'member-061',
+    fullName: '程初到',
+    gender: 'Male',
+    dob: '1987-08-07',
+    email: 'cheng.cd@example.com',
+    mobile: '0911-006-007',
+    emergencyContactName: '程太太',
+    emergencyContactRelationship: '配偶',
+    emergencyContactPhone: '0922-006-007',
+    status: 'Active',
+    createdAt: '2025-03-05T08:00:00Z',
+    updatedAt: '2025-03-05T08:00:00Z',
+  }),
+  m({
+    uuid: 'member-062',
+    fullName: '戴觀望',
+    gender: 'Female',
+    dob: '1999-12-01',
+    email: 'dai.gw@example.com',
+    mobile: '0911-006-008',
+    emergencyContactName: '戴姊姊',
+    emergencyContactRelationship: '姊妹',
+    emergencyContactPhone: '0922-006-008',
+    status: 'Active',
+    createdAt: '2025-03-12T08:00:00Z',
+    updatedAt: '2025-03-12T08:00:00Z',
   }),
 
   // ===== Inactive/Suspended members =====
@@ -375,6 +487,8 @@ interface MemberSeed {
 
 interface GroupSeed {
   group: string;
+  /** 與 seeds 內 uuid 相同者設為 group_leader（喜樂小組長為獨立 member-li-group，此欄省略） */
+  leaderUuid?: string;
   members: MemberSeed[];
 }
 
@@ -399,6 +513,8 @@ function generateZoneMembers(zoneId: string, groups: GroupSeed[]): Member[] {
       const isBaptized = Math.random() > 0.4;
       const numCourses = Math.floor(Math.random() * 3);
       const selectedCourses = courseIds.slice(0, numCourses);
+      const isLeader =
+        groupSeed.leaderUuid != null && seed.uuid === groupSeed.leaderUuid;
 
       result.push(m({
         uuid: seed.uuid,
@@ -410,13 +526,14 @@ function generateZoneMembers(zoneId: string, groups: GroupSeed[]): Member[] {
         address: addresses[idx % addresses.length],
         lineId: seed.fullName.toLowerCase().replace(/\s/g, '_'),
         emergencyContactName: `${seed.fullName.charAt(0)}家人`,
-        emergencyContactRelationship: relationships[idx % relationships.length],
+        emergencyContactRelationship: relationships[idx % relationships.length] ?? '朋友',
         emergencyContactPhone: `09${String(22000000 + idx).padStart(8, '0')}`,
         baptismStatus: isBaptized,
         baptismDate: isBaptized ? `20${10 + (idx % 15)}-${String((idx % 12) + 1).padStart(2, '0')}-${String((idx % 28) + 1).padStart(2, '0')}` : undefined,
         status: 'Active',
         zoneId,
         groupId: groupSeed.group,
+        roleIds: isLeader ? ['group_leader'] : ['general'],
         pastCourses: selectedCourses,
         createdAt: `2024-${String((idx % 12) + 1).padStart(2, '0')}-${String((idx % 28) + 1).padStart(2, '0')}T08:00:00Z`,
         updatedAt: `2024-${String((idx % 12) + 1).padStart(2, '0')}-${String((idx % 28) + 1).padStart(2, '0')}T08:00:00Z`,

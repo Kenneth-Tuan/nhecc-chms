@@ -1,5 +1,5 @@
 import { initializeApp, getApps } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, connectAuthEmulator } from "firebase/auth";
 
 export default defineNuxtPlugin(() => {
   const config = useRuntimeConfig().public;
@@ -18,6 +18,12 @@ export default defineNuxtPlugin(() => {
     : initializeApp(firebaseConfig);
 
   const auth = getAuth(app);
+
+  if (config.useEmulator) {
+    connectAuthEmulator(auth, "http://127.0.0.1:9099", {
+      disableWarnings: true,
+    });
+  }
 
   return {
     provide: {

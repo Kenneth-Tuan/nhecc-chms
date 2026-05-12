@@ -23,8 +23,7 @@ export function useZoneGroupCascade() {
       zones.value = response.zones.map((z) => ({
         id: z.id,
         name: z.name,
-        leaderId: z.leaderId,
-        leaderName: z.leaderName,
+        leaders: z.leaders,
         status: z.status,
         createdAt: z.createdAt,
         updatedAt: z.updatedAt,

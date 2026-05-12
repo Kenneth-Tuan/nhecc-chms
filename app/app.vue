@@ -1,5 +1,6 @@
 <script setup>
 const { isLoading } = useGlobalLoading();
+const runCfg = useRuntimeConfig();
 
 useHead({
   meta: [
@@ -42,6 +43,9 @@ useSeoMeta({
     "
     class="!max-w-[calc(100vw-2rem)]"
   />
+  <ClientOnly>
+    <DevEmulatorAccountSwitcher v-if="runCfg.public.useEmulator" />
+  </ClientOnly>
 </template>
 
 <style>
