@@ -78,6 +78,7 @@ const canEnroll = computed(() => {
 
 const enrollButtonLabel = computed(() => {
   if (isTeacherOfCourse.value) return "授課老師不可報名";
+  if (course.value?.status !== "SETUP") return "已開課，停止報名";
   if (isFull.value) return "名額已額滿";
   if (isAlreadyEnrolled.value) return "已報名";
   return "立即送出報名";

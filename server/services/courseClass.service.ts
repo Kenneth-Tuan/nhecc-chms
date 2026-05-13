@@ -32,6 +32,14 @@ export interface CourseClassFilters {
   search?: string;
 }
 
+type PublicCourseClass = CourseClass & {
+  templateName: string;
+  templateCode: string;
+  categoryId: string;
+  categoryName: string;
+  prerequisites: Prerequisite[];
+};
+
 export class CourseClassService {
   private assertClassAccess(
     context: CourseClassAccessContext,
@@ -43,17 +51,9 @@ export class CourseClassService {
   }
 
   /**
-   * 獲取發佈中的班級清單 (含模板與類別資訊)
+   * 獲取可公開瀏覽的班級清單 (含模板與類別資訊)
    */
-  async listPublished(): Promise<
-    (CourseClass & {
-      templateName: string;
-      templateCode: string;
-      categoryId: string;
-      categoryName: string;
-      prerequisites: Prerequisite[];
-    })[]
-  > {
+  async listPublished(): Promise<PublicCourseClass[]> {
     const classRepo = new CourseClassRepository();
     const templateRepo = new CourseTemplateRepository();
     const categoryRepo = new CourseCategoryRepository();
@@ -80,32 +80,29 @@ export class CourseClassService {
           prerequisites: template?.prerequisites || [],
         };
       })
-      .filter((c: CourseClass) => c.isPublished && c.status === "SETUP")
       .sort((a: any, b: any) => a.startDate.localeCompare(b.startDate));
   }
 
   /**
-   * 根據 ID 獲取已發佈的班級 (含模板與類別資訊)
+   * 獲取可報名的公開班級清單。
    */
-  async getPublishedById(id: string): Promise<
-    CourseClass & {
-      templateName: string;
-      templateCode: string;
-      categoryId: string;
-      categoryName: string;
-      prerequisites: Prerequisite[];
-    }
-  > {
+  async listEnrollable(): Promise<PublicCourseClass[]> {
+    const publishedClasses = await this.listPublished();
+    return publishedClasses.filter((courseClass) =>
+      canAccessCourseClass("PUBLIC_ENROLL", courseClass)
+    );
+  }
+
+  /**
+   * 根據 ID 獲取可公開瀏覽的班級 (含模板與類別資訊)
+   */
+  async getPublishedById(id: string): Promise<PublicCourseClass> {
     const classRepo = new CourseClassRepository();
     const templateRepo = new CourseTemplateRepository();
     const categoryRepo = new CourseCategoryRepository();
 
     const targetClass = await classRepo.findById(id);
-    if (
-      !targetClass ||
-      !targetClass.isPublished ||
-      targetClass.status !== "SETUP"
-    ) {
+    if (!targetClass || !targetClass.isPublished) {
       throw createError({
         statusCode: 404,
         message: "找不到此班級或課程尚未發佈",
@@ -133,6 +130,19 @@ export class CourseClassService {
       categoryName: foundCategory?.name || "未分類",
       prerequisites: template?.prerequisites || [],
     };
+  }
+
+  /**
+   * 根據 ID 獲取可報名的公開班級。
+   */
+  async getEnrollableById(id: string): Promise<PublicCourseClass> {
+    const courseClass = await this.getPublishedById(id);
+    this.assertClassAccess(
+      "PUBLIC_ENROLL",
+      courseClass,
+      "此課程目前不可報名"
+    );
+    return courseClass;
   }
 
   /**

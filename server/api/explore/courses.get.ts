@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   const enrollmentService = new CourseEnrollmentService()
   
   const [courses, userStatus, categories] = await Promise.all([
-    classService.listPublished(),
+    classService.listEnrollable(),
     enrollmentService.getUserEnrollmentStatus(event.context.userId),
     categoryService.list()
   ])
