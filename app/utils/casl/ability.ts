@@ -20,7 +20,7 @@ export type AppSubject =
   | "Member"
   | "Organization"
   | "System"
-  | "Course"
+  | "CourseTemplate"
   | "CourseClass"
   | "CourseEnrollment"
   | "all";
@@ -63,18 +63,25 @@ export function buildAbility(userContext: UserContext): AppAbility {
   
   // --- 課程與班級動態權限引擎 (X-Y 聯動) ---
   
-  // 1. 課程模板 (CourseTemplate)
-  if (userContext.permissions["courseTemplate:view"]) can("view", "Course");
+  // 1. 課程模板與分類 (CourseTemplate)
+  if (userContext.permissions["courseTemplate:view"]) {
+    can("view", "CourseTemplate");
+  }
   if (userContext.permissions["courseTemplate:manage"]) {
     if (userContext.scope === "Global") {
-      can("manage", "Course");
+      can("manage", "CourseTemplate");
     } else {
       // 非全域僅能管理自己建立的或相關的 (暫估由 creatorId 判定，此處示範通案)
-      can("manage", "Course", { creatorId: userContext.userId } as any);
+      can("manage", "CourseTemplate", {
+        creatorId: userContext.userId,
+      } as any);
     }
   }
-  if (userContext.permissions["courseTemplate:delete"] && userContext.scope === "Global") {
-    can("delete", "Course");
+  if (
+    userContext.permissions["courseTemplate:delete"] &&
+    userContext.scope === "Global"
+  ) {
+    can("delete", "CourseTemplate");
   }
 
   // 2. 班級 (CourseClass)

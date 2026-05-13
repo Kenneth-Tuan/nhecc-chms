@@ -1,32 +1,34 @@
-import { ref } from 'vue'
-import type { CourseEnrollment } from '~/types/course-enrollment'
+import type { CourseEnrollment } from "~/types/course-enrollment";
 
 export const useCourseEnrollment = () => {
-  const isJoining = ref(false)
+  const isJoining = ref(false);
 
   const joinWaitlist = async (templateId: string) => {
-    isJoining.value = true
+    isJoining.value = true;
     try {
-      const data = await $fetch<CourseEnrollment>('/api/courses/enrollments/waitlist', {
-        method: 'POST',
-        body: { templateId }
-      })
-      return data
+      const data = await $fetch<CourseEnrollment>(
+        "/api/courses/enrollments/waitlist",
+        {
+          method: "POST",
+          body: { templateId },
+        }
+      );
+      return data;
     } finally {
-      isJoining.value = false
+      isJoining.value = false;
     }
-  }
+  };
 
   const assignStudents = async (classId: string, enrollmentIds: string[]) => {
-    return $fetch('/api/courses/classes/assign', {
-      method: 'POST',
-      body: { classId, enrollmentIds }
-    })
-  }
+    return $fetch("/api/courses/classes/assign", {
+      method: "POST",
+      body: { classId, enrollmentIds },
+    });
+  };
 
   return {
     isJoining,
     joinWaitlist,
-    assignStudents
-  }
-}
+    assignStudents,
+  };
+};

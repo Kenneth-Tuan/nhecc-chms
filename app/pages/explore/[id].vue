@@ -35,6 +35,13 @@ const isAlreadyEnrolled = computed(() => {
   return course.value?.studentIds?.includes(userContext.value?.userId || "");
 });
 
+// 授課老師不可走學員報名流程
+const isTeacherOfCourse = computed(() => {
+  return (
+    course.value?.teacherIds?.includes(userContext.value?.userId || "") ?? false
+  );
+});
+
 // 先修條件檢查
 const failedPrerequisites = computed(() => {
   const failed: string[] = [];
@@ -60,7 +67,19 @@ const failedPrerequisites = computed(() => {
 const hasFailedPrereq = computed(() => failedPrerequisites.value.length > 0);
 
 const canEnroll = computed(() => {
-  return !isFull.value && !hasFailedPrereq.value && !isAlreadyEnrolled.value;
+  return (
+    !isFull.value &&
+    !hasFailedPrereq.value &&
+    !isAlreadyEnrolled.value &&
+    !isTeacherOfCourse.value
+  );
+});
+
+const enrollButtonLabel = computed(() => {
+  if (isTeacherOfCourse.value) return "授課老師不可報名";
+  if (isFull.value) return "名額已額滿";
+  if (isAlreadyEnrolled.value) return "已報名";
+  return "立即送出報名";
 });
 
 const handleEnroll = async () => {
@@ -311,9 +330,25 @@ const formattedEndDate = computed(() => {
                   課程報名
                 </h4>
 
+                <!-- Teacher Guard Card -->
+                <div
+                  v-if="isTeacherOfCourse"
+                  class="bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded-2xl p-6 mb-8"
+                >
+                  <div
+                    class="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-black mb-4"
+                  >
+                    <i class="pi pi-user-edit" />
+                    授課老師不可報名
+                  </div>
+                  <p class="text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
+                    您是此課程的授課老師，不需要透過學員報名流程加入。
+                  </p>
+                </div>
+
                 <!-- Prerequisites Card -->
                 <div
-                  v-if="hasFailedPrereq"
+                  v-else-if="hasFailedPrereq"
                   class="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-2xl p-6 mb-8"
                 >
                   <div
@@ -350,13 +385,7 @@ const formattedEndDate = computed(() => {
                 </div>
 
                 <Button
-                  :label="
-                    isFull
-                      ? '名額已額滿'
-                      : isAlreadyEnrolled
-                        ? '已報名'
-                        : '立即送出報名'
-                  "
+                  :label="enrollButtonLabel"
                   :disabled="!canEnroll || enrolling"
                   :loading="enrolling"
                   size="large"
@@ -366,13 +395,13 @@ const formattedEndDate = computed(() => {
                 />
 
                 <p
-                  v-if="!canEnroll && !isFull && !isAlreadyEnrolled"
+                  v-if="hasFailedPrereq && !isTeacherOfCourse"
                   class="text-center text-sm text-gray-400 dark:text-gray-500 mt-6 px-4"
                 >
                   很抱歉，您暫時不符合報名此課程的先修條件。
                 </p>
                 <p
-                  v-if="isFull"
+                  v-if="isFull && !isTeacherOfCourse"
                   class="text-center text-sm text-red-400 dark:text-red-500/80 mt-6 px-4 font-bold"
                 >
                   本班級非常熱門，目前已額滿，期待下次與您相見！

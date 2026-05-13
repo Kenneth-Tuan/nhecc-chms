@@ -1,7 +1,7 @@
-import { abilitiesPlugin } from '@casl/vue';
-import { AppAbility } from '~/utils/casl/ability';
+import { abilitiesPlugin } from "@casl/vue";
+import { AppAbility, detectSubjectType } from "~/utils/casl/ability";
 
 export default defineNuxtPlugin((nuxtApp) => {
-  const ability = new AppAbility([]);
-  nuxtApp.vueApp.use(abilitiesPlugin, ability, { useGlobalGuard: false });
+  const ability = new AppAbility([], { detectSubjectType });
+  nuxtApp.vueApp.use(abilitiesPlugin, ability);
 });

@@ -3,7 +3,6 @@ import { CourseClassRepository } from "../repositories/courseClass.repository";
 import { CourseTemplateRepository } from "../repositories/courseTemplate.repository";
 import { CourseEnrollmentRepository } from "../repositories/courseEnrollment.repository";
 import { MemberRepository } from "../repositories/member.repository";
-import { CourseTemplateService } from "./courseTemplate.service";
 import { createError } from "h3";
 import type { AppAbility } from "~/utils/casl/ability";
 import type { UserContext } from "~/types/auth";
@@ -128,111 +127,6 @@ export class CourseClassService {
       categoryName: foundCategory?.name || "未分類",
       prerequisites: template?.prerequisites || [],
     };
-  }
-
-  /**
-   * 獲取使用者當前的報名相關狀態
-   */
-  async getUserEnrollmentStatus(userId: string): Promise<{
-    completedCodes: string[];
-    isBaptised: boolean;
-    isNewcomer: boolean;
-  }> {
-    const memberRepo = new MemberRepository();
-    const enrollmentRepo = new CourseEnrollmentRepository();
-    const templateRepo = new CourseTemplateRepository();
-
-    const member = await memberRepo.findById(userId);
-    if (!member)
-      throw createError({ statusCode: 404, message: "找不到會員資料" });
-
-    const userEnrollments = await enrollmentRepo.findByUserId(userId);
-    const completedTemplateIds = userEnrollments
-      .filter((e: any) => e.status === "COMPLETED")
-      .map((e: any) => e.templateId);
-
-    const allTemplates = await templateRepo.findAll();
-    const completedCodes = allTemplates
-      .filter((t: any) => completedTemplateIds.includes(t.id))
-      .map((t: any) => t.code);
-
-    return {
-      completedCodes,
-      isBaptised: member.baptismStatus || false,
-      isNewcomer: !member.zoneId, // 如果沒有分配牧區，暫視為新進教友
-    };
-  }
-
-  /**
-   * 會員自主報名
-   */
-  async enrollUser(classId: string, userId: string): Promise<void> {
-    const classRepo = new CourseClassRepository();
-    const templateRepo = new CourseTemplateRepository();
-    const enrollmentRepo = new CourseEnrollmentRepository();
-    const templateService = new CourseTemplateService();
-    const memberRepo = new MemberRepository();
-
-    // 1. 取得班級與基礎校驗
-    const targetClass = await classRepo.findById(classId);
-    if (!targetClass)
-      throw createError({ statusCode: 404, message: "找不到此班級" });
-    // 前台報名與前台瀏覽共用 Public policy。
-    this.assertClassAccess(
-      "PUBLIC_ENROLL",
-      targetClass,
-      "此課程尚未發佈，無法報名"
-    );
-
-    // 2. 檢查名額
-    if (targetClass.enrollmentCount >= targetClass.maxCapacity) {
-      throw createError({ statusCode: 400, message: "此班級已額滿" });
-    }
-
-    // 3. 檢查是否已報名
-    if (targetClass.studentIds?.includes(userId)) {
-      throw createError({ statusCode: 400, message: "您已在報名名單中" });
-    }
-
-    // 4. 檢查先修條件
-    const template = await templateRepo.findById(targetClass.templateId);
-    if (!template)
-      throw createError({ statusCode: 404, message: "找不到相關課程模板" });
-
-    const userStatus = await this.getUserEnrollmentStatus(userId);
-
-    const { passed, failedPrerequisites } =
-      await templateService.checkPrerequisites(
-        targetClass.templateId,
-        userStatus.completedCodes,
-        {
-          isBaptised: userStatus.isBaptised,
-          isNewcomer: userStatus.isNewcomer,
-        }
-      );
-
-    if (!passed) {
-      throw createError({
-        statusCode: 400,
-        message: `不符合先修條件：需完成 ${failedPrerequisites.join(", ")}`,
-      });
-    }
-
-    // 5. 建立 Enroll 紀錄 (自動關聯)
-    await enrollmentRepo.create({
-      userId,
-      templateId: targetClass.templateId,
-      classId: targetClass.id,
-      status: "ASSIGNED", // 直接進入已分配狀態
-      credits: 0,
-    });
-
-    // 6. 更新班級報名人數
-    const updatedStudentIds = [...(targetClass.studentIds || []), userId];
-    await classRepo.update(targetClass.id, {
-      studentIds: updatedStudentIds,
-      enrollmentCount: updatedStudentIds.length,
-    });
   }
 
   /**
@@ -538,44 +432,6 @@ export class CourseClassService {
     }
 
     return updated;
-  }
-
-  /**
-   * 指派學生到班級
-   */
-  async assignStudentsToClass(
-    classId: string,
-    enrollmentIds: string[]
-  ): Promise<void> {
-    const classRepo = new CourseClassRepository();
-    const enrollmentRepo = new CourseEnrollmentRepository();
-
-    const targetClass = await classRepo.findById(classId);
-    if (!targetClass) {
-      throw createError({ statusCode: 404, message: "找不到指定的班級" });
-    }
-
-    // 更新 Enrollment 狀態與關聯
-    const studentIds: string[] = [...(targetClass.studentIds || [])];
-
-    for (const enrollmentId of enrollmentIds) {
-      const enroll = await enrollmentRepo.findById(enrollmentId);
-      if (enroll && enroll.userId) {
-        await enrollmentRepo.update(enrollmentId, {
-          classId,
-          status: "ASSIGNED",
-        });
-        if (!studentIds.includes(enroll.userId)) {
-          studentIds.push(enroll.userId);
-        }
-      }
-    }
-
-    // 同步更新 CourseClass 中的 studentIds 陣列以利權限過濾
-    await classRepo.update(classId, {
-      studentIds,
-      enrollmentCount: studentIds.length,
-    });
   }
 
   /**

@@ -10,7 +10,7 @@ import { requireAbility, validateWithSchema } from '../../../utils/validation'
 const service = new CourseTemplateService()
 
 export default defineEventHandler(async (event) => {
-  requireAbility(event, 'view', 'Course')
+  requireAbility(event, 'view', 'CourseTemplate')
   const query = getQuery(event)
   const filters = validateWithSchema(courseTemplateFiltersSchema, query)
   return service.list(filters)

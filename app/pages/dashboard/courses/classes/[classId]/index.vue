@@ -12,6 +12,7 @@ definePageMeta({
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
+const auth = useAuth();
 
 const classId = computed(() => route.params.classId as string);
 const { fetchClassById, fetchClassStudents, updateClass, isCreating } =
@@ -22,6 +23,31 @@ const currentClass = ref<
 const students = ref<any[]>([]);
 const isLoading = ref(false);
 const showEditDialog = ref(false);
+
+const canManageCourseClass = computed(() => {
+  if (!currentClass.value) return false;
+  return auth.can("manage", {
+    ...currentClass.value,
+    __type: "CourseClass",
+  } as any);
+});
+
+watchEffect(() => {
+  if (!currentClass.value) return;
+  console.log("test current class: ", currentClass.value);
+  // console.table({
+  //   userId: auth.userContext.value?.userId,
+  //   scope: auth.userContext.value?.scope,
+  //   rawManagePermission:
+  //     auth.userContext.value?.permissions?.["courseClass:manage"],
+  //   teacherIds: currentClass.value.teacherIds?.join(", "),
+  //   canByString: auth.can("manage", "CourseClass"),
+  //   canByObject: auth.can("manage", {
+  //     ...currentClass.value,
+  //     __type: "CourseClass",
+  //   } as any),
+  // });
+});
 
 onMounted(async () => {
   isLoading.value = true;
@@ -56,7 +82,7 @@ function goBack() {
 }
 
 async function handleUpdateClass(formData: any) {
-  if (!currentClass.value) return;
+  if (!currentClass.value || !canManageCourseClass.value) return;
   try {
     const updated = await updateClass(classId.value, formData);
     currentClass.value = {
@@ -84,6 +110,7 @@ async function handleUpdateClass(formData: any) {
 <template>
   <BasePageContainer>
     <Dialog
+      v-if="canManageCourseClass"
       v-model:visible="showEditDialog"
       header="編輯班級資料"
       modal
@@ -144,7 +171,7 @@ async function handleUpdateClass(formData: any) {
           </p>
         </div>
 
-        <div class="flex gap-4">
+        <div v-if="canManageCourseClass" class="flex gap-4">
           <Button
             label="編輯班級"
             icon="pi pi-cog"
@@ -165,7 +192,11 @@ async function handleUpdateClass(formData: any) {
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-12">
         <!-- Left Col: Students -->
         <div class="lg:col-span-2">
-          <ClassStudentList :classId="currentClass.id" :students="students" />
+          <ClassStudentList
+            :classId="currentClass.id"
+            :students="students"
+            :can-manage="canManageCourseClass"
+          />
         </div>
 
         <!-- Right Col: Schedule & Info -->

@@ -1,6 +1,6 @@
-import { CourseClassService } from '~/../server/services/courseClass.service'
+import { CourseEnrollmentService } from '~/../server/services/courseEnrollment.service'
 
-const classService = new CourseClassService()
+const enrollmentService = new CourseEnrollmentService()
 
 export default defineEventHandler(async (event) => {
   const userContext = event.context.user
@@ -15,6 +15,6 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: '參數錯誤' })
   }
 
-  await classService.assignStudentsToClass(body.classId, body.enrollmentIds)
+  await enrollmentService.assignStudentsToClass(body.classId, body.enrollmentIds)
   return { success: true }
 })

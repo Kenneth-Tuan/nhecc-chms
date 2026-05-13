@@ -10,7 +10,7 @@ import { requireAbility, validateWithSchema } from '../../../utils/validation'
 const service = new CourseTemplateService()
 
 export default defineEventHandler(async (event) => {
-  requireAbility(event, 'update', 'Course')
+  requireAbility(event, 'manage', 'CourseTemplate')
   const id = getRouterParam(event, 'id')!
   const body = await readBody(event)
   const payload = validateWithSchema(updateCourseTemplateSchema, body)

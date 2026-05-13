@@ -9,11 +9,11 @@ const memberService = new MemberService();
 
 export default defineEventHandler(async (event) => {
   // 檢查是否有權限管理課程
-  requireAbility(event, "manage", "Course");
+  requireAbility(event, "manage", "CourseClass");
 
   const teachers = await memberService.listTeachers();
-  
+
   return {
-    data: teachers
+    data: teachers,
   };
 });

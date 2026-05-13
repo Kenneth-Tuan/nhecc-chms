@@ -33,7 +33,7 @@ const menuItems = computed(() =>
       label: "課程管理",
       icon: "pi pi-book",
       to: "/dashboard/courses/templates",
-      show: auth.can("manage", "Course"), // or view Course
+      show: auth.can("manage", "CourseTemplate"),
     },
     {
       label: "班級管理",

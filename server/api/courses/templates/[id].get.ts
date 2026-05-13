@@ -8,7 +8,7 @@ import { requireAbility } from '../../../utils/validation'
 const service = new CourseTemplateService()
 
 export default defineEventHandler(async (event) => {
-  requireAbility(event, 'view', 'Course')
+  requireAbility(event, 'view', 'CourseTemplate')
   const id = getRouterParam(event, 'id')!
   return service.getById(id)
 })

@@ -1,4 +1,4 @@
-import { CourseClassService } from '~/../server/services/courseClass.service'
+import { CourseEnrollmentService } from '~/../server/services/courseEnrollment.service'
 
 export default defineEventHandler(async (event) => {
   if (!event.context.userId) {
@@ -10,8 +10,8 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: '缺少班級 ID' })
   }
 
-  const service = new CourseClassService()
-  await service.enrollUser(body.classId, event.context.userId)
+  const service = new CourseEnrollmentService()
+  await service.enrollToClass(event.context.userId, body.classId)
 
   return { success: true }
 })

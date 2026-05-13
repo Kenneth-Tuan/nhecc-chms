@@ -11,7 +11,7 @@ const statusSchema = z.object({ status: z.enum(['ACTIVE', 'INACTIVE']) })
 const service = new CourseTemplateService()
 
 export default defineEventHandler(async (event) => {
-  requireAbility(event, 'update', 'Course')
+  requireAbility(event, 'manage', 'CourseTemplate')
   const id = getRouterParam(event, 'id')!
   const body = await readBody(event)
   const { status } = validateWithSchema(statusSchema, body)

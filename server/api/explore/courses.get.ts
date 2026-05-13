@@ -1,5 +1,6 @@
 import { CourseClassService } from '~/../server/services/courseClass.service'
 import { CourseCategoryService } from '~/../server/services/courseCategory.service'
+import { CourseEnrollmentService } from '~/../server/services/courseEnrollment.service'
 
 export default defineEventHandler(async (event) => {
   // 檢查是否登入
@@ -9,10 +10,11 @@ export default defineEventHandler(async (event) => {
 
   const classService = new CourseClassService()
   const categoryService = new CourseCategoryService()
+  const enrollmentService = new CourseEnrollmentService()
   
   const [courses, userStatus, categories] = await Promise.all([
     classService.listPublished(),
-    classService.getUserEnrollmentStatus(event.context.userId),
+    enrollmentService.getUserEnrollmentStatus(event.context.userId),
     categoryService.list()
   ])
 

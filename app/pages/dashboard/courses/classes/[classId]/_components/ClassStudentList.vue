@@ -3,6 +3,7 @@ const props = defineProps<{
   classId: string;
   // TODO: type should be Student/Member
   students: any[];
+  canManage?: boolean;
 }>();
 </script>
 
@@ -18,6 +19,7 @@ const props = defineProps<{
         學生名單 ({{ students.length }})
       </h3>
       <Button
+        v-if="canManage"
         label="指派學生"
         icon="pi pi-user-plus"
         outlined
@@ -48,7 +50,7 @@ const props = defineProps<{
           />
         </template>
       </Column>
-      <Column header="操作">
+      <Column v-if="canManage" header="操作">
         <template #body>
           <Button
             icon="pi pi-times"

@@ -8,6 +8,6 @@ import { requireAbility } from '../../utils/validation'
 const service = new CourseCategoryService()
 
 export default defineEventHandler(async (event) => {
-  requireAbility(event, 'view', 'Course')
+  requireAbility(event, 'view', 'CourseTemplate')
   return service.list()
 })

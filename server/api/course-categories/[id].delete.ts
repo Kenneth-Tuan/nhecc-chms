@@ -8,7 +8,7 @@ import { requireAbility } from '../../utils/validation'
 const service = new CourseCategoryService()
 
 export default defineEventHandler(async (event) => {
-  requireAbility(event, 'delete', 'Course')
+  requireAbility(event, 'delete', 'CourseTemplate')
   const id = getRouterParam(event, 'id')!
   await service.delete(id)
   return { success: true, message: '課程分類刪除成功' }

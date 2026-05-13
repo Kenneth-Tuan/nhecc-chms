@@ -1,4 +1,5 @@
 import { CourseClassService } from '~/../server/services/courseClass.service'
+import { CourseEnrollmentService } from '~/../server/services/courseEnrollment.service'
 
 export default defineEventHandler(async (event) => {
   // 檢查是否登入
@@ -12,10 +13,11 @@ export default defineEventHandler(async (event) => {
   }
 
   const classService = new CourseClassService()
+  const enrollmentService = new CourseEnrollmentService()
   
   try {
     const course = await classService.getPublishedById(id)
-    const userStatus = await classService.getUserEnrollmentStatus(event.context.userId)
+    const userStatus = await enrollmentService.getUserEnrollmentStatus(event.context.userId)
 
     return {
       course,
