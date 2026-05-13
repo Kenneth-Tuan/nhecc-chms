@@ -26,7 +26,6 @@ import { mockRoles } from "../server/mockData/roles.data";
 import { mockCourses } from "../server/mockData/courses.data";
 import { mockCourseCategories } from "../server/mockData/courseCategories.data";
 import { mockCourseTemplates } from "../server/mockData/courseTemplates.data";
-import { mockTestUsers } from "../server/mockData/auth.data";
 
 const TEST_PASSWORD = "Test@12345";
 const PROJECT_ID = "nhecc-chms";
@@ -75,22 +74,16 @@ async function writeInBatches<T>(
 async function seedAuthUsers() {
   console.log("\n[1/7] Seeding Auth users...");
 
-  for (const user of mockTestUsers) {
-    const member = mockMembers.find((m) => m.uuid === user.userId);
-    if (!member) {
-      console.warn(`  ⚠ member not found for userId ${user.userId}, skipping`);
-      continue;
-    }
-
+  for (const member of mockMembers) {
     // 先嘗試刪除舊帳號（冪等）
     try {
-      await auth.deleteUser(user.userId);
+      await auth.deleteUser(member.uuid);
     } catch {
       // 不存在就跳過
     }
 
     await auth.createUser({
-      uid: user.userId,
+      uid: member.uuid,
       email: member.email,
       password: TEST_PASSWORD,
       displayName: member.fullName,
@@ -259,21 +252,18 @@ async function main() {
   await seedCourses();
 
   console.log("\n=== Done! ===");
-  console.log("\n測試帳號列表：");
+  console.log("\nEmulator 帳號列表：");
   console.table(
-    mockTestUsers.map((u) => {
-      const member = mockMembers.find((m) => m.uuid === u.userId);
-      return {
-        姓名: member?.fullName ?? u.userId,
-        Email: member?.email ?? "(not found)",
-        角色: u.roleIds.join(", "),
-        Scope: u.zoneId
-          ? `zone: ${u.zoneId}`
-          : u.groupId
-          ? `group: ${u.groupId}`
-          : "Global",
-      };
-    })
+    mockMembers.map((member) => ({
+      姓名: member.fullName,
+      Email: member.email,
+      角色: member.roleIds.join(", "),
+      Scope: member.zoneId
+        ? `zone: ${member.zoneId}`
+        : member.groupId
+        ? `group: ${member.groupId}`
+        : "Global",
+    }))
   );
   console.log(`\n密碼：${TEST_PASSWORD}\n`);
 }

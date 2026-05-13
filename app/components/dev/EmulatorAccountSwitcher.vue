@@ -8,7 +8,21 @@ interface EmulatorAccount {
   uid: string;
   fullName: string;
   email: string;
+  roleIds: string[];
+  roles: EmulatorAccountRole[];
   roleLabels: string;
+}
+
+interface EmulatorAccountRole {
+  id: string;
+  name: string;
+}
+
+interface EmulatorAccountOption {
+  label: string;
+  value: string;
+  uid: string;
+  title: string;
 }
 
 const runCfg = useRuntimeConfig();
@@ -17,15 +31,37 @@ const { switchEmulatorTestUser, loading } = useFirebaseAuth();
 
 const enabled = computed(() => runCfg.public.useEmulator === true);
 const accounts = ref<EmulatorAccount[]>([]);
-const selectedUid = ref<string | null>(null);
+const selectedOptionValue = ref<string | null>(null);
 const expanded = ref(true);
 
-const selectOptions = computed(() =>
-  accounts.value.map((a) => ({
-    label: `${a.fullName} · ${a.email}`,
-    value: a.uid,
-    title: a.roleLabels,
-  }))
+const accountGroups = computed(() => {
+  const groups = new Map<
+    string,
+    { label: string; items: EmulatorAccountOption[] }
+  >();
+
+  for (const account of accounts.value) {
+    for (const role of account.roles) {
+      if (!groups.has(role.id)) {
+        groups.set(role.id, { label: role.name, items: [] });
+      }
+
+      groups.get(role.id)!.items.push({
+        label: `${account.fullName} · ${account.email}`,
+        value: `${role.id}:${account.uid}`,
+        uid: account.uid,
+        title: account.roleLabels,
+      });
+    }
+  }
+
+  return [...groups.values()];
+});
+
+const selectedAccount = computed(() =>
+  accountGroups.value
+    .flatMap((group) => group.items)
+    .find((item) => item.value === selectedOptionValue.value)
 );
 
 onMounted(async () => {
@@ -33,8 +69,9 @@ onMounted(async () => {
   try {
     const list = await $fetch<EmulatorAccount[]>("/api/dev/emulator-accounts");
     accounts.value = list;
-    if (list.length && !selectedUid.value) {
-      selectedUid.value = list[0]!.uid;
+    const firstOption = accountGroups.value[0]?.items[0];
+    if (firstOption && !selectedOptionValue.value) {
+      selectedOptionValue.value = firstOption.value;
     }
   } catch {
     accounts.value = [];
@@ -42,13 +79,13 @@ onMounted(async () => {
 });
 
 async function onSwitch() {
-  if (!selectedUid.value) return;
+  if (!selectedAccount.value) return;
   try {
-    await switchEmulatorTestUser(selectedUid.value);
+    await switchEmulatorTestUser(selectedAccount.value.uid);
     toast.add({
       severity: "success",
       summary: "已切換帳號",
-      detail: accounts.value.find((a) => a.uid === selectedUid.value)?.fullName,
+      detail: selectedAccount.value.label,
       life: 2500,
     });
   } catch (e: any) {
@@ -86,10 +123,12 @@ async function onSwitch() {
       </p>
       <div v-show="expanded" class="flex flex-col gap-2">
         <Select
-          v-model="selectedUid"
-          :options="selectOptions"
+          v-model="selectedOptionValue"
+          :options="accountGroups"
           optionLabel="label"
           optionValue="value"
+          optionGroupLabel="label"
+          optionGroupChildren="items"
           placeholder="選擇帳號"
           class="w-full"
           size="small"
@@ -100,7 +139,7 @@ async function onSwitch() {
           size="small"
           severity="secondary"
           :loading="loading"
-          :disabled="!selectedUid"
+          :disabled="!selectedAccount"
           class="w-full"
           @click="onSwitch"
         />
