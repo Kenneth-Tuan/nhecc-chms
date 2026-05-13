@@ -18,6 +18,7 @@ import {
   canAccessCourseClass,
   type CourseClassAccessContext,
 } from "../utils/courseClass.policy";
+import { getAdminFirestore } from "../utils/firebase-admin";
 
 import type { CourseEnrollment } from "~/types/course-enrollment";
 import type { Member } from "~/types/member";
@@ -79,6 +80,7 @@ export class CourseClassService {
           prerequisites: template?.prerequisites || [],
         };
       })
+      .filter((c: CourseClass) => c.isPublished && c.status === "SETUP")
       .sort((a: any, b: any) => a.startDate.localeCompare(b.startDate));
   }
 
@@ -99,7 +101,11 @@ export class CourseClassService {
     const categoryRepo = new CourseCategoryRepository();
 
     const targetClass = await classRepo.findById(id);
-    if (!targetClass || !targetClass.isPublished) {
+    if (
+      !targetClass ||
+      !targetClass.isPublished ||
+      targetClass.status !== "SETUP"
+    ) {
       throw createError({
         statusCode: 404,
         message: "找不到此班級或課程尚未發佈",
@@ -437,37 +443,79 @@ export class CourseClassService {
   /**
    * 開始課程
    */
-  async startCourse(classId: string, ability: AppAbility): Promise<CourseClass> {
-    const classRepo = new CourseClassRepository();
-    const enrollmentRepo = new CourseEnrollmentRepository();
+  async startCourse(
+    classId: string,
+    ability: AppAbility
+  ): Promise<CourseClass> {
+    const db = getAdminFirestore();
+    const classRef = db.collection("courseClasses").doc(classId);
+    const enrollmentQuery = db
+      .collection("courseEnrollments")
+      .where("classId", "==", classId);
 
-    const targetClass = await classRepo.findById(classId);
-    if (!targetClass) {
-      throw createError({ statusCode: 404, message: "找不到指定的班級" });
-    }
-
-    this.assertClassAccess(
-      "ADMIN_MANAGE",
-      targetClass,
-      "您無權開始此班級課程",
-      ability
-    );
-
-    const updatedClass = await classRepo.update(classId, {
-      status: "IN_PROGRESS",
-    });
-    if (!updatedClass) {
-      throw createError({ statusCode: 500, message: "更新班級狀態失敗" });
-    }
-
-    const enrollments = await enrollmentRepo.findByClassId(classId);
-    for (const enroll of enrollments) {
-      if (enroll.status === "ASSIGNED") {
-        await enrollmentRepo.update(enroll.id, { status: "IN_PROGRESS" });
+    return db.runTransaction(async (transaction) => {
+      const classSnap = await transaction.get(classRef);
+      if (!classSnap.exists) {
+        throw createError({ statusCode: 404, message: "找不到指定的班級" });
       }
-    }
 
-    return updatedClass;
+      const targetClass = {
+        ...classSnap.data(),
+        id: classSnap.id,
+      } as CourseClass;
+
+      this.assertClassAccess(
+        "ADMIN_MANAGE",
+        targetClass,
+        "您無權開始此班級課程",
+        ability
+      );
+
+      if (targetClass.status !== "SETUP") {
+        throw createError({
+          statusCode: 409,
+          message: "只有準備中的班級可以正式開課",
+        });
+      }
+
+      if (!targetClass.teacherIds?.length) {
+        throw createError({
+          statusCode: 400,
+          message: "正式開課前必須至少指派一位授課老師",
+        });
+      }
+
+      if (!targetClass.sessions?.length) {
+        throw createError({
+          statusCode: 400,
+          message: "正式開課前必須建立課程表",
+        });
+      }
+
+      const enrollmentSnap = await transaction.get(enrollmentQuery);
+      const now = new Date().toISOString();
+
+      transaction.update(classRef, {
+        status: "IN_PROGRESS",
+        updatedAt: now,
+      });
+
+      enrollmentSnap.docs.forEach((doc) => {
+        const enrollment = doc.data() as CourseEnrollment;
+        if (enrollment.status === "ASSIGNED") {
+          transaction.update(doc.ref, {
+            status: "IN_PROGRESS",
+            updatedAt: now,
+          });
+        }
+      });
+
+      return {
+        ...targetClass,
+        status: "IN_PROGRESS",
+        updatedAt: now,
+      };
+    });
   }
 
   /**
@@ -477,39 +525,62 @@ export class CourseClassService {
     classId: string,
     ability: AppAbility
   ): Promise<CourseClass> {
-    const classRepo = new CourseClassRepository();
-    const enrollmentRepo = new CourseEnrollmentRepository();
+    const db = getAdminFirestore();
+    const classRef = db.collection("courseClasses").doc(classId);
+    const enrollmentQuery = db
+      .collection("courseEnrollments")
+      .where("classId", "==", classId);
 
-    const targetClass = await classRepo.findById(classId);
-    if (!targetClass) {
-      throw createError({ statusCode: 404, message: "找不到指定的班級" });
-    }
+    return db.runTransaction(async (transaction) => {
+      const classSnap = await transaction.get(classRef);
+      if (!classSnap.exists) {
+        throw createError({ statusCode: 404, message: "找不到指定的班級" });
+      }
 
-    this.assertClassAccess(
-      "ADMIN_MANAGE",
-      targetClass,
-      "您無權結業此班級課程",
-      ability
-    );
+      const targetClass = {
+        ...classSnap.data(),
+        id: classSnap.id,
+      } as CourseClass;
 
-    const updatedClass = await classRepo.update(classId, {
-      status: "COMPLETED",
-    });
-    if (!updatedClass) {
-      throw createError({ statusCode: 500, message: "更新班級狀態失敗" });
-    }
+      this.assertClassAccess(
+        "ADMIN_MANAGE",
+        targetClass,
+        "您無權結業此班級課程",
+        ability
+      );
 
-    const enrollments = await enrollmentRepo.findByClassId(classId);
-    for (const enroll of enrollments) {
-      if (enroll.status === "IN_PROGRESS") {
-        await enrollmentRepo.update(enroll.id, {
-          status: "COMPLETED",
-          credits: 1,
+      if (targetClass.status !== "IN_PROGRESS") {
+        throw createError({
+          statusCode: 409,
+          message: "只有進行中的班級可以結業",
         });
       }
-    }
 
-    return updatedClass;
+      const enrollmentSnap = await transaction.get(enrollmentQuery);
+      const now = new Date().toISOString();
+
+      transaction.update(classRef, {
+        status: "COMPLETED",
+        updatedAt: now,
+      });
+
+      enrollmentSnap.docs.forEach((doc) => {
+        const enrollment = doc.data() as CourseEnrollment;
+        if (enrollment.status === "IN_PROGRESS") {
+          transaction.update(doc.ref, {
+            status: "COMPLETED",
+            credits: 1,
+            updatedAt: now,
+          });
+        }
+      });
+
+      return {
+        ...targetClass,
+        status: "COMPLETED",
+        updatedAt: now,
+      };
+    });
   }
 
   async deleteClass(classId: string): Promise<void> {

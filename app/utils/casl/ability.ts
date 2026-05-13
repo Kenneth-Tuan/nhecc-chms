@@ -86,8 +86,15 @@ export function buildAbility(userContext: UserContext): AppAbility {
 
   // 2. 班級 (CourseClass)
   
-  // 基礎規則：所有登入用戶皆可瀏覽「報名中且已發佈」的班級
-  can("view", "CourseClass", { status: "SETUP", isPublished: true } as any);
+  // 老師身份來自班級 teacherIds；不需要額外功能權限即可執行授課動作。
+  can("teach", "CourseClass", {
+    teacherIds: { $in: [userContext.userId] },
+  } as any);
+
+  // 準備中 (SETUP)
+  if (userContext.permissions["courseClass:view_setup"]) {
+    can("view", "CourseClass", { status: "SETUP" } as any);
+  }
 
   // 進行中 (IN_PROGRESS)
   if (userContext.permissions["courseClass:view_inprogress"]) {
@@ -125,6 +132,7 @@ export function buildAbility(userContext: UserContext): AppAbility {
   if (userContext.permissions["courseClass:manage"]) {
     if (userContext.scope === "Global") {
       can("manage", "CourseClass");
+      can("teach", "CourseClass");
     } else {
       // 僅限自己任教的班級
       can("manage", "CourseClass", { teacherIds: { $in: [userContext.userId] } } as any);

@@ -1,10 +1,56 @@
 <script setup lang="ts">
+import type { CourseEnrollmentStatus } from "~/types/course-enrollment";
+
+type TagSeverity = "success" | "info" | "warn" | "danger" | "secondary";
+
+interface ClassStudentListItem {
+  id: string;
+  userId: string;
+  name: string;
+  mobile: string;
+  status: CourseEnrollmentStatus;
+  completedDate?: string;
+}
+
 const props = defineProps<{
   classId: string;
-  // TODO: type should be Student/Member
-  students: any[];
+  students: ClassStudentListItem[];
   canManage?: boolean;
 }>();
+
+function getEnrollmentStatusLabel(status: CourseEnrollmentStatus): string {
+  switch (status) {
+    case "PENDING_WAITLIST":
+      return "等候中";
+    case "ASSIGNED":
+      return "已指派";
+    case "IN_PROGRESS":
+      return "修課中";
+    case "COMPLETED":
+      return "已完成";
+    case "DROPPED":
+      return "已退出";
+    default:
+      return status satisfies never;
+  }
+}
+
+function getEnrollmentStatusSeverity(status: CourseEnrollmentStatus): TagSeverity {
+  switch (status) {
+    case "PENDING_WAITLIST":
+      return "warn";
+    case "ASSIGNED":
+      return "info";
+    case "IN_PROGRESS":
+      return "success";
+    case "COMPLETED":
+      return "secondary";
+    case "DROPPED":
+      return "danger";
+    default:
+      return status satisfies never;
+  }
+}
 </script>
 
 <template>
@@ -44,8 +90,8 @@ const props = defineProps<{
       <Column field="status" header="狀態">
         <template #body="{ data }">
           <Tag
-            :value="data.status === 'ASSIGNED' ? '已指派' : data.status"
-            severity="info"
+            :value="getEnrollmentStatusLabel(data.status)"
+            :severity="getEnrollmentStatusSeverity(data.status)"
             class="text-base px-3 py-1"
           />
         </template>

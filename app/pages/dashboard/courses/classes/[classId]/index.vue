@@ -12,11 +12,20 @@ definePageMeta({
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
+const confirm = useConfirm();
 const auth = useAuth();
 
 const classId = computed(() => route.params.classId as string);
-const { fetchClassById, fetchClassStudents, updateClass, isCreating } =
-  useCourseClass();
+const {
+  fetchClassById,
+  fetchClassStudents,
+  updateClass,
+  startCourse,
+  concludeCourse,
+  isCreating,
+  isStarting,
+  isConcluding,
+} = useCourseClass();
 const currentClass = ref<
   (CourseClass & { templateName: string; templateCode: string }) | null
 >(null);
@@ -32,21 +41,8 @@ const canManageCourseClass = computed(() => {
   } as any);
 });
 
-watchEffect(() => {
-  if (!currentClass.value) return;
-  console.log("test current class: ", currentClass.value);
-  // console.table({
-  //   userId: auth.userContext.value?.userId,
-  //   scope: auth.userContext.value?.scope,
-  //   rawManagePermission:
-  //     auth.userContext.value?.permissions?.["courseClass:manage"],
-  //   teacherIds: currentClass.value.teacherIds?.join(", "),
-  //   canByString: auth.can("manage", "CourseClass"),
-  //   canByObject: auth.can("manage", {
-  //     ...currentClass.value,
-  //     __type: "CourseClass",
-  //   } as any),
-  // });
+const canAssignStudents = computed(() => {
+  return canManageCourseClass.value && currentClass.value?.status === "SETUP";
 });
 
 onMounted(async () => {
@@ -105,10 +101,120 @@ async function handleUpdateClass(formData: any) {
     });
   }
 }
+
+function getStatusLabel(status: CourseClass["status"]) {
+  switch (status) {
+    case "SETUP":
+      return "準備中";
+    case "IN_PROGRESS":
+      return "進行中";
+    case "COMPLETED":
+      return "已結業";
+    default:
+      return status;
+  }
+}
+
+function getStatusSeverity(status: CourseClass["status"]) {
+  switch (status) {
+    case "SETUP":
+      return "secondary";
+    case "IN_PROGRESS":
+      return "success";
+    case "COMPLETED":
+      return "info";
+    default:
+      return "secondary";
+  }
+}
+
+async function handleStartCourse() {
+  if (!currentClass.value || !canManageCourseClass.value) return;
+
+  try {
+    const updated = await startCourse(classId.value);
+    currentClass.value = {
+      ...currentClass.value,
+      ...updated,
+    };
+    students.value = await fetchClassStudents(classId.value);
+
+    toast.add({
+      severity: "success",
+      summary: "已正式開課",
+      detail: "班級與已指派學員狀態已更新為進行中",
+      life: 3000,
+    });
+  } catch (error: any) {
+    toast.add({
+      severity: "error",
+      summary: "開課失敗",
+      detail: error.data?.message || error.message || "無法正式開課",
+      life: 5000,
+    });
+  }
+}
+
+function confirmStartCourse() {
+  if (!currentClass.value) return;
+
+  confirm.require({
+    message: `確定要將「${currentClass.value.name}」正式開課嗎？開課後已指派學員會進入修課中，且前台不可再報名此班級。`,
+    header: "正式開課確認",
+    icon: "pi pi-exclamation-triangle",
+    acceptClass: "p-button-success",
+    acceptLabel: "確認開課",
+    rejectLabel: "取消",
+    accept: handleStartCourse,
+  });
+}
+
+async function handleConcludeCourse() {
+  if (!currentClass.value || !canManageCourseClass.value) return;
+
+  try {
+    const updated = await concludeCourse(classId.value);
+    currentClass.value = {
+      ...currentClass.value,
+      ...updated,
+    };
+    students.value = await fetchClassStudents(classId.value);
+
+    toast.add({
+      severity: "success",
+      summary: "已完成結業",
+      detail: "進行中的學員狀態已更新為已完成",
+      life: 3000,
+    });
+  } catch (error: any) {
+    toast.add({
+      severity: "error",
+      summary: "結業失敗",
+      detail: error.data?.message || error.message || "無法結業課程",
+      life: 5000,
+    });
+  }
+}
+
+function confirmConcludeCourse() {
+  if (!currentClass.value) return;
+
+  confirm.require({
+    message: `確定要將「${currentClass.value.name}」結業嗎？進行中的學員會被標記為已完成並取得學分。`,
+    header: "結業確認",
+    icon: "pi pi-exclamation-triangle",
+    acceptClass: "p-button-info",
+    acceptLabel: "確認結業",
+    rejectLabel: "取消",
+    accept: handleConcludeCourse,
+  });
+}
 </script>
 
 <template>
   <BasePageContainer>
+    <ConfirmDialog />
+
     <Dialog
       v-if="canManageCourseClass"
       v-model:visible="showEditDialog"
@@ -150,10 +256,8 @@ async function handleUpdateClass(formData: any) {
         <div>
           <div class="flex items-center gap-3 mb-2">
             <Tag
-              :value="currentClass.status === 'SETUP' ? '準備中' : '進行中'"
-              :severity="
-                currentClass.status === 'SETUP' ? 'secondary' : 'success'
-              "
+              :value="getStatusLabel(currentClass.status)"
+              :severity="getStatusSeverity(currentClass.status)"
               class="text-base px-3 py-1"
             />
             <span class="text-slate-500 font-mono text-base"
@@ -183,7 +287,18 @@ async function handleUpdateClass(formData: any) {
             v-if="currentClass.status === 'SETUP'"
             label="正式開課"
             icon="pi pi-play"
+            :loading="isStarting"
             class="bg-emerald-600 dark:bg-emerald-700 hover:bg-emerald-700 dark:hover:bg-emerald-800 border-none shadow-lg shadow-emerald-100 dark:shadow-emerald-900 text-base px-8 py-3 font-bold text-white dark:text-white"
+            @click="confirmStartCourse"
+          />
+          <Button
+            v-if="currentClass.status === 'IN_PROGRESS'"
+            label="結業課程"
+            icon="pi pi-flag"
+            severity="info"
+            :loading="isConcluding"
+            class="text-base px-8 py-3 font-bold"
+            @click="confirmConcludeCourse"
           />
         </div>
       </div>
@@ -195,7 +310,7 @@ async function handleUpdateClass(formData: any) {
           <ClassStudentList
             :classId="currentClass.id"
             :students="students"
-            :can-manage="canManageCourseClass"
+            :can-manage="canAssignStudents"
           />
         </div>
 

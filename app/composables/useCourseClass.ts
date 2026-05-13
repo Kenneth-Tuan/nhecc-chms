@@ -4,6 +4,8 @@ import type { CourseClass, CreateCourseClassPayload } from '~/types/course-class
 export const useCourseClass = () => {
   const isCreating = ref(false)
   const isLoading = ref(false)
+  const isStarting = ref(false)
+  const isConcluding = ref(false)
 
   const fetchClasses = async (filters?: any) => {
     isLoading.value = true
@@ -51,11 +53,21 @@ export const useCourseClass = () => {
   }
 
   const startCourse = async (classId: string) => {
-    return $fetch<CourseClass>(`/api/courses/classes/${classId}/start`, { method: 'POST' })
+    isStarting.value = true
+    try {
+      return await $fetch<CourseClass>(`/api/courses/classes/${classId}/start`, { method: 'POST' })
+    } finally {
+      isStarting.value = false
+    }
   }
 
   const concludeCourse = async (classId: string) => {
-    return $fetch<CourseClass>(`/api/courses/classes/${classId}/conclude`, { method: 'POST' })
+    isConcluding.value = true
+    try {
+      return await $fetch<CourseClass>(`/api/courses/classes/${classId}/conclude`, { method: 'POST' })
+    } finally {
+      isConcluding.value = false
+    }
   }
 
   const updateClass = async (id: string, payload: any, forceOverride = false) => {
@@ -74,6 +86,8 @@ export const useCourseClass = () => {
   return {
     isCreating,
     isLoading,
+    isStarting,
+    isConcluding,
     fetchClasses,
     fetchClassById,
     fetchClassStudents,

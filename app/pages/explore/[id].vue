@@ -22,12 +22,12 @@ const userStatus = computed(
       completedCodes: [],
       isBaptised: false,
       isNewcomer: false,
-    },
+    }
 );
 
 // 檢查是否已額滿
 const isFull = computed(
-  () => course.value?.enrollmentCount >= course.value?.maxCapacity,
+  () => course.value?.enrollmentCount >= course.value?.maxCapacity
 );
 
 // 檢查是否已報名
@@ -71,7 +71,8 @@ const canEnroll = computed(() => {
     !isFull.value &&
     !hasFailedPrereq.value &&
     !isAlreadyEnrolled.value &&
-    !isTeacherOfCourse.value
+    !isTeacherOfCourse.value &&
+    course.value?.status === "SETUP"
   );
 });
 
@@ -126,7 +127,9 @@ const formattedEndDate = computed(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-300">
+  <div
+    class="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-300"
+  >
     <div v-if="pending" class="flex items-center justify-center min-h-[60vh]">
       <ProgressSpinner />
     </div>
@@ -190,7 +193,9 @@ const formattedEndDate = computed(() => {
                     class="text-xs text-gray-400 dark:text-gray-500 font-black uppercase"
                     >報名狀況</span
                   >
-                  <span class="text-sm font-black text-gray-900 dark:text-white">
+                  <span
+                    class="text-sm font-black text-gray-900 dark:text-white"
+                  >
                     {{ course.enrollmentCount }} / {{ course.maxCapacity }}
                   </span>
                 </div>
@@ -198,7 +203,7 @@ const formattedEndDate = computed(() => {
                   :value="
                     Math.min(
                       (course.enrollmentCount / course.maxCapacity) * 100,
-                      100,
+                      100
                     )
                   "
                   :show-value="false"
@@ -310,7 +315,9 @@ const formattedEndDate = computed(() => {
                 >
                   <i class="pi pi-check text-4xl font-black" />
                 </div>
-                <h4 class="text-2xl font-black text-gray-900 dark:text-white mb-2">
+                <h4
+                  class="text-2xl font-black text-gray-900 dark:text-white mb-2"
+                >
                   您已完成報名
                 </h4>
                 <p class="text-gray-500 dark:text-gray-400 mb-8">
@@ -326,7 +333,9 @@ const formattedEndDate = computed(() => {
               </div>
 
               <div v-else>
-                <h4 class="text-2xl font-black text-gray-900 dark:text-white mb-8">
+                <h4
+                  class="text-2xl font-black text-gray-900 dark:text-white mb-8"
+                >
                   課程報名
                 </h4>
 
@@ -341,7 +350,9 @@ const formattedEndDate = computed(() => {
                     <i class="pi pi-user-edit" />
                     授課老師不可報名
                   </div>
-                  <p class="text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
+                  <p
+                    class="text-slate-500 dark:text-slate-400 font-medium leading-relaxed"
+                  >
                     您是此課程的授課老師，不需要透過學員報名流程加入。
                   </p>
                 </div>

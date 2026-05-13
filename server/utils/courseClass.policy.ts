@@ -33,8 +33,11 @@ export function canAccessCourseClass(
   ability?: AppAbility
 ): boolean {
   // Public 路徑只走「業務可用性」規則。
-  if (context === "PUBLIC_BROWSE" || context === "PUBLIC_ENROLL") {
+  if (context === "PUBLIC_BROWSE") {
     return !!courseClass.isPublished;
+  }
+  if (context === "PUBLIC_ENROLL") {
+    return !!courseClass.isPublished && courseClass.status === "SETUP";
   }
 
   if (!ability) return false;

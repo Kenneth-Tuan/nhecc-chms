@@ -26,7 +26,7 @@ describe('CASL Course ABAC Rules', () => {
     const adminContext: UserContext = {
       userId: 'admin_1',
       roleId: 'role_admin',
-      permissions: { 'course:manage': true } as any,
+      permissions: { 'courseClass:manage': true } as any,
       scope: 'Global',
       revealAuthority: {} as any,
       managedGroupIds: [],
