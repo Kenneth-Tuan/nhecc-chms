@@ -6,6 +6,12 @@
 import type { TreeNode } from "primevue/treenode";
 import { useToast } from "primevue/usetoast";
 
+import AssignDialog from "./_components/AssignDialog.vue";
+import ZoneDialog from "./_components/ZoneDialog.vue";
+import GroupDialog from "./_components/GroupDialog.vue";
+import PendingMemberCard from "./_components/PendingMemberCard.vue";
+import GroupMemberCard from "./_components/GroupMemberCard.vue";
+
 definePageMeta({ layout: "dashboard" as const });
 useHead({ title: "組織架構管理 - NHECC ChMS" });
 
@@ -34,12 +40,6 @@ const {
   deleteGroup,
   fetchLeaderCandidates,
 } = useOrganizationManagement();
-
-import AssignDialog from "./_components/AssignDialog.vue";
-import ZoneDialog from "./_components/ZoneDialog.vue";
-import GroupDialog from "./_components/GroupDialog.vue";
-import PendingMemberCard from "./_components/PendingMemberCard.vue";
-import GroupMemberCard from "./_components/GroupMemberCard.vue";
 
 // Zone dialog state
 const showZoneDialog = ref(false);
@@ -85,8 +85,10 @@ async function onNodeDrop(event: any): Promise<void> {
     return;
   }
 
+  console.log("test: ", dragNode.data.uuid, dropNode.data.id);
+
   try {
-    const result = await assignMember(dragNode.data.id, dropNode.data.id);
+    const result = await assignMember(dragNode.data.uuid, dropNode.data.id);
     toast.add({
       severity: result.success ? "success" : "error",
       summary: result.success ? "分配成功" : "分配失敗",
@@ -116,6 +118,7 @@ async function handleConfirmAssign(
   targetId: string,
   groupId: string
 ): Promise<void> {
+  console.log("handleConfirmAssign", targetId, groupId);
   const result = await assignMember(targetId, groupId);
   toast.add({
     severity: result.success ? "success" : "error",
@@ -192,6 +195,68 @@ async function handleDeleteGroup(groupId: string) {
 onMounted(() => {
   initialize();
 });
+
+const customers = ref([
+  {
+    id: 1000,
+    name: "James Butt",
+    country: {
+      name: "Algeria",
+      code: "dz",
+    },
+    company: "Benton, John B Jr",
+    date: "2015-09-13",
+    status: "unqualified",
+    verified: true,
+    activity: 17,
+    representative: {
+      name: "Ioni Bowcher",
+      image: "ionibowcher.png",
+    },
+    balance: 70663,
+  },
+]);
+const expandedRowGroups = ref();
+
+const calculateCustomerTotal = (name) => {
+  let total = 0;
+
+  if (customers.value) {
+    for (let customer of customers.value) {
+      if (customer.representative.name === name) {
+        total++;
+      }
+    }
+  }
+
+  return total;
+};
+const getSeverity = (status) => {
+  switch (status) {
+    case "unqualified":
+      return "danger";
+
+    case "qualified":
+      return "success";
+
+    case "new":
+      return "info";
+
+    case "negotiation":
+      return "warn";
+
+    case "renewal":
+      return null;
+  }
+};
+
+const scrollableTabs = ref(
+  Array.from({ length: 50 }, (_, i) => ({
+    title: `Tab ${i + 1}`,
+    content: `Tab ${i + 1} Content`,
+    value: `${i}`,
+  }))
+);
 </script>
 
 <template>
@@ -199,25 +264,91 @@ onMounted(() => {
     <div class="flex flex-col h-full">
       <!-- Page Header -->
       <div class="flex items-center justify-between mb-4 flex-shrink-0">
-        <!-- <Breadcrumb
-            :model="[
-              { label: '首頁', to: '/dashboard' },
-              { label: '組織架構' },
-            ]"
-            class="!p-0 !bg-transparent"
-          /> -->
         <div>
           <h1 class="text-2xl font-bold">組織架構管理</h1>
           <p class="text-sm text-slate-500 mt-1">管理系統組織架構</p>
         </div>
       </div>
 
+      <!-- testing -->
+      <div class="flex items-center justify-start">
+        <Tabs value="0" scrollable class="w-70%">
+          <TabList>
+            <Tab
+              v-for="tab in scrollableTabs"
+              :key="tab.title"
+              :value="tab.value"
+            >
+              {{ tab.title }}
+            </Tab>
+          </TabList>
+        </Tabs>
+
+        <Button class="w-50%" label="Add Tab" @click="() => {}" />
+      </div>
+      <DataTable
+        v-model:expandedRowGroups="expandedRowGroups"
+        :value="customers"
+        tableStyle="min-width: 50rem"
+        expandableRowGroups
+        rowGroupMode="subheader"
+        groupRowsBy="representative.name"
+        sortMode="single"
+        sortField="representative.name"
+        :sortOrder="1"
+        class="mb-6"
+      >
+        <template #groupheader="slotProps">
+          <img
+            :alt="slotProps.data.representative.name"
+            :src="`https://primefaces.org/cdn/primevue/images/avatar/${slotProps.data.representative.image}`"
+            width="32"
+            style="vertical-align: middle; display: inline-block"
+            class="ml-2"
+          />
+          <span class="align-middle ml-2 font-bold leading-normal">{{
+            slotProps.data.representative.name
+          }}</span>
+        </template>
+        <Column field="representative.name" header="Representative"></Column>
+        <Column field="name" header="Name" style="width: 20%"></Column>
+        <Column field="country" header="Country" style="width: 20%">
+          <template #body="slotProps">
+            <div class="flex items-center gap-2">
+              <img
+                alt="flag"
+                src="https://primefaces.org/cdn/primevue/images/flag/flag_placeholder.png"
+                :class="`flag flag-${slotProps.data.country.code}`"
+                style="width: 24px"
+              />
+              <span>{{ slotProps.data.country.name }}</span>
+            </div>
+          </template>
+        </Column>
+        <Column field="company" header="Company" style="width: 20%"></Column>
+        <Column field="status" header="Status" style="width: 20%">
+          <template #body="slotProps">
+            <Tag
+              :value="slotProps.data.status"
+              :severity="getSeverity(slotProps.data.status)"
+            />
+          </template>
+        </Column>
+        <Column field="date" header="Date" style="width: 20%"></Column>
+        <template #groupfooter="slotProps">
+          <div class="flex justify-end font-bold w-full">
+            Total Customers:
+            {{ calculateCustomerTotal(slotProps.data.representative.name) }}
+          </div>
+        </template>
+      </DataTable>
+
       <!-- 3-Panel Layout -->
       <div class="flex justify-between gap-4 flex-1 min-h-0">
         <!-- Panel 1: Pending Pool -->
         <div
           v-if="pendingMembers.length > 0"
-          class="flex-shrink-0 flex flex-col bg-amber-50/60 dark:bg-amber-900/10 rounded-xl border-2 border-dashed border-amber-200 dark:border-amber-800/50 overflow-hidden"
+          class="flex min-w-0 flex-col overflow-hidden bg-amber-50/60 dark:bg-amber-900/10 rounded-xl border-2 border-dashed border-amber-200 dark:border-amber-800/50"
         >
           <div class="p-4 flex items-center justify-between gap-2">
             <i class="pi pi-inbox text-lg text-amber-600" />
@@ -266,7 +397,7 @@ onMounted(() => {
 
         <!-- Panel 2: Structure Tree -->
         <div
-          class="flex-shrink-0 flex flex-col bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden"
+          class="flex min-w-0 flex-col overflow-hidden bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800"
         >
           <div
             class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/30"
@@ -309,7 +440,7 @@ onMounted(() => {
               dragdropScope="member-assign"
               :draggableNodes="true"
               :droppableNodes="true"
-              class="!border-0 !bg-transparent"
+              class="!border-0 !bg-transparent p-1"
               @nodeSelect="onNodeSelect"
               @nodeDrop="onNodeDrop"
               :pt="{
@@ -429,7 +560,7 @@ onMounted(() => {
 
         <!-- Panel 3: Group Member List -->
         <div
-          class="flex-1 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden"
+          class="flex-1 flex flex-col overflow-hidden bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800"
         >
           <!-- Header -->
           <div
@@ -465,17 +596,20 @@ onMounted(() => {
           </div>
 
           <!-- Member Tree -->
-          <div v-else class="flex-1 overflow-auto p-4">
+          <div
+            v-else
+            class="member-list-scroll flex-1 min-h-0 overflow-x-auto overflow-y-auto p-4"
+          >
             <Tree
               :value="groupMemberTreeNodes"
               dragdropScope="member-assign"
               :draggableNodes="true"
               :droppableNodes="true"
-              class="member-tree !p-0 !bg-transparent !border-0 w-full"
+              class="member-tree !p-0 !bg-transparent !border-0"
               @nodeDrop="onNodeDrop"
               :pt="{
                 nodelabel: {
-                  class: 'w-full',
+                  // class: 'w-fit',
                 },
               }"
             >
@@ -487,7 +621,6 @@ onMounted(() => {
             </Tree>
           </div>
         </div>
-        <!-- </div> -->
       </div>
     </div>
 
@@ -557,7 +690,20 @@ onMounted(() => {
   border-radius: 0.5rem;
 }
 
-/* Member tree: simple vertical list */
+/* Member tree: content-width cards, horizontal scroll in panel */
+:deep(.member-list-scroll .member-tree) {
+  width: max-content;
+  min-width: 100%;
+}
+:deep(.member-tree .p-tree-node-content),
+:deep(.member-tree .p-tree-node-label) {
+  width: fit-content;
+}
+:deep(.member-tree .p-tree-node-list) {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
 
 :deep(.member-tree .p-tree-node-toggle-button) {
   display: none !important;

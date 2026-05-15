@@ -25,14 +25,14 @@ watch(
       assignSelectedZone.value = null;
       assignSelectedGroup.value = null;
     }
-  },
+  }
 );
 
 const availableZones = computed(() =>
   props.treeNodes.map((z) => ({
     label: z.label,
     value: z.key as string,
-  })),
+  }))
 );
 
 const availableGroups = computed(() => {

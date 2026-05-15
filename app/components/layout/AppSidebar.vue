@@ -49,7 +49,7 @@ const isManagerMode = computed(() => route.path.startsWith("/dashboard"));
 
 <template>
   <aside
-    class="hidden md:flex flex-col flex-none w-72 h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shadow-[4px_0_24px_rgba(0,0,0,0.05)] z-20 overflow-hidden"
+    class="hidden md:flex flex-col flex-none h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shadow-[4px_0_24px_rgba(0,0,0,0.05)] z-20 overflow-hidden"
   >
     <!-- Logo -->
     <div
@@ -74,13 +74,13 @@ const isManagerMode = computed(() => route.path.startsWith("/dashboard"));
     </div>
 
     <!-- Menu -->
-    <div class="flex-1 p-4 overflow-y-auto">
+    <div class="flex-1 p-1 overflow-y-auto">
       <ul class="space-y-1">
         <li v-for="item in menuItems" :key="item.to">
           <NuxtLink
             :to="item.to"
             :class="[
-              'flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group',
+              'flex items-center gap-4 p-1 rounded-xl transition-all duration-200 group',
               isActive(item.to)
                 ? 'bg-primary-50 dark:bg-primary-900/20 text-primary font-bold'
                 : 'text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-50 dark:hover:bg-slate-800',
@@ -102,9 +102,9 @@ const isManagerMode = computed(() => route.path.startsWith("/dashboard"));
     </div>
 
     <!-- User info / Footer -->
-    <div class="p-4 border-t border-slate-100 dark:border-slate-800">
+    <div class="p-1 border-t border-slate-100 dark:border-slate-800">
       <div
-        class="flex items-center gap-3 px-3 py-2 rounded-xl border border-slate-100 dark:border-slate-800"
+        class="flex items-center gap-3 p-1 rounded-xl border border-slate-100 dark:border-slate-800"
       >
         <Avatar
           :image="authStore.userContext?.avatar || undefined"
