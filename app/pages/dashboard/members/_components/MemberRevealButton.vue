@@ -32,12 +32,12 @@ async function toggleReveal(): Promise<void> {
 
 <template>
   <div class="flex items-center gap-2 group">
-    <span class="text-sm" :class="isRevealed ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-500'">
+    <span class="text-sm" :class="isRevealed ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-surface-500'">
       {{ displayValue }}
     </span>
     <button
       v-if="canReveal"
-      class="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800"
+      class="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-slate-100 dark:hover:bg-surface-800"
       :disabled="isRevealing"
       @click.stop="toggleReveal"
     >

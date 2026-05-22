@@ -181,7 +181,7 @@ async function onFormSubmit() {
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <!-- 班級名稱 -->
       <div class="flex flex-col gap-2 md:col-span-2">
-        <label class="font-bold text-slate-700 dark:text-slate-300"
+        <label class="font-bold text-slate-700 dark:text-surface-200"
           >正式班級名稱 *</label
         >
         <InputText
@@ -194,7 +194,7 @@ async function onFormSubmit() {
 
       <!-- 授課老師 -->
       <div class="flex flex-col gap-2 md:col-span-2">
-        <label class="font-bold text-slate-700 dark:text-slate-300"
+        <label class="font-bold text-slate-700 dark:text-surface-200"
           >指派授課老師 / 同伴者 *</label
         >
         <MultiSelect
@@ -210,7 +210,7 @@ async function onFormSubmit() {
 
       <!-- 日期範圍 -->
       <div class="flex flex-col gap-2">
-        <label class="font-bold text-slate-700 dark:text-slate-300"
+        <label class="font-bold text-slate-700 dark:text-surface-200"
           >預計開課日期 *</label
         >
         <DatePicker
@@ -222,7 +222,7 @@ async function onFormSubmit() {
         />
       </div>
       <div class="flex flex-col gap-2">
-        <label class="font-bold text-slate-700 dark:text-slate-300"
+        <label class="font-bold text-slate-700 dark:text-surface-200"
           >預計結課日期 *</label
         >
         <DatePicker
@@ -236,7 +236,7 @@ async function onFormSubmit() {
 
       <!-- 地點 -->
       <div class="flex flex-col gap-2">
-        <label class="font-bold text-slate-700 dark:text-slate-300"
+        <label class="font-bold text-slate-700 dark:text-surface-200"
           >上課地點 *</label
         >
         <InputText
@@ -249,7 +249,7 @@ async function onFormSubmit() {
 
       <!-- 線上連結 -->
       <div class="flex flex-col gap-2">
-        <label class="font-bold text-slate-700 dark:text-slate-300"
+        <label class="font-bold text-slate-700 dark:text-surface-200"
           >線上會議連結</label
         >
         <InputText
@@ -262,7 +262,7 @@ async function onFormSubmit() {
 
       <!-- 上課時間描述 -->
       <div class="flex flex-col gap-2 md:col-span-2">
-        <label class="font-bold text-slate-700 dark:text-slate-300"
+        <label class="font-bold text-slate-700 dark:text-surface-200"
           >上課時間描述</label
         >
         <div class="flex gap-2">
@@ -272,7 +272,7 @@ async function onFormSubmit() {
             class="grow text-base"
           />
         </div>
-        <p class="text-sm text-slate-400 dark:text-slate-600">
+        <p class="text-sm text-slate-400 dark:text-surface-600">
           手動填寫或使用下方的「課程時間產生器」自動生成。
         </p>
       </div>
@@ -288,7 +288,7 @@ async function onFormSubmit() {
         </h4>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="flex flex-col gap-2">
-            <label class="text-sm text-slate-700 dark:text-slate-300"
+            <label class="text-sm text-slate-700 dark:text-surface-200"
               >選擇星期</label
             >
             <Select
@@ -300,7 +300,7 @@ async function onFormSubmit() {
             />
           </div>
           <div class="flex flex-col gap-2 md:col-span-2">
-            <label class="text-sm text-slate-700 dark:text-slate-300"
+            <label class="text-sm text-slate-700 dark:text-surface-200"
               >設定時段 (開始 - 結束)</label
             >
             <DatePicker
@@ -326,19 +326,19 @@ async function onFormSubmit() {
         <!-- 課程清單預覽 -->
         <div v-if="form.sessions.length > 0" class="mt-4 border-t pt-4">
           <label
-            class="text-sm font-bold text-slate-700 dark:text-slate-300 block mb-2"
+            class="text-sm font-bold text-slate-700 dark:text-surface-200 block mb-2"
             >預覽課程清單 ({{ form.sessions.length }} 堂)</label
           >
           <div class="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-2">
             <div
               v-for="(s, i) in form.sessions"
               :key="s.sessionId"
-              class="bg-surface-0 dark:bg-surface-900 border border-slate-200 dark:border-slate-800 rounded px-3 py-1 text-sm flex items-center gap-2"
+              class="bg-surface-0 dark:bg-surface-900 border border-slate-200 dark:border-surface-700 rounded px-3 py-1 text-sm flex items-center gap-2"
             >
-              <span class="text-slate-600 dark:text-slate-400">
+              <span class="text-slate-600 dark:text-surface-400">
                 {{ dayjs(s.startTime).format("MM/DD (dd)") }}
               </span>
-              <span class="text-slate-400 dark:text-slate-600">
+              <span class="text-slate-400 dark:text-surface-600">
                 {{ dayjs(s.startTime).format("HH:mm") }}
               </span>
               <Button
@@ -357,7 +357,7 @@ async function onFormSubmit() {
 
       <!-- 人數上限 -->
       <div class="flex flex-col gap-2">
-        <label class="font-bold text-slate-700 dark:text-slate-300"
+        <label class="font-bold text-slate-700 dark:text-surface-200"
           >人數上限 *</label
         >
         <InputNumber
@@ -370,7 +370,7 @@ async function onFormSubmit() {
 
       <!-- 班級簡介 -->
       <div class="flex flex-col gap-2 md:col-span-2">
-        <label class="font-bold text-slate-700 dark:text-slate-300"
+        <label class="font-bold text-slate-700 dark:text-surface-200"
           >班級簡介</label
         >
         <Textarea
@@ -384,15 +384,15 @@ async function onFormSubmit() {
 
       <!-- 公開狀態 -->
       <div
-        class="flex items-center gap-4 p-6 bg-slate-50 dark:bg-slate-900 rounded-2xl md:col-span-2 border border-slate-100 dark:border-slate-800"
+        class="flex items-center gap-4 p-6 bg-slate-50 dark:bg-surface-900 rounded-2xl md:col-span-2 border border-slate-100 dark:border-surface-700"
       >
         <ToggleSwitch v-model="form.isPublished" />
         <div>
-          <p class="font-bold text-slate-800 dark:text-slate-100 text-lg">
+          <p class="font-bold text-slate-800 dark:text-surface-0 text-lg">
             同步發佈至前台
           </p>
           <p
-            class="text-base text-slate-500 dark:text-slate-400 font-normal mt-1"
+            class="text-base text-slate-500 dark:text-surface-400 font-normal mt-1"
           >
             開啟後，學員可以在會友端看到此班級並進行報名。
           </p>
@@ -406,7 +406,7 @@ async function onFormSubmit() {
         label="上一步"
         severity="secondary"
         text
-        class="text-base dark:text-slate-300 px-6"
+        class="text-base dark:text-surface-200 px-6"
         @click="emit('cancel')"
       />
       <Button

@@ -51,7 +51,7 @@ onMounted(async () => {
 
 <template>
   <div
-    class="flex h-screen overflow-hidde dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300"
+    class="flex h-screen overflow-hidde dark:bg-surface-950 text-slate-900 dark:text-surface-0 transition-colors duration-300"
   >
     <!-- Desktop Sidebar -->
     <AppSidebar :menu-items="menuItems" />

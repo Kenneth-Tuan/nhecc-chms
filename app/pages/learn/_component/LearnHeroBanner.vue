@@ -27,7 +27,7 @@ withDefaults(
 
 <template>
   <section
-    class="relative overflow-hidden rounded-[2rem] border border-slate-100 bg-white px-5 py-6 text-slate-950 shadow-sm dark:border-slate-800 dark:bg-slate-950 dark:text-white dark:shadow-2xl md:px-10 md:py-10"
+    class="relative overflow-hidden rounded-[2rem] border border-slate-100 bg-white px-5 py-6 text-slate-950 shadow-sm dark:border-surface-700 dark:bg-surface-950 dark:text-white dark:shadow-2xl md:px-10 md:py-10"
   >
     <div
       class="absolute -right-20 -top-24 h-56 w-56 rounded-full bg-blue-100/80 blur-3xl dark:bg-blue-500/30"
@@ -56,13 +56,13 @@ withDefaults(
         </h1>
         <p
           v-if="subtitle"
-          class="mt-3 text-lg font-bold text-slate-500 dark:text-slate-300"
+          class="mt-3 text-lg font-bold text-slate-500 dark:text-surface-200"
         >
           {{ subtitle }}
         </p>
         <p
           v-if="description"
-          class="mt-3 max-w-xl text-base font-semibold leading-relaxed text-slate-500 dark:text-slate-300 md:text-lg"
+          class="mt-3 max-w-xl text-base font-semibold leading-relaxed text-slate-500 dark:text-surface-200 md:text-lg"
         >
           {{ description }}
         </p>
@@ -80,13 +80,13 @@ withDefaults(
         >
           <div v-if="stat.value === undefined" class="flex items-center gap-2">
             <i v-if="stat.icon" :class="[stat.icon, stat.iconClass]" />
-            <p class="min-w-0 break-words text-sm font-bold text-slate-500 dark:text-slate-300">
+            <p class="min-w-0 break-words text-sm font-bold text-slate-500 dark:text-surface-200">
               {{ stat.label }}
             </p>
           </div>
           <template v-else>
             <p class="text-2xl font-black">{{ stat.value }}</p>
-            <p class="text-xs font-bold text-slate-500 dark:text-slate-300">
+            <p class="text-xs font-bold text-slate-500 dark:text-surface-200">
               {{ stat.label }}
             </p>
           </template>

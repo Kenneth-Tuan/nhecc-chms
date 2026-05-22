@@ -1,6 +1,7 @@
 /**
  * 牧區-小組級聯 Composable (ST004)
  * 處理牧區 -> 小組選擇的級聯下拉選單邏輯。
+ * 目前沒在用
  */
 import type { Ref } from "vue";
 import type { Zone, Group } from "~/types/organization";

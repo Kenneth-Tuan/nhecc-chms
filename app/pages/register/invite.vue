@@ -147,7 +147,7 @@ onMounted(() => {
       <h1 class="text-xl font-bold text-slate-800 dark:text-white mb-2">
         無法完成註冊
       </h1>
-      <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">
+      <p class="text-sm text-slate-500 dark:text-surface-400 mb-6">
         {{ errorMessage }}
       </p>
       <Button
@@ -164,7 +164,7 @@ onMounted(() => {
         <h1 class="text-2xl font-bold text-slate-800 dark:text-white">
           建立新帳號
         </h1>
-        <p class="text-sm mt-2 text-slate-500 dark:text-slate-400">
+        <p class="text-sm mt-2 text-slate-500 dark:text-surface-400">
           您已被邀請加入教會學習平台，請填寫以下資料完成註冊
         </p>
       </header>
@@ -178,9 +178,9 @@ onMounted(() => {
       />
 
       <div
-        class="pt-6 mt-4 text-center border-t border-slate-50 dark:border-slate-800/50"
+        class="pt-6 mt-4 text-center border-t border-slate-50 dark:border-surface-700/50"
       >
-        <p class="text-sm text-slate-500 dark:text-slate-400">
+        <p class="text-sm text-slate-500 dark:text-surface-400">
           已經有帳號了嗎？
           <NuxtLink to="/login" class="font-bold text-primary hover:underline">
             立即登入

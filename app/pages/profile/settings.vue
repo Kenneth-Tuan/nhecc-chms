@@ -245,7 +245,7 @@ onMounted(() => {
             <InputText
               v-model="form.email"
               disabled
-              class="!py-3 !px-4 !text-lg !rounded-xl bg-slate-100 dark:bg-slate-800/50"
+              class="!py-3 !px-4 !text-lg !rounded-xl bg-slate-100 dark:bg-surface-800/50"
             />
             <small class="text-slate-400">目前暫不開放自行修改註冊信箱</small>
           </div>
@@ -384,7 +384,7 @@ onMounted(() => {
 
       <!-- Action Footer -->
       <div
-        class="fixed bottom-0 left-0 w-full p-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 flex justify-center z-50"
+        class="fixed bottom-0 left-0 w-full p-6 bg-white/80 dark:bg-surface-900/80 backdrop-blur-lg border-t border-slate-200 dark:border-surface-700 flex justify-center z-50"
       >
         <div class="w-full max-w-2xl flex gap-4">
           <Button

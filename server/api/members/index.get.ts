@@ -1,6 +1,7 @@
 /**
  * GET /api/members
- * 回傳分頁的會友清單，包含資料範圍過濾及資料遮蔽處理。
+ * 回傳會友清單，包含資料範圍過濾及資料遮蔽處理。
+ * Query `pageSize=0` 時不分頁，回傳全部符合條件的資料。
  */
 import { getQuery } from "h3";
 import { memberFiltersSchema } from "~/schemas/member.schema";

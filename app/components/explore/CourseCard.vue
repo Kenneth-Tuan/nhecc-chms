@@ -34,7 +34,7 @@ const isAlreadyEnrolled = computed(() => {
     class="block h-full no-underline group"
   >
     <Card
-      class="h-full border border-gray-100 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col transition-all duration-500 transform group-hover:-translate-y-2 group-hover:shadow-2xl dark:group-hover:shadow-blue-900/20 group-hover:border-blue-400 dark:group-hover:border-blue-500 rounded-3xl bg-white dark:bg-slate-900 relative"
+      class="h-full border border-gray-100 dark:border-surface-700 shadow-sm overflow-hidden flex flex-col transition-all duration-500 transform group-hover:-translate-y-2 group-hover:shadow-2xl dark:group-hover:shadow-blue-900/20 group-hover:border-blue-400 dark:group-hover:border-blue-500 rounded-3xl bg-white dark:bg-surface-900 relative"
     >
       <template #content>
         <div class="flex flex-col h-full p-2">
@@ -76,7 +76,7 @@ const isAlreadyEnrolled = computed(() => {
             {{ course.name }}
           </p>
 
-          <div class="mt-auto pt-6 border-t border-gray-50 dark:border-slate-800">
+          <div class="mt-auto pt-6 border-t border-gray-50 dark:border-surface-700">
             <!-- 報名進度 (極簡化) -->
             <div class="flex justify-between items-center mb-3">
               <span
@@ -100,7 +100,7 @@ const isAlreadyEnrolled = computed(() => {
                 )
               "
               :show-value="false"
-              class="!h-2 !bg-gray-100 dark:!bg-slate-800 !rounded-full overflow-hidden"
+              class="!h-2 !bg-gray-100 dark:!bg-surface-800 !rounded-full overflow-hidden"
             />
           </div>
         </div>

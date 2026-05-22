@@ -2,8 +2,11 @@
  * 組織管理 Composable (ST006/ST007)
  * 管理樹狀結構、待分配池以及成員分配功能。
  */
-import type { ZoneWithGroups } from "~/types/organization";
 import type { TreeNode } from "primevue/treenode";
+
+import type { PaginatedResponse } from "~/types/api";
+import type { MemberListItem } from "~/types/member";
+import type { ZoneWithGroups } from "~/types/organization";
 
 interface PendingMember {
   uuid: string;
@@ -30,7 +33,7 @@ interface GroupMember {
  */
 function buildTreeNodes(
   zones: ZoneWithGroups[],
-  memberCounts: Record<string, number>
+  memberCounts: Record<string, number>,
 ): TreeNode[] {
   return zones.map((zone) => ({
     key: zone.id,
@@ -46,7 +49,7 @@ function buildTreeNodes(
         "未指派", // backend mapping
       memberCount: zone.groups.reduce(
         (sum, g) => sum + (memberCounts[g.id] || 0),
-        0
+        0,
       ),
       groupCount: zone.groups.length,
       status: zone.status,
@@ -142,6 +145,21 @@ export function useOrganizationManagement() {
   const isLoadingMembers = ref(false);
   const isAssigning = ref(false);
 
+  const organizationStructure = ref<ZoneWithGroups[]>([]);
+  const activeZoneId = ref<string>("");
+  const membersByZoneId = ref<MemberListItem[]>([]);
+
+  const getGroupInfosByGroupId = (groupId: string) => {
+    const activeZone = organizationStructure.value.find(
+      (zone) => zone.id === activeZoneId.value,
+    );
+    if (!activeZone) return null;
+
+    const group = activeZone.groups.find((group) => group.id === groupId);
+    if (!group) return null;
+    return { groupInfo: group };
+  };
+
   /** 獲取各小組的成員人數以顯示於樹狀圖標記 (Badge) */
   const memberCounts = ref<Record<string, number>>({});
 
@@ -155,7 +173,11 @@ export function useOrganizationManagement() {
       ]);
 
       memberCounts.value = counts;
-      treeNodes.value = buildTreeNodes(structure, counts);
+      if (structure.length > 0 && structure[0]) {
+        organizationStructure.value = structure;
+        activeZoneId.value = structure[0].id;
+        loadMembersByZoneId(activeZoneId.value);
+      }
 
       // 自動展開第一個牧區
       const firstZone = structure[0];
@@ -174,7 +196,7 @@ export function useOrganizationManagement() {
     isLoadingPending.value = true;
     try {
       const data = await $fetch<PendingMember[]>(
-        "/api/organization/pending-members"
+        "/api/organization/pending-members",
       );
       pendingMembers.value = data;
       pendingTreeNodes.value = buildPendingTreeNodes(data);
@@ -189,7 +211,7 @@ export function useOrganizationManagement() {
   async function loadGroupMembers(
     groupId: string,
     groupName: string,
-    zoneName: string
+    zoneName: string,
   ): Promise<void> {
     isLoadingMembers.value = true;
     selectedGroup.value = { id: groupId, name: groupName, zoneName };
@@ -198,10 +220,10 @@ export function useOrganizationManagement() {
         "/api/organization/group-members",
         {
           params: { groupId },
-        }
+        },
       );
       groupMemberTreeNodes.value = buildGroupMemberTreeNodes(
-        selectedGroupMembers.value
+        selectedGroupMembers.value,
       );
     } catch (error) {
       console.error("Failed to load group members:", error);
@@ -213,7 +235,7 @@ export function useOrganizationManagement() {
   /** 將待分配會友指派至特定小組 */
   async function assignMember(
     memberId: string,
-    groupId: string
+    groupId: string,
   ): Promise<{ success: boolean; message: string }> {
     isAssigning.value = true;
     try {
@@ -222,7 +244,7 @@ export function useOrganizationManagement() {
         {
           method: "POST",
           body: { memberId, groupId },
-        }
+        },
       );
 
       // 指派後重新整理資料
@@ -234,7 +256,7 @@ export function useOrganizationManagement() {
         await loadGroupMembers(
           groupId,
           currentGroup.name,
-          currentGroup.zoneName
+          currentGroup.zoneName,
         );
       }
 
@@ -283,14 +305,14 @@ export function useOrganizationManagement() {
   }
 
   async function deleteZone(
-    zoneId: string
+    zoneId: string,
   ): Promise<{ success: boolean; message: string }> {
     try {
       const result = await $fetch<{ success: boolean; message: string }>(
         `/api/organization/zones/${zoneId}`,
         {
           method: "DELETE",
-        }
+        },
       );
       await loadStructure();
       return result;
@@ -334,14 +356,14 @@ export function useOrganizationManagement() {
   }
 
   async function deleteGroup(
-    groupId: string
+    groupId: string,
   ): Promise<{ success: boolean; message: string }> {
     try {
       const result = await $fetch<{ success: boolean; message: string }>(
         `/api/organization/groups/${groupId}`,
         {
           method: "DELETE",
-        }
+        },
       );
       await loadStructure();
       if (selectedGroup.value?.id === groupId) {
@@ -360,7 +382,7 @@ export function useOrganizationManagement() {
 
   async function fetchLeaderCandidates(
     level: "zone" | "group",
-    params?: { zoneId?: string; groupId?: string }
+    params?: { zoneId?: string; groupId?: string },
   ): Promise<{ id: string; name: string }[]> {
     try {
       const query = new URLSearchParams();
@@ -369,11 +391,32 @@ export function useOrganizationManagement() {
       if (params?.zoneId) query.append("zoneId", params.zoneId);
 
       const res = await $fetch<{ id: string; name: string }[]>(
-        `/api/organization/leader-candidates?${query.toString()}`
+        `/api/organization/leader-candidates?${query.toString()}`,
       );
       return res || [];
     } catch {
       return [];
+    }
+  }
+
+  async function loadMembersByZoneId(zoneId: string): Promise<void> {
+    try {
+      const query: Record<string, string | number | boolean | undefined> = {
+        page: 1,
+        pageSize: 0,
+        zoneId,
+      };
+
+      const response = await $fetch<PaginatedResponse<MemberListItem>>(
+        "/api/members",
+        {
+          query,
+        },
+      );
+
+      membersByZoneId.value = response.data;
+    } catch (error) {
+      console.error("Failed to load members by zone id:", error);
     }
   }
 
@@ -402,5 +445,11 @@ export function useOrganizationManagement() {
     saveGroup,
     deleteGroup,
     fetchLeaderCandidates,
+
+    organizationStructure,
+    membersByZoneId,
+    activeZoneId,
+    loadMembersByZoneId,
+    getGroupInfosByGroupId,
   };
 }

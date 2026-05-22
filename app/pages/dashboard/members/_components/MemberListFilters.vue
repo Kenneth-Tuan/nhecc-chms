@@ -101,7 +101,7 @@ function onSearchKeydown(e: KeyboardEvent): void {
 </script>
 
 <template>
-  <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 space-y-4">
+  <div class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-4 space-y-4">
     <!-- Search Row -->
     <div class="flex flex-col sm:flex-row gap-3">
       <div class="flex-1 flex gap-2">

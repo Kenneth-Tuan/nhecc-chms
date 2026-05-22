@@ -118,7 +118,7 @@ function openInviteDialog(role: Role): void {
 
     <!-- Table -->
     <div
-      class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800"
+      class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700"
     >
       <DataTable
         :value="roles"
@@ -142,7 +142,7 @@ function openInviteDialog(role: Role): void {
 
         <Column field="description" header="描述">
           <template #body="{ data }">
-            <span class="text-sm text-slate-500 dark:text-slate-400">{{
+            <span class="text-sm text-slate-500 dark:text-surface-400">{{
               data.description
             }}</span>
           </template>

@@ -112,7 +112,7 @@ definePageMeta({
         </h1>
 
         <p
-          class="text-sm font-medium text-slate-500 dark:text-slate-400 max-w-[280px] mx-auto leading-relaxed"
+          class="text-sm font-medium text-slate-500 dark:text-surface-400 max-w-[280px] mx-auto leading-relaxed"
         >
           正在與 LINE 伺服器連線以完成登入，請稍候片刻...
         </p>

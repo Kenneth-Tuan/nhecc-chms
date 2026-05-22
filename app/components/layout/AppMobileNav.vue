@@ -23,7 +23,7 @@ const isActive = (path: string): boolean => {
 
 <template>
   <nav
-    class="md:hidden fixed bottom-0 left-0 right-0 z-40 pb-safe bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shadow-[0_-4px_20px_-5px_rgba(0,0,0,0.1)] transition-colors duration-300"
+    class="md:hidden fixed bottom-0 left-0 right-0 z-40 pb-safe bg-white dark:bg-surface-900 border-t border-slate-200 dark:border-surface-700 shadow-[0_-4px_20px_-5px_rgba(0,0,0,0.1)] transition-colors duration-300"
   >
     <div class="grid grid-cols-4 h-[72px]">
       <NuxtLink
@@ -34,7 +34,7 @@ const isActive = (path: string): boolean => {
           'flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform duration-200',
           isActive(item.to)
             ? 'text-primary'
-            : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300',
+            : 'text-slate-400 dark:text-surface-500 hover:text-slate-600 dark:hover:text-surface-300',
         ]"
       >
         <div

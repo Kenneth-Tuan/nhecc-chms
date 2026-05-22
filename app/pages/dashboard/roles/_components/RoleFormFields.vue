@@ -41,7 +41,7 @@ function setScope(value: DataScope): void {
 <template>
   <!-- Basic Info -->
   <div
-    class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6"
+    class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-6"
   >
     <h2 class="text-lg font-semibold mb-4">基本資訊</h2>
     <div class="grid grid-cols-1 gap-4">
@@ -62,7 +62,7 @@ function setScope(value: DataScope): void {
 
   <!-- Y-axis: Data Scope -->
   <div
-    class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6"
+    class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-6"
   >
     <h2 class="text-lg font-semibold mb-4">
       <i class="pi pi-database mr-2 text-primary" />
@@ -78,7 +78,7 @@ function setScope(value: DataScope): void {
           isSuperAdmin ? 'opacity-60' : 'cursor-pointer',
           formData.scope === option.value
             ? 'border-primary bg-primary-50 dark:bg-primary-900/20'
-            : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600',
+            : 'border-slate-200 dark:border-surface-700 hover:border-slate-300 dark:hover:border-surface-600',
         ]"
         @click="setScope(option.value as DataScope)"
       >
@@ -98,7 +98,7 @@ function setScope(value: DataScope): void {
 
   <!-- X-axis: Function Permissions -->
   <div
-    class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6"
+    class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-6"
   >
     <h2 class="text-lg font-semibold mb-4">
       <i class="pi pi-lock mr-2 text-primary" />
@@ -110,7 +110,7 @@ function setScope(value: DataScope): void {
     >
       <div v-for="group in PERMISSION_GROUPS" :key="group.label">
         <h3
-          class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2"
+          class="text-sm font-semibold text-slate-700 dark:text-surface-200 mb-2 flex items-center gap-2"
         >
           <i :class="group.icon" />
           {{ group.label }}
@@ -142,7 +142,7 @@ function setScope(value: DataScope): void {
   <!-- Z-axis: Reveal Authority（暫時隱藏，見 SHOW_REVEAL_AUTHORITY_UI） -->
   <div
     v-if="SHOW_REVEAL_AUTHORITY_UI"
-    class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6"
+    class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-6"
   >
     <h2 class="text-lg font-semibold mb-4">
       <i class="pi pi-eye mr-2 text-primary" />

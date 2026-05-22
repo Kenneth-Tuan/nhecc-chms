@@ -453,7 +453,7 @@ onMounted(() => {
 
       <!-- A. Basic Info -->
       <div
-        class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6"
+        class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-6"
       >
         <h2 class="text-lg font-semibold mb-4">
           <i class="pi pi-user mr-2 text-primary" />
@@ -537,7 +537,7 @@ onMounted(() => {
 
       <!-- B. Contact Info -->
       <div
-        class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6"
+        class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-6"
       >
         <h2 class="text-lg font-semibold mb-4">
           <i class="pi pi-phone mr-2 text-primary" />
@@ -620,7 +620,7 @@ onMounted(() => {
 
       <!-- C. Emergency Contact -->
       <div
-        class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6"
+        class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-6"
       >
         <h2 class="text-lg font-semibold mb-4">
           <i class="pi pi-exclamation-circle mr-2 text-primary" />
@@ -687,7 +687,7 @@ onMounted(() => {
 
       <!-- D. Faith & Church Info -->
       <div
-        class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6"
+        class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-6"
       >
         <h2 class="text-lg font-semibold mb-4">
           <i class="pi pi-heart mr-2 text-primary" />
@@ -787,7 +787,7 @@ onMounted(() => {
 
       <!-- E. System Settings -->
       <div
-        class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6"
+        class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-6"
       >
         <h2 class="text-lg font-semibold mb-4">
           <i class="pi pi-cog mr-2 text-primary" />

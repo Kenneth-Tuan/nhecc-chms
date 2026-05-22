@@ -133,21 +133,21 @@ async function handleSubmit(formData: any) {
         <div
           v-for="t in filteredTemplates"
           :key="t.id"
-          class="p-6 bg-surface-0 dark:bg-surface-900 border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-blue-400 hover:shadow-md transition-all cursor-pointer group"
+          class="p-6 bg-surface-0 dark:bg-surface-900 border border-slate-200 dark:border-surface-700 rounded-2xl hover:border-blue-400 hover:shadow-md transition-all cursor-pointer group"
           @click="handleSelectTemplate(t)"
         >
           <div class="flex justify-between items-start mb-4">
             <Tag
               :value="t.code"
               severity="secondary"
-              class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono text-base px-3"
+              class="bg-slate-100 dark:bg-surface-800 text-slate-600 dark:text-surface-400 font-mono text-base px-3"
             />
             <i
               class="pi pi-arrow-right text-slate-300 group-hover:text-blue-500 transition-colors text-lg"
             />
           </div>
           <h3
-            class="font-bold text-xl text-slate-800 dark:text-slate-100 group-hover:text-blue-600 transition-colors"
+            class="font-bold text-xl text-slate-800 dark:text-surface-0 group-hover:text-blue-600 transition-colors"
           >
             {{ t.name }}
           </h3>
@@ -166,7 +166,7 @@ async function handleSubmit(formData: any) {
     <!-- Step 2: Class Details Form -->
     <div
       v-else
-      class="bg-surface-0 dark:bg-surface-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 md:p-10 shadow-sm animate-slide-up"
+      class="bg-surface-0 dark:bg-surface-900 border border-slate-200 dark:border-surface-700 rounded-2xl p-6 md:p-10 shadow-sm animate-slide-up"
     >
       <div
         v-if="selectedTemplate"
@@ -176,10 +176,10 @@ async function handleSubmit(formData: any) {
           <i class="pi pi-book text-blue-600 dark:text-blue-400 text-xl" />
         </div>
         <div>
-          <p class="text-base text-slate-500 dark:text-slate-400 font-medium">
+          <p class="text-base text-slate-500 dark:text-surface-400 font-medium">
             已選擇模板
           </p>
-          <p class="font-bold text-slate-900 dark:text-slate-100 text-2xl">
+          <p class="font-bold text-slate-900 dark:text-surface-0 text-2xl">
             {{ selectedTemplate.name }} ({{ selectedTemplate.code }})
           </p>
         </div>

@@ -42,7 +42,7 @@ function onRowClick(event: { data: MemberListItem }): void {
 
 <template>
   <div
-    class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden"
+    class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 overflow-hidden"
   >
     <DataTable
       :value="members"

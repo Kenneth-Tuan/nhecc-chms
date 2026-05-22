@@ -1,7 +1,77 @@
 import { definePreset } from "@primeuix/themes";
 import Aura from "@primeuix/themes/aura";
 
+/** Colorffy dark theme — https://colorffy.com/dark-theme-generator */
+const colorffyDarkSurface = {
+  0: "#ffffff",
+  50: "#e8e8e8",
+  100: "#d4d4d4",
+  200: "#c0c0c0",
+  300: "#acacac",
+  400: "#929292", // surface-a50
+  500: "#7e7e7e", // surface-a40
+  600: "#6a6a6a", // surface-a30
+  700: "#575757", // surface-a20
+  800: "#454545", // surface-a10
+  900: "#333333", // surface-a0
+  950: "#2a2a2a",
+} as const;
+
 const AppPreset = definePreset(Aura, {
+  primitive: {
+    green: {
+      50: "#e8f5ef",
+      100: "#c5e6d8",
+      200: "#86bfa6",
+      300: "#86bfa6",
+      400: "#5ba989",
+      500: "#22946e",
+      600: "#1b7a5c",
+      700: "#156049",
+      800: "#0f4636",
+      900: "#092c22",
+      950: "#041610",
+    },
+    orange: {
+      50: "#faf4e8",
+      100: "#f0e2c8",
+      200: "#cbae84",
+      300: "#cbae84",
+      400: "#ba945a",
+      500: "#a87a2a",
+      600: "#8a6322",
+      700: "#6c4c1a",
+      800: "#4e3612",
+      900: "#30200a",
+      950: "#181004",
+    },
+    red: {
+      50: "#faeaea",
+      100: "#f0d0ce",
+      200: "#ca7f77",
+      300: "#ca7f77",
+      400: "#b4544c",
+      500: "#9c2121",
+      600: "#801b1b",
+      700: "#641515",
+      800: "#480f0f",
+      900: "#2c0909",
+      950: "#100303",
+    },
+    blue: {
+      50: "#e8eef7",
+      100: "#c5d4ea",
+      200: "#7590ba",
+      300: "#7590ba",
+      400: "#4b6ca2",
+      500: "#21498a",
+      600: "#1b3c72",
+      700: "#152f5a",
+      800: "#0f2242",
+      900: "#09152a",
+      950: "#040812",
+    },
+  },
   semantic: {
     primary: {
       50: "#eff6ff",
@@ -9,8 +79,8 @@ const AppPreset = definePreset(Aura, {
       200: "#bfdbfe",
       300: "#93c5fd",
       400: "#60a5fa",
-      500: "#3b82f6", // 🌟 您截圖中的按鈕顏色 (Light Mode)
-      600: "#2563eb", // 上一版的主色，這裡作為 Hover 色
+      500: "#3b82f6",
+      600: "#2563eb",
       700: "#1d4ed8",
       800: "#1e40af",
       900: "#1e3a8a",
@@ -54,33 +124,31 @@ const AppPreset = definePreset(Aura, {
         },
       },
       dark: {
-        surface: {
-          0: "#ffffff",
-          50: "#f8fafc",
-          100: "#f1f5f9",
-          200: "#e2e8f0",
-          300: "#cbd5e1",
-          400: "#94a3b8",
-          500: "#64748b",
-          600: "#475569",
-          700: "#334155",
-          800: "#1e293b",
-          900: "#0f172a",
-          950: "#020617",
-        },
+        surface: colorffyDarkSurface,
         primary: {
-          // ⚠️ 關鍵：在深色模式(您截圖中的樣子)，PrimeVue 會自動用比較亮的顏色
-          // 這裡設定為 400 (#60a5fa)，這就是為什麼截圖中的藍色看起來會發光
-          color: "{primary.400}",
-          contrastColor: "{surface.900}", // 深色字
-          hoverColor: "{primary.300}",
-          activeColor: "{primary.200}",
+          color: "#60a5fa",
+          contrastColor: "#333333",
+          hoverColor: "#71aefb",
+          activeColor: "#81b8fc",
         },
         highlight: {
-          background: "rgba(59, 130, 246, 0.16)", // Blue-500 with opacity
-          focusBackground: "rgba(59, 130, 246, 0.24)",
-          color: "{primary.300}",
-          focusColor: "{primary.200}",
+          background: "color-mix(in srgb, #60a5fa, transparent 84%)",
+          focusBackground: "color-mix(in srgb, #60a5fa, transparent 76%)",
+          color: "#91c1fd",
+          focusColor: "#b1d3ff",
+        },
+        formField: {
+          background: "{surface.950}",
+          filledBackground: "{surface.800}",
+          filledHoverBackground: "{surface.800}",
+          filledFocusBackground: "{surface.800}",
+          borderColor: "{surface.700}",
+          hoverBorderColor: "{surface.600}",
+        },
+        content: {
+          background: "{surface.900}",
+          hoverBackground: "{surface.800}",
+          borderColor: "{surface.700}",
         },
       },
     },

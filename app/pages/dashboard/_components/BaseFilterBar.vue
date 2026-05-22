@@ -29,7 +29,7 @@ const gridClass = computed(() => {
 
 <template>
   <div
-    class="bg-surface-0 dark:bg-surface-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm mb-10"
+    class="bg-surface-0 dark:bg-surface-900 p-8 rounded-2xl border border-slate-200 dark:border-surface-700 shadow-sm mb-10"
   >
     <div :class="['grid gap-6', gridClass]">
       <slot />

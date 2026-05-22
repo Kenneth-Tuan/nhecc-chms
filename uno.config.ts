@@ -63,6 +63,36 @@ export default defineConfig({
 
       // 也可以對應 Text (文字顏色系)
       text: { muted: "var(--p-text-muted-color)" },
+
+      // Colorffy semantic（僅 .dark 下有定義，請搭配 dark: 前綴使用）
+      success: {
+        DEFAULT: "var(--clr-success-a0)",
+        light: "var(--clr-success-a10)",
+        muted: "var(--clr-success-a20)",
+      },
+      warning: {
+        DEFAULT: "var(--clr-warning-a0)",
+        light: "var(--clr-warning-a10)",
+        muted: "var(--clr-warning-a20)",
+      },
+      danger: {
+        DEFAULT: "var(--clr-danger-a0)",
+        light: "var(--clr-danger-a10)",
+        muted: "var(--clr-danger-a20)",
+      },
+      info: {
+        DEFAULT: "var(--clr-info-a0)",
+        light: "var(--clr-info-a10)",
+        muted: "var(--clr-info-a20)",
+      },
+      tonal: {
+        DEFAULT: "var(--clr-surface-tonal-a0)",
+        10: "var(--clr-surface-tonal-a10)",
+        20: "var(--clr-surface-tonal-a20)",
+        30: "var(--clr-surface-tonal-a30)",
+        40: "var(--clr-surface-tonal-a40)",
+        50: "var(--clr-surface-tonal-a50)",
+      },
     },
     extend: {
       padding: {

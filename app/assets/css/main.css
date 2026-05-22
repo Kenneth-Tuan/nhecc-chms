@@ -28,7 +28,7 @@ body {
 
   /* 背景色（light 微暖白，降低刺眼感） */
   /* Light: #f4f7fb (soft bluish off-white, subtle) */
-  /* Dark:  #0f172a (surface.900) */
+  /* Dark:  #333333 (Colorffy surface-a0) */
   background-color: #f4f7fb;
 
   /* 文字基本顏色 */
@@ -67,11 +67,49 @@ body {
   z-index: 1;
 }
 
-/* 4. (可選) 針對 Dark Mode 的額外微調 */
-/* 如果您覺得 Dark Mode 下的某些原生捲軸太亮，可以加上這段 */
+/* 4. Colorffy dark theme tokens (https://colorffy.com/dark-theme-generator) */
+.dark {
+  --clr-primary-a0: #60a5fa;
+  --clr-primary-a10: #71aefb;
+  --clr-primary-a20: #81b8fc;
+  --clr-primary-a30: #91c1fd;
+  --clr-primary-a40: #a1cafe;
+  --clr-primary-a50: #b1d3ff;
+
+  --clr-surface-a0: #333;
+  --clr-surface-a10: #454545;
+  --clr-surface-a20: #575757;
+  --clr-surface-a30: #6a6a6a;
+  --clr-surface-a40: #7e7e7e;
+  --clr-surface-a50: #929292;
+
+  --clr-surface-tonal-a0: #383e45;
+  --clr-surface-tonal-a10: #494f56;
+  --clr-surface-tonal-a20: #5b6167;
+  --clr-surface-tonal-a30: #6e7378;
+  --clr-surface-tonal-a40: #81868a;
+  --clr-surface-tonal-a50: #95999d;
+
+  --clr-success-a0: #22946e;
+  --clr-success-a10: #5ba989;
+  --clr-success-a20: #86bfa6;
+
+  --clr-warning-a0: #a87a2a;
+  --clr-warning-a10: #ba945a;
+  --clr-warning-a20: #cbae84;
+
+  --clr-danger-a0: #9c2121;
+  --clr-danger-a10: #b4544c;
+  --clr-danger-a20: #ca7f77;
+
+  --clr-info-a0: #21498a;
+  --clr-info-a10: #4b6ca2;
+  --clr-info-a20: #7590ba;
+}
+
 .dark body {
   background-color: var(--p-content-background);
-  color-scheme: dark; /* 告訴瀏覽器這是暗色模式，它會自動把捲軸變黑 */
+  color-scheme: dark;
 }
 
 #__nuxt {

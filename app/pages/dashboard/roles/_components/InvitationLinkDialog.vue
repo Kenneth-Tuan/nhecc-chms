@@ -155,7 +155,7 @@ async function resendLink(): Promise<void> {
       </p>
 
       <div class="space-y-2">
-        <label class="text-sm font-medium text-slate-600 dark:text-slate-400">
+        <label class="text-sm font-medium text-slate-600 dark:text-surface-400">
           邀請連結
         </label>
         <div class="flex gap-2">

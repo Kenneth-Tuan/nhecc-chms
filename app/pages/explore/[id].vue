@@ -129,7 +129,7 @@ const formattedEndDate = computed(() => {
 
 <template>
   <div
-    class="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-300"
+    class="min-h-screen bg-white dark:bg-surface-950 transition-colors duration-300"
   >
     <div v-if="pending" class="flex items-center justify-center min-h-[60vh]">
       <ProgressSpinner />
@@ -157,7 +157,7 @@ const formattedEndDate = computed(() => {
     <div v-else>
       <!-- Hero Section -->
       <section
-        class="bg-gray-50 dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 py-4 md:py-6"
+        class="bg-gray-50 dark:bg-surface-900 border-b border-gray-100 dark:border-surface-700 py-4 md:py-6"
       >
         <div class="max-w-[1200px] mx-auto px-6">
           <Button
@@ -187,7 +187,7 @@ const formattedEndDate = computed(() => {
             </div>
             <div class="md:w-64">
               <div
-                class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700"
+                class="bg-white dark:bg-surface-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-surface-700"
               >
                 <div class="flex justify-between items-center mb-3">
                   <span
@@ -208,7 +208,7 @@ const formattedEndDate = computed(() => {
                     )
                   "
                   :show-value="false"
-                  class="!h-2 !bg-gray-50 dark:!bg-slate-900 !rounded-full"
+                  class="!h-2 !bg-gray-50 dark:!bg-surface-900 !rounded-full"
                 />
               </div>
             </div>
@@ -244,7 +244,7 @@ const formattedEndDate = computed(() => {
               </h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div
-                  class="bg-gray-50 dark:bg-slate-900 p-6 rounded-3xl border border-gray-100 dark:border-slate-800"
+                  class="bg-gray-50 dark:bg-surface-900 p-6 rounded-3xl border border-gray-100 dark:border-surface-700"
                 >
                   <div class="flex items-center gap-4 mb-2">
                     <div
@@ -263,7 +263,7 @@ const formattedEndDate = computed(() => {
                 </div>
 
                 <div
-                  class="bg-gray-50 dark:bg-slate-900 p-6 rounded-3xl border border-gray-100 dark:border-slate-800"
+                  class="bg-gray-50 dark:bg-surface-900 p-6 rounded-3xl border border-gray-100 dark:border-surface-700"
                 >
                   <div class="flex items-center gap-4 mb-2">
                     <div
@@ -282,7 +282,7 @@ const formattedEndDate = computed(() => {
                 </div>
 
                 <div
-                  class="bg-gray-50 dark:bg-slate-900 p-6 rounded-3xl border border-gray-100 dark:border-slate-800 md:col-span-2"
+                  class="bg-gray-50 dark:bg-surface-900 p-6 rounded-3xl border border-gray-100 dark:border-surface-700 md:col-span-2"
                 >
                   <div class="flex items-center gap-4 mb-2">
                     <div
@@ -308,7 +308,7 @@ const formattedEndDate = computed(() => {
           <!-- Right: Action Sidebar -->
           <div class="lg:sticky lg:top-8 h-fit">
             <div
-              class="bg-white dark:bg-slate-900 border-2 border-gray-100 dark:border-slate-800 rounded-[2.5rem] p-8 shadow-xl shadow-gray-200/50 dark:shadow-none"
+              class="bg-white dark:bg-surface-900 border-2 border-gray-100 dark:border-surface-700 rounded-[2.5rem] p-8 shadow-xl shadow-gray-200/50 dark:shadow-none"
             >
               <div v-if="isAlreadyEnrolled" class="text-center py-6">
                 <div
@@ -343,16 +343,16 @@ const formattedEndDate = computed(() => {
                 <!-- Teacher Guard Card -->
                 <div
                   v-if="isTeacherOfCourse"
-                  class="bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded-2xl p-6 mb-8"
+                  class="bg-slate-50 dark:bg-surface-800/50 border border-slate-100 dark:border-surface-700 rounded-2xl p-6 mb-8"
                 >
                   <div
-                    class="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-black mb-4"
+                    class="flex items-center gap-2 text-slate-700 dark:text-surface-200 font-black mb-4"
                   >
                     <i class="pi pi-user-edit" />
                     授課老師不可報名
                   </div>
                   <p
-                    class="text-slate-500 dark:text-slate-400 font-medium leading-relaxed"
+                    class="text-slate-500 dark:text-surface-400 font-medium leading-relaxed"
                   >
                     您是此課程的授課老師，不需要透過學員報名流程加入。
                   </p>

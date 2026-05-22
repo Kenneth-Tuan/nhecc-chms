@@ -15,7 +15,7 @@ const auth = useAuth();
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
       <div
-        class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5"
+        class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-5"
       >
         <div class="flex items-center gap-3 mb-3">
           <div
@@ -23,7 +23,7 @@ const auth = useAuth();
           >
             <i class="pi pi-users text-primary text-lg" />
           </div>
-          <span class="text-sm text-slate-500 dark:text-slate-400"
+          <span class="text-sm text-slate-500 dark:text-surface-400"
             >會友總數</span
           >
         </div>
@@ -31,7 +31,7 @@ const auth = useAuth();
       </div>
 
       <div
-        class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5"
+        class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-5"
       >
         <div class="flex items-center gap-3 mb-3">
           <div
@@ -39,7 +39,7 @@ const auth = useAuth();
           >
             <i class="pi pi-check-circle text-green-500 text-lg" />
           </div>
-          <span class="text-sm text-slate-500 dark:text-slate-400"
+          <span class="text-sm text-slate-500 dark:text-surface-400"
             >啟用會友</span
           >
         </div>
@@ -47,7 +47,7 @@ const auth = useAuth();
       </div>
 
       <div
-        class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5"
+        class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-5"
       >
         <div class="flex items-center gap-3 mb-3">
           <div
@@ -55,7 +55,7 @@ const auth = useAuth();
           >
             <i class="pi pi-sitemap text-amber-500 text-lg" />
           </div>
-          <span class="text-sm text-slate-500 dark:text-slate-400"
+          <span class="text-sm text-slate-500 dark:text-surface-400"
             >牧區數量</span
           >
         </div>
@@ -63,7 +63,7 @@ const auth = useAuth();
       </div>
 
       <div
-        class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5"
+        class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-5"
       >
         <div class="flex items-center gap-3 mb-3">
           <div
@@ -71,7 +71,7 @@ const auth = useAuth();
           >
             <i class="pi pi-shield text-purple-500 text-lg" />
           </div>
-          <span class="text-sm text-slate-500 dark:text-slate-400"
+          <span class="text-sm text-slate-500 dark:text-surface-400"
             >角色數量</span
           >
         </div>
@@ -80,10 +80,10 @@ const auth = useAuth();
     </div>
 
     <div
-      class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6"
+      class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-6"
     >
       <h2 class="text-lg font-semibold mb-4">歡迎使用 NHECC ChMS</h2>
-      <p class="text-slate-600 dark:text-slate-400">
+      <p class="text-slate-600 dark:text-surface-400">
         您目前以 <strong>{{ auth.currentUserName.value }}</strong> 身分登入，
         資料範圍為
         <Tag

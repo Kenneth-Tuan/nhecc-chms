@@ -6,6 +6,7 @@
 import type { TreeNode } from "primevue/treenode";
 import { useToast } from "primevue/usetoast";
 
+import type { MemberStatus } from "~/types/member";
 import AssignDialog from "./_components/AssignDialog.vue";
 import ZoneDialog from "./_components/ZoneDialog.vue";
 import GroupDialog from "./_components/GroupDialog.vue";
@@ -39,6 +40,11 @@ const {
   saveGroup,
   deleteGroup,
   fetchLeaderCandidates,
+  organizationStructure,
+  activeZoneId,
+  loadMembersByZoneId,
+  membersByZoneId,
+  getGroupInfosByGroupId,
 } = useOrganizationManagement();
 
 // Zone dialog state
@@ -49,7 +55,7 @@ const zoneLeaderCandidates = ref<{ id: string; name: string }[]>([]);
 // Group dialog state
 const showGroupDialog = ref(false);
 const groupInitialData = ref<any>(null);
-const activeZoneId = ref<string>("");
+
 const groupLeaderCandidates = ref<{ id: string; name: string }[]>([]);
 
 // Assignment dialog state
@@ -116,7 +122,7 @@ function openAssignDialog(member: { uuid: string; fullName: string }): void {
 /** Confirm click-based assignment */
 async function handleConfirmAssign(
   targetId: string,
-  groupId: string
+  groupId: string,
 ): Promise<void> {
   console.log("handleConfirmAssign", targetId, groupId);
   const result = await assignMember(targetId, groupId);
@@ -218,35 +224,22 @@ const customers = ref([
 ]);
 const expandedRowGroups = ref();
 
-const calculateCustomerTotal = (name) => {
+const calculateMemberTotal = (groupId: string) => {
   let total = 0;
 
-  if (customers.value) {
-    for (let customer of customers.value) {
-      if (customer.representative.name === name) {
-        total++;
-      }
-    }
-  }
-
-  return total;
+  return membersByZoneId.value.filter((member) => member.groupId === groupId)
+    .length;
 };
-const getSeverity = (status) => {
+const getSeverity = (status: MemberStatus) => {
   switch (status) {
-    case "unqualified":
-      return "danger";
-
-    case "qualified":
+    case "Active":
       return "success";
 
-    case "new":
-      return "info";
+    case "Inactive":
+      return "secondary";
 
-    case "negotiation":
+    case "Suspended":
       return "warn";
-
-    case "renewal":
-      return null;
   }
 };
 
@@ -255,8 +248,12 @@ const scrollableTabs = ref(
     title: `Tab ${i + 1}`,
     content: `Tab ${i + 1} Content`,
     value: `${i}`,
-  }))
+  })),
 );
+
+function onTabChange(value: unknown): void {
+  loadMembersByZoneId(value);
+}
 </script>
 
 <template>
@@ -271,62 +268,51 @@ const scrollableTabs = ref(
       </div>
 
       <!-- testing -->
-      <div class="flex items-center justify-start">
-        <Tabs value="0" scrollable class="w-70%">
-          <TabList>
-            <Tab
-              v-for="tab in scrollableTabs"
-              :key="tab.title"
-              :value="tab.value"
-            >
-              {{ tab.title }}
-            </Tab>
-          </TabList>
-        </Tabs>
 
-        <Button class="w-50%" label="Add Tab" @click="() => {}" />
-      </div>
+      <Tabs :value="activeZoneId" scrollable @update:value="onTabChange">
+        <TabList>
+          <Tab
+            v-for="zone in organizationStructure"
+            :key="zone.id"
+            :value="zone.id"
+          >
+            {{ zone.name }}
+          </Tab>
+        </TabList>
+      </Tabs>
+
+      <!-- <Button class="w-50%" label="Add Tab" @click="() => {}" /> -->
+
       <DataTable
         v-model:expandedRowGroups="expandedRowGroups"
-        :value="customers"
+        :value="membersByZoneId"
         tableStyle="min-width: 50rem"
         expandableRowGroups
         rowGroupMode="subheader"
-        groupRowsBy="representative.name"
-        sortMode="single"
-        sortField="representative.name"
-        :sortOrder="1"
+        groupRowsBy="groupId"
         class="mb-6"
+        scrollable
       >
         <template #groupheader="slotProps">
-          <img
-            :alt="slotProps.data.representative.name"
-            :src="`https://primefaces.org/cdn/primevue/images/avatar/${slotProps.data.representative.image}`"
-            width="32"
-            style="vertical-align: middle; display: inline-block"
-            class="ml-2"
-          />
-          <span class="align-middle ml-2 font-bold leading-normal">{{
-            slotProps.data.representative.name
+          <span class="font-bold leading-normal">{{
+            slotProps.data.groupName
+          }}</span>
+          <span class="font-bold leading-normal">{{
+            getGroupInfosByGroupId(slotProps.data.groupId)?.leaders
           }}</span>
         </template>
-        <Column field="representative.name" header="Representative"></Column>
-        <Column field="name" header="Name" style="width: 20%"></Column>
-        <Column field="country" header="Country" style="width: 20%">
+        <!-- 要保留一格給 groupId -->
+        <Column field="groupId" header="groupId"></Column>
+        <Column field="fullName" header="姓名" style="width: 20%"></Column>
+        <Column field="mobile" header="手機" style="width: 20%">
           <template #body="slotProps">
             <div class="flex items-center gap-2">
-              <img
-                alt="flag"
-                src="https://primefaces.org/cdn/primevue/images/flag/flag_placeholder.png"
-                :class="`flag flag-${slotProps.data.country.code}`"
-                style="width: 24px"
-              />
-              <span>{{ slotProps.data.country.name }}</span>
+              <span>{{ slotProps.data.mobile }}</span>
             </div>
           </template>
         </Column>
-        <Column field="company" header="Company" style="width: 20%"></Column>
-        <Column field="status" header="Status" style="width: 20%">
+        <Column field="email" header="信箱" style="width: 20%"></Column>
+        <Column field="status" header="狀態" style="width: 20%">
           <template #body="slotProps">
             <Tag
               :value="slotProps.data.status"
@@ -334,11 +320,11 @@ const scrollableTabs = ref(
             />
           </template>
         </Column>
-        <Column field="date" header="Date" style="width: 20%"></Column>
+
         <template #groupfooter="slotProps">
           <div class="flex justify-end font-bold w-full">
-            Total Customers:
-            {{ calculateCustomerTotal(slotProps.data.representative.name) }}
+            Total Members:
+            {{ calculateMemberTotal(slotProps.data.groupId) }}
           </div>
         </template>
       </DataTable>
@@ -397,10 +383,10 @@ const scrollableTabs = ref(
 
         <!-- Panel 2: Structure Tree -->
         <div
-          class="flex min-w-0 flex-col overflow-hidden bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800"
+          class="flex min-w-0 flex-col overflow-hidden bg-white dark:bg-surface-900 rounded-xl shadow-sm border border-slate-200 dark:border-surface-700"
         >
           <div
-            class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/30"
+            class="p-4 border-b border-slate-100 dark:border-surface-700 flex items-center justify-between bg-slate-50/50 dark:bg-surface-800/30"
           >
             <h3
               class="font-bold text-slate-900 dark:text-white flex items-center gap-2 text-sm"
@@ -459,7 +445,7 @@ const scrollableTabs = ref(
                   </div> -->
                   <div class="min-w-0 flex-1">
                     <p
-                      class="font-bold text-sm text-slate-800 dark:text-slate-200 group-hover:text-primary transition-colors"
+                      class="font-bold text-sm text-slate-800 dark:text-surface-100 group-hover:text-primary transition-colors"
                     >
                       {{ slotProps.node.label }}
                     </p>
@@ -516,7 +502,7 @@ const scrollableTabs = ref(
                   </div> -->
                   <div class="min-w-0 flex-1">
                     <p
-                      class="font-semibold text-sm text-slate-700 dark:text-slate-300 group-hover:text-primary transition-colors"
+                      class="font-semibold text-sm text-slate-700 dark:text-surface-200 group-hover:text-primary transition-colors"
                     >
                       {{ slotProps.node.label }}
                     </p>
@@ -538,7 +524,7 @@ const scrollableTabs = ref(
                       @click.stop="
                         openGroupDialog(
                           slotProps.node.data.zoneId,
-                          slotProps.node.data
+                          slotProps.node.data,
                         )
                       "
                     />
@@ -560,11 +546,11 @@ const scrollableTabs = ref(
 
         <!-- Panel 3: Group Member List -->
         <div
-          class="flex-1 flex flex-col overflow-hidden bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800"
+          class="flex-1 flex flex-col overflow-hidden bg-white dark:bg-surface-900 rounded-xl shadow-sm border border-slate-200 dark:border-surface-700"
         >
           <!-- Header -->
           <div
-            class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between"
+            class="p-4 border-b border-slate-100 dark:border-surface-700 flex items-center justify-between"
           >
             <h3
               class="font-bold text-slate-900 dark:text-white flex items-center gap-2 text-sm"

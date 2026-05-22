@@ -197,7 +197,7 @@ function getProgress(courseClass: LearnClass) {
 
     <section
       v-if="nextClass"
-      class="rounded-[1.75rem] border border-blue-100 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:p-6"
+      class="rounded-[1.75rem] border border-blue-100 bg-white p-5 shadow-sm dark:border-surface-700 dark:bg-surface-900 md:p-6"
     >
       <div
         class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
@@ -210,7 +210,7 @@ function getProgress(courseClass: LearnClass) {
               下一堂
             </span>
             <span
-              class="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-500 dark:bg-slate-800"
+              class="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-500 dark:bg-surface-800"
             >
               {{ getRoleLabel(nextClass.viewerRole) }}
             </span>
@@ -235,7 +235,7 @@ function getProgress(courseClass: LearnClass) {
       <div
         class="mt-5 grid gap-3 text-sm font-bold text-slate-500 md:grid-cols-3"
       >
-        <div class="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800">
+        <div class="rounded-2xl bg-slate-50 p-4 dark:bg-surface-800">
           <i class="pi pi-calendar mr-2 text-blue-500" />
           {{
             formatDateTime(
@@ -243,11 +243,11 @@ function getProgress(courseClass: LearnClass) {
             )
           }}
         </div>
-        <div class="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800">
+        <div class="rounded-2xl bg-slate-50 p-4 dark:bg-surface-800">
           <i class="pi pi-map-marker mr-2 text-emerald-500" />
           {{ nextClass.location || "尚未設定地點" }}
         </div>
-        <div class="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800">
+        <div class="rounded-2xl bg-slate-50 p-4 dark:bg-surface-800">
           <i class="pi pi-users mr-2 text-amber-500" />
           {{ nextClass.enrollmentCount }} 位學員
         </div>
@@ -255,7 +255,7 @@ function getProgress(courseClass: LearnClass) {
     </section>
 
     <nav
-      class="sticky top-0 z-20 rounded-2xl bg-slate-100 p-1 dark:bg-slate-900"
+      class="sticky top-0 z-20 rounded-2xl bg-slate-100 p-1 dark:bg-surface-900"
     >
       <button
         v-for="tab in tabs"
@@ -264,7 +264,7 @@ function getProgress(courseClass: LearnClass) {
         class="w-1/3 rounded-xl px-3 py-3 text-sm font-black transition"
         :class="
           selectedTab === tab.key
-            ? 'bg-white text-blue-600 shadow-sm dark:bg-slate-800 dark:text-blue-400'
+            ? 'bg-white text-blue-600 shadow-sm dark:bg-surface-800 dark:text-blue-400'
             : 'text-slate-500'
         "
         @click="selectedTab = tab.key"
@@ -291,7 +291,7 @@ function getProgress(courseClass: LearnClass) {
 
     <div
       v-else-if="visibleClasses.length === 0"
-      class="rounded-[2rem] border-2 border-dashed border-slate-200 bg-white p-10 text-center dark:border-slate-800 dark:bg-slate-900"
+      class="rounded-[2rem] border-2 border-dashed border-slate-200 bg-white p-10 text-center dark:border-surface-700 dark:bg-surface-900"
     >
       <i class="pi pi-book text-5xl text-slate-300" />
       <h2 class="mt-5 text-2xl font-black">這裡目前沒有課程</h2>
@@ -319,7 +319,7 @@ function getProgress(courseClass: LearnClass) {
         class="group block no-underline"
       >
         <article
-          class="flex h-full flex-col rounded-[1.75rem] border border-slate-100 bg-white p-5 shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:shadow-xl dark:border-slate-800 dark:bg-slate-900"
+          class="flex h-full flex-col rounded-[1.75rem] border border-slate-100 bg-white p-5 shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:shadow-xl dark:border-surface-700 dark:bg-surface-900"
         >
           <div class="mb-5 flex items-start justify-between gap-3">
             <div>
@@ -349,12 +349,12 @@ function getProgress(courseClass: LearnClass) {
 
           <div class="mb-5 flex flex-wrap gap-2">
             <span
-              class="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-500 dark:bg-slate-800"
+              class="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-500 dark:bg-surface-800"
             >
               {{ getStatusLabel(courseClass.status) }}
             </span>
             <span
-              class="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-500 dark:bg-slate-800"
+              class="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-500 dark:bg-surface-800"
             >
               {{ getEnrollmentLabel(courseClass.enrollmentStatus) }}
             </span>

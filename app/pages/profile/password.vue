@@ -155,7 +155,7 @@ const handleSave = async () => {
 
       <!-- Action Footer -->
       <div
-        class="fixed bottom-0 left-0 w-full p-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 flex justify-center z-50"
+        class="fixed bottom-0 left-0 w-full p-6 bg-white/80 dark:bg-surface-900/80 backdrop-blur-lg border-t border-slate-200 dark:border-surface-700 flex justify-center z-50"
       >
         <div class="w-full max-w-2xl flex gap-4">
           <Button

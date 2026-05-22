@@ -21,14 +21,14 @@ defineEmits<{
       'rounded-xl border',
       linked
         ? 'bg-green-50 dark:bg-green-900/10 border-green-100 dark:border-green-800/30'
-        : 'bg-slate-50 dark:bg-slate-800/30 border-slate-100 dark:border-slate-800',
+        : 'bg-slate-50 dark:bg-surface-800/30 border-slate-100 dark:border-surface-700',
     ]"
   >
     <!-- 左側：圖示 + 名稱 + 狀態 -->
     <div class="flex items-center gap-3">
       <img :src="icon" :alt="label" class="w-8 h-8 object-contain" />
       <div>
-        <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+        <p class="text-sm font-semibold text-slate-700 dark:text-surface-100">
           {{ label }}
         </p>
         <p
@@ -36,7 +36,7 @@ defineEmits<{
             'text-xs font-medium',
             linked
               ? 'text-green-600 dark:text-green-400'
-              : 'text-slate-400 dark:text-slate-500',
+              : 'text-slate-400 dark:text-surface-500',
           ]"
         >
           {{ linked ? "已連結" : "尚未連結" }}
@@ -71,7 +71,7 @@ defineEmits<{
       />
       <span
         v-else-if="linked && !canUnlink"
-        class="text-xs text-slate-400 dark:text-slate-500 pr-1"
+        class="text-xs text-slate-400 dark:text-surface-500 pr-1"
       >
         主要登入
       </span>

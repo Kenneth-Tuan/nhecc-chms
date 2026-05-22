@@ -67,7 +67,7 @@ function handleClose() {
     <div v-if="assignTarget" class="space-y-4">
       <!-- Member Info -->
       <div
-        class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg"
+        class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-surface-800 rounded-lg"
       >
         <Avatar
           :label="assignTarget.fullName?.charAt(0)"
@@ -76,7 +76,7 @@ function handleClose() {
           class="!bg-primary/10 !text-primary"
         />
         <div>
-          <p class="font-bold text-slate-800 dark:text-slate-200">
+          <p class="font-bold text-slate-800 dark:text-surface-100">
             {{ assignTarget.fullName }}
           </p>
           <p class="text-xs text-slate-400">待分配</p>
@@ -86,7 +86,7 @@ function handleClose() {
       <!-- Zone Select -->
       <div>
         <label
-          class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+          class="block text-sm font-medium text-slate-700 dark:text-surface-200 mb-1"
         >
           牧區 <span class="text-red-500">*</span>
         </label>
@@ -104,7 +104,7 @@ function handleClose() {
       <!-- Group Select -->
       <div>
         <label
-          class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+          class="block text-sm font-medium text-slate-700 dark:text-surface-200 mb-1"
         >
           小組 <span class="text-red-500">*</span>
         </label>

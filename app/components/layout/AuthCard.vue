@@ -5,7 +5,7 @@
       'relative overflow-hidden',
       'flex flex-col',
       'w-full max-w-xl',
-      'bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm',
+      'bg-white/80 dark:bg-surface-900/80 backdrop-blur-sm',
       'rounded-56px',
       'shadow-2xl',
     ]"

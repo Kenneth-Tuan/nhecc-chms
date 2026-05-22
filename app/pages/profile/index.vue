@@ -151,7 +151,7 @@ onMounted(() => {
       :class="[
         'col-span-12 md:col-span-5 flex flex-col gap-6', // layout
         'md:p-8', // spacing
-        'md:bg-white md:dark:bg-slate-900', // colors
+        'md:bg-white md:dark:bg-surface-900', // colors
         'md:rounded-3xl', // border
         'md:shadow-sm', // shadow
       ]"
@@ -166,7 +166,7 @@ onMounted(() => {
           :class="[
             'relative mb-4 rounded-full p-1',
             '!w-28 !h-28',
-            'bg-white dark:bg-slate-800 shadow-sm',
+            'bg-white dark:bg-surface-800 shadow-sm',
           ]"
         >
           <Avatar
@@ -177,8 +177,8 @@ onMounted(() => {
             :class="[
               '!text-5xl', // font
               'w-full h-full',
-              '!bg-primary-50 dark:!bg-slate-700', // colors
-              '!text-primary-300 dark:!text-slate-400', // etc
+              '!bg-primary-50 dark:!bg-surface-700', // colors
+              '!text-primary-300 dark:!text-surface-400', // etc
             ]"
           />
         </div>
@@ -268,7 +268,7 @@ onMounted(() => {
         'col-span-12 md:col-span-7 flex flex-col h-full justify-between', // layout
         'md:p-8', // spacing
         'md:min-h-[400px]', // scaling
-        'md:bg-white md:dark:bg-slate-900', // colors
+        'md:bg-white md:dark:bg-surface-900', // colors
         'md:rounded-3xl', // border
         'md:shadow-sm', // shadow
       ]"
@@ -297,8 +297,8 @@ onMounted(() => {
             'flex items-center justify-between', // layout
             'p-4', // spacing
             'transition-all duration-200', // animation
-            'bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50', // colors
-            'rounded-xl md:border md:border-slate-100 md:dark:border-slate-800', // border
+            'bg-transparent hover:bg-slate-50 dark:hover:bg-surface-800/50', // colors
+            'rounded-xl md:border md:border-slate-100 md:dark:border-surface-700', // border
             'active:scale-[0.99]', // etc
           ]"
         >
@@ -311,8 +311,8 @@ onMounted(() => {
               :class="[
                 'flex items-center justify-center shrink-0', // layout
                 'w-10 h-10', // scaling
-                'bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400', // color
-                'md:bg-primary-50 md:text-primary md:dark:bg-slate-800 md:dark:text-slate-300 font-bold', // md color/font
+                'bg-slate-50 dark:bg-surface-800 text-slate-500 dark:text-surface-400', // color
+                'md:bg-primary-50 md:text-primary md:dark:bg-surface-800 md:dark:text-surface-200 font-bold', // md color/font
                 'rounded-full', // border
               ]"
             >
@@ -326,7 +326,7 @@ onMounted(() => {
             <span
               :class="[
                 'text-base font-medium', // font
-                'text-slate-700 dark:text-slate-200', // colors
+                'text-slate-700 dark:text-surface-100', // colors
               ]"
             >
               {{ item.label }}
@@ -336,7 +336,7 @@ onMounted(() => {
             :class="[
               'pi pi-chevron-right', // etc
               'text-xs', // font
-              'text-slate-300 dark:text-slate-600', // colors
+              'text-slate-300 dark:text-surface-600', // colors
             ]"
           ></i>
         </NuxtLink>
@@ -347,7 +347,7 @@ onMounted(() => {
             :class="[
               'text-sm font-semibold uppercase tracking-wider',
               'mb-3 px-1',
-              'text-slate-400 dark:text-slate-500',
+              'text-slate-400 dark:text-surface-500',
             ]"
           >
             連結帳號
@@ -380,7 +380,7 @@ onMounted(() => {
         :class="[
           'mt-12 mb-4', // spacing
           'md:mt-auto md:mb-0 md:pt-8', // md spacing
-          'md:border-t md:border-slate-50 md:dark:border-slate-800', // border
+          'md:border-t md:border-slate-50 md:dark:border-surface-700', // border
         ]"
       >
         <Button
@@ -390,7 +390,7 @@ onMounted(() => {
           :class="[
             '!text-sm !font-medium', // font
             '!underline-offset-4 hover:!underline', // etc
-            '!text-slate-400 hover:!text-slate-600 dark:!text-slate-500 dark:hover:!text-slate-300', // colors
+            '!text-slate-400 hover:!text-slate-600 dark:!text-surface-500 dark:hover:!text-surface-300', // colors
             'md:!w-full md:!text-red-500 md:hover:!text-red-600 md:!no-underline md:!bg-red-50 md:dark:!bg-red-900/10 md:!py-3 md:!rounded-xl', // md overrides
           ]"
         />

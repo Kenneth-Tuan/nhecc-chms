@@ -12,7 +12,7 @@ function formatDate(dateStr: string): string {
 
 <template>
   <div
-    class="inline-flex items-center gap-3 px-3 py-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm hover:border-primary/50 cursor-grab select-none transition-all active:cursor-grabbing w-full"
+    class="inline-flex items-center gap-3 px-3 py-2 bg-white dark:bg-surface-800 rounded-lg border border-slate-200 dark:border-surface-700 shadow-sm hover:border-primary/50 cursor-grab select-none transition-all active:cursor-grabbing w-full"
   >
     <Avatar
       :label="member.fullName?.charAt(0)"
@@ -25,7 +25,7 @@ function formatDate(dateStr: string): string {
       "
     />
     <div class="min-w-0 flex-1">
-      <p class="font-bold text-sm text-slate-800 dark:text-slate-200">
+      <p class="font-bold text-sm text-slate-800 dark:text-surface-100">
         {{ member.fullName }}
       </p>
       <p class="text-[10px] text-slate-400 truncate">

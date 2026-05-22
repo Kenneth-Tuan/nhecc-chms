@@ -30,7 +30,7 @@ const statusLabel: Record<string, string> = {
 
 <template>
   <div
-    class="inline-flex w-fit max-w-full items-center gap-3 px-3 py-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm hover:border-primary/50 cursor-grab select-none transition-all active:cursor-grabbing text-nowrap"
+    class="inline-flex w-fit max-w-full items-center gap-3 px-3 py-2 bg-white dark:bg-surface-800 rounded-lg border border-slate-200 dark:border-surface-700 shadow-sm hover:border-primary/50 cursor-grab select-none transition-all active:cursor-grabbing text-nowrap"
   >
     <Avatar
       :label="member.fullName?.charAt(0)"
@@ -43,7 +43,7 @@ const statusLabel: Record<string, string> = {
       "
     />
     <div class="inline-flex items-center gap-4">
-      <p class="font-bold text-sm text-slate-800 dark:text-slate-200">
+      <p class="font-bold text-sm text-slate-800 dark:text-surface-100">
         {{ member.fullName }}
       </p>
       <span class="hidden text-sm text-slate-600 sm:inline">{{

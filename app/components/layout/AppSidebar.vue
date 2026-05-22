@@ -49,11 +49,11 @@ const isManagerMode = computed(() => route.path.startsWith("/dashboard"));
 
 <template>
   <aside
-    class="hidden md:flex flex-col flex-none h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shadow-[4px_0_24px_rgba(0,0,0,0.05)] z-20 overflow-hidden"
+    class="hidden md:flex flex-col flex-none h-full bg-white dark:bg-surface-900 border-r border-slate-200 dark:border-surface-700 shadow-[4px_0_24px_rgba(0,0,0,0.05)] z-20 overflow-hidden"
   >
     <!-- Logo -->
     <div
-      class="flex items-center justify-start p-6 border-b border-slate-100 dark:border-slate-800/50 cursor-pointer"
+      class="flex items-center justify-start p-6 border-b border-slate-100 dark:border-surface-700/50 cursor-pointer"
       @click="navigateTo('/')"
     >
       <div class="flex items-center justify-center mr-3 w-12 h-12">
@@ -69,7 +69,7 @@ const isManagerMode = computed(() => route.path.startsWith("/dashboard"));
         >
           NHECC ChMS
         </h1>
-        <p class="text-xs text-slate-500 dark:text-slate-400">{{ title }}</p>
+        <p class="text-xs text-slate-500 dark:text-surface-400">{{ title }}</p>
       </div>
     </div>
 
@@ -83,7 +83,7 @@ const isManagerMode = computed(() => route.path.startsWith("/dashboard"));
               'flex items-center gap-4 p-1 rounded-xl transition-all duration-200 group',
               isActive(item.to)
                 ? 'bg-primary-50 dark:bg-primary-900/20 text-primary font-bold'
-                : 'text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-50 dark:hover:bg-slate-800',
+                : 'text-slate-600 dark:text-surface-400 font-medium hover:bg-slate-50 dark:hover:bg-surface-800',
             ]"
           >
             <i
@@ -92,7 +92,7 @@ const isManagerMode = computed(() => route.path.startsWith("/dashboard"));
                 item.icon,
                 isActive(item.to)
                   ? 'text-primary'
-                  : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300',
+                  : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-surface-300',
               ]"
             />
             <span class="text-base">{{ item.label }}</span>
@@ -102,15 +102,15 @@ const isManagerMode = computed(() => route.path.startsWith("/dashboard"));
     </div>
 
     <!-- User info / Footer -->
-    <div class="p-1 border-t border-slate-100 dark:border-slate-800">
+    <div class="p-1 border-t border-slate-100 dark:border-surface-700">
       <div
-        class="flex items-center gap-3 p-1 rounded-xl border border-slate-100 dark:border-slate-800"
+        class="flex items-center gap-3 p-1 rounded-xl border border-slate-100 dark:border-surface-700"
       >
         <Avatar
           :image="authStore.userContext?.avatar || undefined"
           :icon="authStore.userContext?.avatar ? undefined : 'pi pi-user'"
           shape="circle"
-          class="!bg-slate-200 dark:!bg-slate-700 !text-slate-500"
+          class="!bg-slate-200 dark:!bg-surface-700 !text-slate-500"
         />
         <div class="flex-1 min-w-0">
           <p class="text-sm font-bold truncate text-slate-900 dark:text-white">

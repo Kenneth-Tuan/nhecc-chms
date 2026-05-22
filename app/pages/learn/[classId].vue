@@ -251,12 +251,12 @@ function getActionToneClass(tone: string) {
               {{ courseClass.templateCode }}
             </span>
             <span
-              class="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-500 dark:bg-white/10 dark:text-slate-200"
+              class="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-500 dark:bg-white/10 dark:text-surface-100"
             >
               {{ isTeacher ? "授課老師" : getEnrollmentLabel(courseClass.enrollmentStatus) }}
             </span>
             <span
-              class="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-500 dark:bg-white/10 dark:text-slate-200"
+              class="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-500 dark:bg-white/10 dark:text-surface-100"
             >
               {{ getStatusLabel(courseClass.status) }}
             </span>
@@ -270,7 +270,7 @@ function getActionToneClass(tone: string) {
           :key="action.title"
           type="button"
           :disabled="action.disabled"
-          class="rounded-[1.5rem] border border-slate-100 bg-white p-5 text-left shadow-sm transition dark:border-slate-800 dark:bg-slate-900"
+          class="rounded-[1.5rem] border border-slate-100 bg-white p-5 text-left shadow-sm transition dark:border-surface-700 dark:bg-surface-900"
           :class="
             action.disabled
               ? 'cursor-not-allowed opacity-60'
@@ -294,7 +294,7 @@ function getActionToneClass(tone: string) {
             </div>
             <span
               v-if="action.disabled"
-              class="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-black text-slate-400 dark:bg-slate-800"
+              class="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-black text-slate-400 dark:bg-surface-800"
             >
               即將開放
             </span>
@@ -303,7 +303,7 @@ function getActionToneClass(tone: string) {
       </section>
 
       <section class="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
-        <article class="rounded-[1.75rem] border border-slate-100 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:p-6">
+        <article class="rounded-[1.75rem] border border-slate-100 bg-white p-5 shadow-sm dark:border-surface-700 dark:bg-surface-900 md:p-6">
           <div class="mb-5 flex items-center justify-between">
             <div>
               <p class="text-sm font-black text-blue-600 dark:text-blue-400">
@@ -318,7 +318,7 @@ function getActionToneClass(tone: string) {
 
           <ProgressBar :value="progress" :show-value="false" class="!h-3 !rounded-full" />
 
-          <div class="mt-6 rounded-2xl bg-slate-50 p-4 dark:bg-slate-800">
+          <div class="mt-6 rounded-2xl bg-slate-50 p-4 dark:bg-surface-800">
             <p class="text-sm font-black text-slate-400">目前/下一堂</p>
             <p class="mt-2 text-lg font-black text-slate-950 dark:text-white">
               {{ formatDateTime(currentOrNextSession?.startTime || courseClass.startDate) }}
@@ -329,7 +329,7 @@ function getActionToneClass(tone: string) {
           </div>
         </article>
 
-        <article class="rounded-[1.75rem] border border-slate-100 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:p-6">
+        <article class="rounded-[1.75rem] border border-slate-100 bg-white p-5 shadow-sm dark:border-surface-700 dark:bg-surface-900 md:p-6">
           <p class="text-sm font-black text-blue-600 dark:text-blue-400">
             TEACHERS
           </p>
@@ -339,7 +339,7 @@ function getActionToneClass(tone: string) {
             <div
               v-for="teacher in courseClass.teachers"
               :key="teacher.id"
-              class="flex items-center gap-3 rounded-2xl bg-slate-50 p-4 dark:bg-slate-800"
+              class="flex items-center gap-3 rounded-2xl bg-slate-50 p-4 dark:bg-surface-800"
             >
               <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-sm font-black text-white">
                 {{ teacher.name.slice(0, 1) }}
@@ -354,7 +354,7 @@ function getActionToneClass(tone: string) {
       </section>
 
       <section class="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
-        <article class="rounded-[1.75rem] border border-slate-100 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:p-6">
+        <article class="rounded-[1.75rem] border border-slate-100 bg-white p-5 shadow-sm dark:border-surface-700 dark:bg-surface-900 md:p-6">
           <p class="text-sm font-black text-blue-600 dark:text-blue-400">
             MATERIALS
           </p>
@@ -367,7 +367,7 @@ function getActionToneClass(tone: string) {
               :href="attachment.url"
               target="_blank"
               rel="noopener noreferrer"
-              class="flex items-center gap-3 rounded-2xl bg-slate-50 p-4 text-slate-600 no-underline transition hover:bg-blue-50 hover:text-blue-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-blue-950/40"
+              class="flex items-center gap-3 rounded-2xl bg-slate-50 p-4 text-slate-600 no-underline transition hover:bg-blue-50 hover:text-blue-600 dark:bg-surface-800 dark:text-surface-200 dark:hover:bg-blue-950/40"
             >
               <i :class="[getAttachmentIcon(attachment.type), 'text-xl']" />
               <div class="min-w-0">
@@ -381,7 +381,7 @@ function getActionToneClass(tone: string) {
           </div>
         </article>
 
-        <article class="rounded-[1.75rem] border border-slate-100 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:p-6">
+        <article class="rounded-[1.75rem] border border-slate-100 bg-white p-5 shadow-sm dark:border-surface-700 dark:bg-surface-900 md:p-6">
           <p class="text-sm font-black text-blue-600 dark:text-blue-400">
             SCHEDULE
           </p>
@@ -391,9 +391,9 @@ function getActionToneClass(tone: string) {
             <div
               v-for="(session, index) in sortedSessions"
               :key="session.sessionId"
-              class="flex gap-4 rounded-2xl bg-slate-50 p-4 dark:bg-slate-800"
+              class="flex gap-4 rounded-2xl bg-slate-50 p-4 dark:bg-surface-800"
             >
-              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-sm font-black text-blue-600 shadow-sm dark:bg-slate-900">
+              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-sm font-black text-blue-600 shadow-sm dark:bg-surface-900">
                 {{ index + 1 }}
               </div>
               <div>
@@ -412,12 +412,12 @@ function getActionToneClass(tone: string) {
         </article>
       </section>
 
-      <section class="rounded-[1.75rem] border border-slate-100 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:p-6">
+      <section class="rounded-[1.75rem] border border-slate-100 bg-white p-5 shadow-sm dark:border-surface-700 dark:bg-surface-900 md:p-6">
         <p class="text-sm font-black text-blue-600 dark:text-blue-400">
           ABOUT
         </p>
         <h2 class="mt-1 text-2xl font-black">課程說明</h2>
-        <p class="mt-4 whitespace-pre-line text-base font-semibold leading-8 text-slate-600 dark:text-slate-300">
+        <p class="mt-4 whitespace-pre-line text-base font-semibold leading-8 text-slate-600 dark:text-surface-200">
           {{ courseClass.description || courseClass.templateSyllabus || "尚未提供課程說明" }}
         </p>
       </section>

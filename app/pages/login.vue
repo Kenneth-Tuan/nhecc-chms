@@ -145,7 +145,7 @@ definePageMeta({
               :class="[
                 'text-sm', // font
                 'mt-2', // spacing
-                'text-slate-500 dark:text-slate-400', // colors
+                'text-slate-500 dark:text-surface-400', // colors
               ]"
             >
               請登入您的帳號以繼續使用
@@ -174,7 +174,7 @@ definePageMeta({
                 :class="[
                   'text-sm font-semibold', // font
                   'ml-1', // spacing
-                  'text-slate-700 dark:text-slate-300', // colors
+                  'text-slate-700 dark:text-surface-200', // colors
                 ]"
                 >帳號</label
               >
@@ -207,7 +207,7 @@ definePageMeta({
                 <label
                   :class="[
                     'text-sm font-semibold', // font
-                    'text-slate-700 dark:text-slate-300', // colors
+                    'text-slate-700 dark:text-surface-200', // colors
                   ]"
                   >密碼</label
                 >
@@ -252,7 +252,7 @@ definePageMeta({
               for="rememberMe"
               :class="[
                 'text-sm', // font
-                'text-slate-600 dark:text-slate-400', // colors
+                'text-slate-600 dark:text-surface-400', // colors
                 'cursor-pointer', // etc
               ]"
               >記住我</label
@@ -290,7 +290,7 @@ definePageMeta({
             <div
               :class="[
                 'w-full', // scaling
-                'border-t border-slate-200 dark:border-slate-800', // border
+                'border-t border-slate-200 dark:border-surface-700', // border
               ]"
             ></div>
           </div>
@@ -299,7 +299,7 @@ definePageMeta({
               'text-xs font-medium uppercase tracking-widest', // font
               'relative', // position
               'px-4', // spacing
-              'bg-white dark:bg-slate-900', // colors
+              'bg-white dark:bg-surface-900', // colors
               'text-slate-400', // etc
             ]"
           >
@@ -328,7 +328,7 @@ definePageMeta({
               alt="Line"
               :class="['w-10 h-10']"
             />
-            <span :class="['font-bold', 'text-slate-700 dark:text-slate-200']"
+            <span :class="['font-bold', 'text-slate-700 dark:text-surface-100']"
               >LINE</span
             >
           </Button>
@@ -348,7 +348,7 @@ definePageMeta({
               alt="Google"
               :class="['w-10 h-10']"
             />
-            <span :class="['font-bold', 'text-slate-700 dark:text-slate-200']"
+            <span :class="['font-bold', 'text-slate-700 dark:text-surface-100']"
               >Google</span
             >
           </Button>
@@ -364,7 +364,7 @@ definePageMeta({
           <p
             :class="[
               'text-sm', // font
-              'text-slate-500 dark:text-slate-400', // colors
+              'text-slate-500 dark:text-surface-400', // colors
             ]"
           >
             還沒有帳號？

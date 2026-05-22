@@ -37,7 +37,7 @@ function handleBack() {
       />
       <div>
         <h1
-          class="text-3xl font-bold text-slate-900 dark:text-slate-100 leading-tight"
+          class="text-3xl font-bold text-slate-900 dark:text-surface-0 leading-tight"
         >
           {{ title }}
         </h1>

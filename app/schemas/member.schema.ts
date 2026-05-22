@@ -139,7 +139,8 @@ export const memberFiltersSchema = z.object({
     .or(z.boolean())
     .optional(),
   page: z.coerce.number().int().positive().default(1),
-  pageSize: z.coerce.number().int().positive().max(100).default(20),
+  /** 0 = 不分頁，回傳全部符合條件的資料；1–100 為每頁筆數 */
+  pageSize: z.coerce.number().int().min(0).max(100).default(20),
   sortBy: z.enum(["createdAt", "dob", "fullName"]).default("createdAt"),
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });

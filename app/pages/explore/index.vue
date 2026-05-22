@@ -51,7 +51,7 @@ const userStatus = computed(
 
 <template>
   <div class="contents">
-    <main class="max-w-[1400px] mx-auto pb-20 px-4 sm:px-6">
+    <main class="max-w-[1400px] mx-auto pb-20">
       <div
         class="py-4 md:py-6 mb-10 flex flex-col md:flex-row md:items-end justify-between gap-8"
       >
@@ -95,10 +95,10 @@ const userStatus = computed(
       <!-- Empty State -->
       <div
         v-else-if="filteredCourses.length === 0"
-        class="flex flex-col items-center justify-center py-32 bg-gray-50 dark:bg-slate-900/50 rounded-[3rem] border-2 border-dashed border-gray-200 dark:border-slate-800"
+        class="flex flex-col items-center justify-center py-32 bg-gray-50 dark:bg-surface-900/50 rounded-[3rem] border-2 border-dashed border-gray-200 dark:border-surface-700"
       >
         <div
-          class="w-24 h-24 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center mb-8 shadow-sm"
+          class="w-24 h-24 bg-white dark:bg-surface-800 rounded-full flex items-center justify-center mb-8 shadow-sm"
         >
           <i class="pi pi-search text-4xl text-gray-300 dark:text-gray-600" />
         </div>
@@ -157,9 +157,9 @@ h1 {
 }
 
 .dark :deep(.p-selectbutton .p-button) {
-  border-color: #1e293b !important;
-  background: #0f172a;
-  color: #94a3b8;
+  border-color: var(--clr-surface-a20) !important;
+  background: var(--clr-surface-a0);
+  color: var(--clr-surface-a50);
 }
 
 :deep(.p-selectbutton .p-button.p-highlight) {
@@ -170,9 +170,9 @@ h1 {
 }
 
 .dark :deep(.p-selectbutton .p-button.p-highlight) {
-  background: #3b82f6 !important;
-  border-color: #3b82f6 !important;
-  color: white !important;
+  background: var(--clr-primary-a0) !important;
+  border-color: var(--clr-primary-a0) !important;
+  color: var(--clr-surface-a0) !important;
 }
 
 :deep(.p-selectbutton .p-button:not(.p-highlight):hover) {
@@ -182,8 +182,8 @@ h1 {
 }
 
 .dark :deep(.p-selectbutton .p-button:not(.p-highlight):hover) {
-  background: #1e293b !important;
-  border-color: #334155 !important;
-  color: #60a5fa;
+  background: var(--clr-surface-a10) !important;
+  border-color: var(--clr-surface-a20) !important;
+  color: var(--clr-primary-a0);
 }
 </style>

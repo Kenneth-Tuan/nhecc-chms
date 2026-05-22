@@ -49,7 +49,7 @@ function update(field: string, value: string) {
     <div class="flex flex-col gap-2">
       <label
         for="fullName"
-        class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+        class="text-sm font-semibold ml-1 text-slate-700 dark:text-surface-200 flex items-center gap-2"
       >
         <i class="pi pi-user text-slate-400" />
         <span>
@@ -75,7 +75,7 @@ function update(field: string, value: string) {
     <div class="flex flex-col gap-2">
       <label
         for="mobile"
-        class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+        class="text-sm font-semibold ml-1 text-slate-700 dark:text-surface-200 flex items-center gap-2"
       >
         <i class="pi pi-phone text-slate-400" />
         <span> 手機號碼 </span>
@@ -99,7 +99,7 @@ function update(field: string, value: string) {
     <div class="flex flex-col gap-2">
       <label
         for="email"
-        class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+        class="text-sm font-semibold ml-1 text-slate-700 dark:text-surface-200 flex items-center gap-2"
       >
         <i class="pi pi-envelope text-slate-400" />
         <span>
@@ -130,7 +130,7 @@ function update(field: string, value: string) {
       <div class="flex flex-col gap-2">
         <label
           for="password"
-          class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+          class="text-sm font-semibold ml-1 text-slate-700 dark:text-surface-200 flex items-center gap-2"
         >
           <i class="pi pi-lock text-slate-400" />
           <span>
@@ -157,7 +157,7 @@ function update(field: string, value: string) {
       <div class="flex flex-col gap-2">
         <label
           for="confirmPassword"
-          class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+          class="text-sm font-semibold ml-1 text-slate-700 dark:text-surface-200 flex items-center gap-2"
         >
           <i class="pi pi-lock text-slate-400" />
           <span>

@@ -19,6 +19,7 @@ export function generateId(): string {
 
 /**
  * 對陣列進行分頁處理。
+ * `pageSize === 0` 時不分頁，回傳全部項目（忽略 `page`）。
  */
 export function paginateArray<T>(
   items: T[],
@@ -34,6 +35,19 @@ export function paginateArray<T>(
   };
 } {
   const totalItems = items.length;
+
+  if (pageSize === 0) {
+    return {
+      data: items,
+      pagination: {
+        page: 1,
+        pageSize: 0,
+        totalItems,
+        totalPages: totalItems > 0 ? 1 : 0,
+      },
+    };
+  }
+
   const totalPages = Math.ceil(totalItems / pageSize);
   const start = (page - 1) * pageSize;
   const data = items.slice(start, start + pageSize);

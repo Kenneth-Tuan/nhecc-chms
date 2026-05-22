@@ -67,7 +67,7 @@ function handleCancel(): void {
     />
 
     <div
-      class="bg-surface-0 dark:bg-surface-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 md:p-8 shadow-sm"
+      class="bg-surface-0 dark:bg-surface-900 border border-slate-200 dark:border-surface-700 rounded-2xl p-6 md:p-8 shadow-sm"
     >
       <TemplateForm
         :is-saving="isSaving"

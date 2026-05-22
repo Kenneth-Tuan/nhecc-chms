@@ -251,7 +251,7 @@ definePageMeta({
                   'h-1.5 w-12 rounded-full transition-all',
                   Number(value) <= activeStep
                     ? 'bg-primary'
-                    : 'bg-slate-200 dark:bg-slate-800',
+                    : 'bg-slate-200 dark:bg-surface-800',
                 ]"
               ></div>
             </div>
@@ -270,7 +270,7 @@ definePageMeta({
                   'h-1.5 w-12 rounded-full transition-all',
                   Number(value) <= activeStep
                     ? 'bg-primary'
-                    : 'bg-slate-200 dark:bg-slate-800',
+                    : 'bg-slate-200 dark:bg-surface-800',
                 ]"
               ></div>
             </div>
@@ -280,7 +280,7 @@ definePageMeta({
         <h1 :class="['text-2xl font-bold', 'text-slate-800 dark:text-white']">
           {{ activeStep === 1 ? "建立新帳號" : "完成個人資料" }}
         </h1>
-        <p :class="['text-sm mt-1 px-4', 'text-slate-500 dark:text-slate-400']">
+        <p :class="['text-sm mt-1 px-4', 'text-slate-500 dark:text-surface-400']">
           {{
             activeStep === 1
               ? "請輸入您的基本資訊以開始使用教會學習平台"
@@ -302,9 +302,9 @@ definePageMeta({
           />
 
           <div
-            class="pt-8 mt-4 text-center border-t border-slate-50 dark:border-slate-800/50"
+            class="pt-8 mt-4 text-center border-t border-slate-50 dark:border-surface-700/50"
           >
-            <p class="text-sm text-slate-500 dark:text-slate-400">
+            <p class="text-sm text-slate-500 dark:text-surface-400">
               已經有帳號了嗎？
               <NuxtLink
                 to="/login"
@@ -338,7 +338,7 @@ definePageMeta({
                 <div class="flex flex-col gap-2">
                   <label
                     for="gender"
-                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-surface-200 flex items-center gap-2"
                   >
                     <i class="pi pi-user text-slate-400" />
                     <span>
@@ -375,7 +375,7 @@ definePageMeta({
                 <div class="flex flex-col gap-2">
                   <label
                     for="birthDate"
-                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-surface-200 flex items-center gap-2"
                   >
                     <i class="pi pi-calendar text-slate-400" />
                     <span>
@@ -413,7 +413,7 @@ definePageMeta({
                 <div class="flex flex-col gap-2">
                   <label
                     for="isBaptized"
-                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-surface-200 flex items-center gap-2"
                   >
                     <i class="pi pi-info-circle text-slate-400" />
                     <span> 是否已經受洗？ </span>
@@ -452,7 +452,7 @@ definePageMeta({
                   <div class="flex flex-col gap-2">
                     <label
                       for="baptismDate"
-                      class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                      class="text-sm font-semibold ml-1 text-slate-700 dark:text-surface-200 flex items-center gap-2"
                     >
                       <i class="pi pi-calendar text-slate-400" />
                       <span> 受洗日期 </span>
@@ -478,7 +478,7 @@ definePageMeta({
                 <div class="flex flex-col gap-2">
                   <label
                     for="pastoralZone"
-                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-surface-200 flex items-center gap-2"
                   >
                     <i class="pi pi-sitemap text-slate-400" />
                     <span> 歸屬牧區 </span>
@@ -506,7 +506,7 @@ definePageMeta({
                 <div class="flex flex-col gap-2">
                   <label
                     for="homeGroup"
-                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                    class="text-sm font-semibold ml-1 text-slate-700 dark:text-surface-200 flex items-center gap-2"
                   >
                     <i class="pi pi-users text-slate-400" />
                     <span> 歸屬小組 </span>
@@ -545,7 +545,7 @@ definePageMeta({
               <div class="flex flex-col gap-2">
                 <label
                   for="previousCourses"
-                  class="text-sm font-semibold ml-1 text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                  class="text-sm font-semibold ml-1 text-slate-700 dark:text-surface-200 flex items-center gap-2"
                 >
                   <i class="pi pi-book text-slate-400" />
                   <span> 曾經參與過的福音課程 (可複選，僅供參考) </span>

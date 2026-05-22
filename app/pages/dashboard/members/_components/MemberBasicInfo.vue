@@ -37,14 +37,14 @@ const statusLabel: Record<string, string> = {
   <div class="flex flex-col lg:flex-row gap-8 p-4">
     <!-- Left Panel: Profile Summary Card -->
     <div
-      class="flex flex-col items-center gap-4 lg:w-64 shrink-0 p-6 rounded-2xl bg-slate-50/50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800"
+      class="flex flex-col items-center gap-4 lg:w-64 shrink-0 p-6 rounded-2xl bg-slate-50/50 dark:bg-surface-800/30 border border-slate-100 dark:border-surface-700"
     >
       <div class="relative">
         <Avatar
           :label="member.fullName?.charAt(0)"
           :image="member.avatar"
           shape="circle"
-          class="!w-24 !h-24 !text-3xl !bg-primary-100 dark:!bg-primary-900/40 !text-primary !border-4 !border-white dark:!border-slate-800 shadow-sm"
+          class="!w-24 !h-24 !text-3xl !bg-primary-100 dark:!bg-primary-900/40 !text-primary !border-4 !border-white dark:!border-surface-700 shadow-sm"
         />
         <div class="absolute -bottom-1 -right-1">
           <Tag
@@ -81,7 +81,7 @@ const statusLabel: Record<string, string> = {
           >
             <i class="pi pi-user text-blue-600 dark:text-blue-400" />
           </div>
-          <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200">
+          <h3 class="text-lg font-bold text-slate-800 dark:text-surface-100">
             基本資訊
           </h3>
         </div>
@@ -89,7 +89,7 @@ const statusLabel: Record<string, string> = {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 px-2">
           <div class="space-y-1">
             <span
-              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-surface-400 uppercase"
               >姓名</span
             >
             <p class="text-base font-bold text-slate-900 dark:text-white">
@@ -98,7 +98,7 @@ const statusLabel: Record<string, string> = {
           </div>
           <div class="space-y-1">
             <span
-              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-surface-400 uppercase"
               >性別</span
             >
             <div
@@ -110,13 +110,13 @@ const statusLabel: Record<string, string> = {
           </div>
           <div class="space-y-1">
             <span
-              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-surface-400 uppercase"
               >出生年月日 (年齡)</span
             >
             <p class="text-base font-bold text-slate-900 dark:text-white">
               {{ member.dob }}
               <span
-                class="text-sm font-medium text-slate-500 dark:text-slate-400 ml-1"
+                class="text-sm font-medium text-slate-500 dark:text-surface-400 ml-1"
                 >({{ member.age }} 歲)</span
               >
             </p>
@@ -134,7 +134,7 @@ const statusLabel: Record<string, string> = {
           >
             <i class="pi pi-phone text-orange-600 dark:text-orange-400" />
           </div>
-          <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200">
+          <h3 class="text-lg font-bold text-slate-800 dark:text-surface-100">
             聯絡資訊
           </h3>
         </div>
@@ -142,7 +142,7 @@ const statusLabel: Record<string, string> = {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 px-2">
           <div class="space-y-1">
             <span
-              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-surface-400 uppercase"
               >手機</span
             >
             <p class="text-sm text-slate-900 dark:text-white">
@@ -151,7 +151,7 @@ const statusLabel: Record<string, string> = {
           </div>
           <div class="space-y-1">
             <span
-              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-surface-400 uppercase"
               >Email</span
             >
             <p class="text-sm text-slate-900 dark:text-white break-all">
@@ -160,7 +160,7 @@ const statusLabel: Record<string, string> = {
           </div>
           <div v-if="member.lineId" class="space-y-1">
             <span
-              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-surface-400 uppercase"
               >Line ID</span
             >
             <p class="text-sm text-slate-900 dark:text-white break-all">
@@ -169,7 +169,7 @@ const statusLabel: Record<string, string> = {
           </div>
           <div v-if="member.address" class="space-y-2">
             <span
-              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-surface-400 uppercase"
               >通訊地址</span
             >
             <p class="text-sm text-slate-900 dark:text-white whitespace-pre-wrap">
@@ -191,7 +191,7 @@ const statusLabel: Record<string, string> = {
               class="pi pi-exclamation-triangle text-red-600 dark:text-red-400"
             />
           </div>
-          <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200">
+          <h3 class="text-lg font-bold text-slate-800 dark:text-surface-100">
             緊急聯絡人
           </h3>
         </div>
@@ -199,7 +199,7 @@ const statusLabel: Record<string, string> = {
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-y-4 gap-x-8 px-2">
           <div class="space-y-1">
             <span
-              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-surface-400 uppercase"
               >姓名</span
             >
             <p class="text-base font-bold text-slate-900 dark:text-white">
@@ -208,7 +208,7 @@ const statusLabel: Record<string, string> = {
           </div>
           <div class="space-y-1">
             <span
-              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-surface-400 uppercase"
               >關係</span
             >
             <p class="text-base font-bold text-slate-900 dark:text-white">
@@ -217,7 +217,7 @@ const statusLabel: Record<string, string> = {
           </div>
           <div class="space-y-1">
             <span
-              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-surface-400 uppercase"
               >電話</span
             >
             <p class="text-sm text-slate-900 dark:text-white">
@@ -237,7 +237,7 @@ const statusLabel: Record<string, string> = {
           >
             <i class="pi pi-building text-green-600 dark:text-green-400" />
           </div>
-          <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200">
+          <h3 class="text-lg font-bold text-slate-800 dark:text-surface-100">
             教會資訊
           </h3>
         </div>
@@ -245,7 +245,7 @@ const statusLabel: Record<string, string> = {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 px-2">
           <div class="space-y-1">
             <span
-              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-surface-400 uppercase"
               >受洗狀態</span
             >
             <div
@@ -261,14 +261,14 @@ const statusLabel: Record<string, string> = {
               {{ member.baptismStatus ? "已受洗" : "未受洗" }}
               <span
                 v-if="member.baptismDate"
-                class="text-sm font-medium text-slate-500 dark:text-slate-400 ml-1"
+                class="text-sm font-medium text-slate-500 dark:text-surface-400 ml-1"
                 >({{ member.baptismDate }})</span
               >
             </div>
           </div>
           <div class="space-y-1">
             <span
-              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-surface-400 uppercase"
               >牧區</span
             >
             <p class="text-base font-bold text-slate-900 dark:text-white">
@@ -277,7 +277,7 @@ const statusLabel: Record<string, string> = {
           </div>
           <div class="space-y-1">
             <span
-              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
+              class="text-xs sm:text-sm font-semibold tracking-wider text-slate-500 dark:text-surface-400 uppercase"
               >小組</span
             >
             <p class="text-base font-bold text-slate-900 dark:text-white">

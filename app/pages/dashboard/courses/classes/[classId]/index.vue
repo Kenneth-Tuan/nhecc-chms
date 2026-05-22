@@ -251,7 +251,7 @@ function confirmConcludeCourse() {
     <template v-else-if="currentClass">
       <!-- Summary Card: 狀態與操作 -->
       <div
-        class="bg-surface-0 dark:bg-surface-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8"
+        class="bg-surface-0 dark:bg-surface-900 border border-slate-200 dark:border-surface-700 rounded-2xl p-8 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8"
       >
         <div>
           <div class="flex items-center gap-3 mb-2">
@@ -264,7 +264,7 @@ function confirmConcludeCourse() {
               >ID: {{ currentClass.id }}</span
             >
           </div>
-          <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100">
+          <h1 class="text-3xl font-bold text-slate-900 dark:text-surface-0">
             {{ currentClass.name }}
           </h1>
           <p
@@ -280,7 +280,7 @@ function confirmConcludeCourse() {
             label="編輯班級"
             icon="pi pi-cog"
             outlined
-            class="text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-700 text-base px-6"
+            class="text-slate-600 dark:text-surface-400 border-slate-300 dark:border-surface-700 text-base px-6"
             @click="showEditDialog = true"
           />
           <Button
@@ -318,10 +318,10 @@ function confirmConcludeCourse() {
         <div class="space-y-8">
           <!-- Info Card -->
           <div
-            class="bg-surface-0 dark:bg-surface-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8 shadow-sm"
+            class="bg-surface-0 dark:bg-surface-900 border border-slate-200 dark:border-surface-700 rounded-xl p-8 shadow-sm"
           >
             <h3
-              class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6 border-b pb-3"
+              class="text-xl font-bold text-slate-900 dark:text-surface-0 mb-6 border-b pb-3"
             >
               班級概況
             </h3>
@@ -329,7 +329,7 @@ function confirmConcludeCourse() {
               <div class="flex justify-between items-center">
                 <span class="text-slate-500 text-base">授課老師</span>
                 <span
-                  class="font-bold dark:font-bold text-slate-700 dark:text-slate-300 text-base"
+                  class="font-bold dark:font-bold text-slate-700 dark:text-surface-200 text-base"
                 >
                   {{
                     currentClass.teachers.length > 0
@@ -341,7 +341,7 @@ function confirmConcludeCourse() {
               <div class="flex justify-between items-center">
                 <span class="text-slate-500 text-base">上課地點</span>
                 <span
-                  class="font-bold dark:font-bold text-slate-700 dark:text-slate-300 text-base"
+                  class="font-bold dark:font-bold text-slate-700 dark:text-surface-200 text-base"
                   >{{ currentClass.location }}</span
                 >
               </div>
@@ -364,7 +364,7 @@ function confirmConcludeCourse() {
               >
                 <span class="text-slate-500 text-base">時間備註</span>
                 <span
-                  class="font-bold dark:font-bold text-slate-700 dark:text-slate-300 text-sm text-right max-w-[150px]"
+                  class="font-bold dark:font-bold text-slate-700 dark:text-surface-200 text-sm text-right max-w-[150px]"
                 >
                   {{ currentClass.scheduleDescription }}
                 </span>
@@ -372,7 +372,7 @@ function confirmConcludeCourse() {
               <div class="flex justify-between items-center">
                 <span class="text-slate-500 text-base">建立日期</span>
                 <span
-                  class="font-bold dark:font-bold text-slate-700 dark:text-slate-300 text-base"
+                  class="font-bold dark:font-bold text-slate-700 dark:text-surface-200 text-base"
                   >{{
                     new Date(currentClass.createdAt).toLocaleDateString("zh-TW")
                   }}</span
@@ -383,10 +383,10 @@ function confirmConcludeCourse() {
 
           <!-- Schedule Card -->
           <div
-            class="bg-surface-0 dark:bg-surface-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8 shadow-sm"
+            class="bg-surface-0 dark:bg-surface-900 border border-slate-200 dark:border-surface-700 rounded-xl p-8 shadow-sm"
           >
             <div class="flex justify-between items-center border-b pb-3 mb-6">
-              <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">
+              <h3 class="text-xl font-bold text-slate-900 dark:text-surface-0">
                 課程表 ({{ currentClass.sessions.length }} 堂)
               </h3>
             </div>
@@ -395,16 +395,16 @@ function confirmConcludeCourse() {
               <div
                 v-for="(session, idx) in currentClass.sessions"
                 :key="session.sessionId"
-                class="flex gap-4 items-start p-4 bg-slate-50 dark:bg-slate-800 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                class="flex gap-4 items-start p-4 bg-slate-50 dark:bg-surface-800 rounded-xl hover:bg-slate-100 dark:hover:bg-surface-700 transition-colors"
               >
                 <div
-                  class="bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold px-4 py-1 rounded text-base mt-1"
+                  class="bg-slate-200 dark:bg-surface-800 text-slate-700 dark:text-surface-200 font-bold px-4 py-1 rounded text-base mt-1"
                 >
                   {{ idx + 1 }}
                 </div>
                 <div>
                   <div
-                    class="font-bold dark:font-bold text-slate-900 dark:text-slate-100 text-base leading-tight"
+                    class="font-bold dark:font-bold text-slate-900 dark:text-surface-0 text-base leading-tight"
                   >
                     {{
                       new Date(session.startTime).toLocaleDateString("zh-TW", {

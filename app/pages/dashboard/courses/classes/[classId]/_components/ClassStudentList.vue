@@ -55,11 +55,11 @@ function getEnrollmentStatusSeverity(status: CourseEnrollmentStatus): TagSeverit
 
 <template>
   <div
-    class="bg-surface-0 dark:bg-surface-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-sm"
+    class="bg-surface-0 dark:bg-surface-900 border border-slate-200 dark:border-surface-700 rounded-2xl p-8 shadow-sm"
   >
     <div class="flex justify-between items-center mb-8 pb-4 border-b">
       <h3
-        class="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-3"
+        class="text-xl font-bold text-slate-900 dark:text-surface-0 flex items-center gap-3"
       >
         <i class="pi pi-users text-blue-600 text-2xl"></i>
         學生名單 ({{ students.length }})
@@ -69,7 +69,7 @@ function getEnrollmentStatusSeverity(status: CourseEnrollmentStatus): TagSeverit
         label="指派學生"
         icon="pi pi-user-plus"
         outlined
-        class="text-base px-6 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-700"
+        class="text-base px-6 text-slate-600 dark:text-surface-400 border-slate-300 dark:border-surface-700"
       />
     </div>
 

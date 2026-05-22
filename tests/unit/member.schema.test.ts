@@ -7,6 +7,7 @@ import {
   createMemberSchema,
   updateMemberSchema,
   softDeleteSchema,
+  memberFiltersSchema,
 } from '~/schemas/member.schema';
 
 describe('createMemberSchema', () => {
@@ -158,6 +159,29 @@ describe('updateMemberSchema', () => {
     const result = updateMemberSchema.safeParse({
       email: 'invalid',
     });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('memberFiltersSchema', () => {
+  it('should accept pageSize 0 for unpaginated list', () => {
+    const result = memberFiltersSchema.safeParse({
+      pageSize: '0',
+      zoneId: 'zone-1',
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.pageSize).toBe(0);
+    }
+  });
+
+  it('should reject pageSize above 100', () => {
+    const result = memberFiltersSchema.safeParse({ pageSize: 101 });
+    expect(result.success).toBe(false);
+  });
+
+  it('should reject negative pageSize', () => {
+    const result = memberFiltersSchema.safeParse({ pageSize: -1 });
     expect(result.success).toBe(false);
   });
 });

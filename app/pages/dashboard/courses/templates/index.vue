@@ -144,7 +144,7 @@ onMounted(() => {
 
     <!-- Table: 卡片樣式包裹 -->
     <div
-      class="bg-surface-0 dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
+      class="bg-surface-0 dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 shadow-sm overflow-hidden"
     >
       <TemplateTable
         :templates="templates"

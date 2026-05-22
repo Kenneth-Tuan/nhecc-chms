@@ -91,7 +91,7 @@ function handleClose() {
     <div class="space-y-4 pt-2">
       <div>
         <label
-          class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+          class="block text-sm font-medium text-slate-700 dark:text-surface-200 mb-1"
         >
           小組名稱 <span class="text-red-500">*</span>
         </label>
@@ -103,7 +103,7 @@ function handleClose() {
       </div>
       <div>
         <label
-          class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+          class="block text-sm font-medium text-slate-700 dark:text-surface-200 mb-1"
         >
           小組長
         </label>
