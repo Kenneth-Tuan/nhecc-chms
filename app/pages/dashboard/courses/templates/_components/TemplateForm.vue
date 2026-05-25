@@ -150,7 +150,7 @@ function removeAttachment(index: number): void {
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <!-- 課程名稱 -->
       <div class="flex flex-col gap-2">
-        <label for="name" class="font-bold text-slate-700 text-base">課程名稱 *</label>
+        <label for="name" class="font-bold text-slate-700 dark:text-surface-200 text-base">課程名稱 *</label>
         <InputText
           id="name"
           v-model.trim="name"
@@ -161,9 +161,9 @@ function removeAttachment(index: number): void {
 
       <!-- 課程代號 -->
       <div class="flex flex-col gap-2">
-        <label for="code" class="font-bold text-slate-700 text-base">
+        <label for="code" class="font-bold text-slate-700 dark:text-surface-200 text-base">
           課程代號 *
-          <span v-if="codeDisabled" class="text-base text-orange-500 ml-2 font-normal">
+          <span v-if="codeDisabled" class="text-base text-orange-500 dark:text-orange-400 ml-2 font-normal">
             (已有關聯班級，不可修改)
           </span>
         </label>
@@ -179,7 +179,7 @@ function removeAttachment(index: number): void {
 
       <!-- 課程分類 -->
       <div class="flex flex-col gap-2">
-        <label for="categoryIds" class="font-bold text-slate-700 text-base">課程分類</label>
+        <label for="categoryIds" class="font-bold text-slate-700 dark:text-surface-200 text-base">課程分類</label>
         <MultiSelect
           id="categoryIds"
           v-model="categoryIds"
@@ -194,7 +194,7 @@ function removeAttachment(index: number): void {
 
       <!-- 授課方式 -->
       <div class="flex flex-col gap-2">
-        <label for="format" class="font-bold text-slate-700 text-base">授課方式</label>
+        <label for="format" class="font-bold text-slate-700 dark:text-surface-200 text-base">授課方式</label>
         <Select
           id="format"
           v-model="format"
@@ -209,13 +209,13 @@ function removeAttachment(index: number): void {
 
       <!-- 擋修條件 -->
       <div class="flex flex-col gap-2 md:col-span-2">
-        <label class="font-bold text-slate-700 text-base">擋修條件 (需先修完以下模板)</label>
+        <label class="font-bold text-slate-700 dark:text-surface-200 text-base">擋修條件 (需先修完以下模板)</label>
         <PrerequisiteSelect v-model="prerequisites" :exclude-id="template?.id" />
       </div>
 
       <!-- 預計時間 -->
       <div class="flex flex-col gap-2">
-        <label class="font-bold text-slate-700 text-base">預計花費時間</label>
+        <label class="font-bold text-slate-700 dark:text-surface-200 text-base">預計花費時間</label>
         <div class="flex gap-3">
           <Select
             v-model="durationType"
@@ -248,7 +248,7 @@ function removeAttachment(index: number): void {
 
       <!-- 開課頻率 -->
       <div class="flex flex-col gap-2">
-        <label for="frequency" class="font-bold text-slate-700 text-base">開課頻率</label>
+        <label for="frequency" class="font-bold text-slate-700 dark:text-surface-200 text-base">開課頻率</label>
         <Select
           id="frequency"
           v-model="frequency"
@@ -263,7 +263,7 @@ function removeAttachment(index: number): void {
 
       <!-- 課程教材 -->
       <div class="flex flex-col gap-2 md:col-span-2">
-        <label class="font-bold text-slate-700 text-base">課程教材</label>
+        <label class="font-bold text-slate-700 dark:text-surface-200 text-base">課程教材</label>
         <FileUpload
           mode="basic"
           multiple
@@ -277,13 +277,13 @@ function removeAttachment(index: number): void {
           <div
             v-for="(att, idx) in attachments"
             :key="idx"
-            class="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl"
+            class="flex items-center justify-between p-4 bg-slate-50 dark:bg-surface-900 border border-slate-200 dark:border-surface-700 rounded-xl"
           >
             <div class="flex items-center gap-3">
-              <i class="pi pi-file text-slate-500 text-lg" />
+              <i class="pi pi-file text-slate-500 dark:text-surface-400 text-lg" />
               <div class="flex flex-col">
-                <span class="text-base font-bold text-slate-800">{{ att.name }}</span>
-                <span v-if="att.size" class="text-base text-slate-400">
+                <span class="text-base font-bold text-slate-800 dark:text-surface-100">{{ att.name }}</span>
+                <span v-if="att.size" class="text-base text-slate-400 dark:text-surface-400">
                   {{ (att.size / 1024).toFixed(1) }} KB
                 </span>
               </div>
@@ -302,13 +302,13 @@ function removeAttachment(index: number): void {
 
       <!-- 課程大綱 -->
       <div class="flex flex-col gap-2 md:col-span-2">
-        <label class="font-bold text-slate-700 text-base">課程大綱</label>
+        <label class="font-bold text-slate-700 dark:text-surface-200 text-base">課程大綱</label>
         <Editor v-model="syllabus" editor-style="height: 300px" class="text-base" />
       </div>
     </div>
 
     <!-- Actions -->
-    <div class="flex justify-end gap-4 mt-12 pt-8 border-t border-slate-200">
+    <div class="flex justify-end gap-4 mt-12 pt-8 border-t border-slate-200 dark:border-surface-700">
       <Button
         label="取消"
         severity="secondary"
@@ -321,7 +321,7 @@ function removeAttachment(index: number): void {
         :label="isEditMode ? '儲存變更' : '建立課程模板'"
         :loading="isSaving"
         icon="pi pi-check"
-        class="px-10 py-3 shadow-lg text-base font-bold"
+        class="px-10 py-3 shadow-lg dark:shadow-none text-base font-bold"
       />
     </div>
   </form>

@@ -82,11 +82,7 @@ function handleCancel(): void {
 <template>
   <BasePageContainer>
     <!-- Header -->
-    <BasePageHeader
-      title="編輯課程模板"
-      description="修改課程的基本資訊、擋修條件與相關附件"
-      back-to="/dashboard/courses/templates"
-    />
+    <BasePageHeader title="編輯課程模板" description="修改課程的基本資訊、擋修條件與相關附件" back-to="/dashboard/courses/templates" />
 
     <!-- Loading -->
     <div v-if="isLoading" class="flex justify-center py-12">
@@ -94,16 +90,9 @@ function handleCancel(): void {
     </div>
 
     <!-- Form -->
-    <div
-      v-else-if="template"
-      class="bg-surface-0 dark:bg-surface-900 border border-slate-200 dark:border-surface-700 rounded-2xl p-6 md:p-8 shadow-sm"
-    >
-      <TemplateForm
-        :template="template"
-        :is-saving="isSaving"
-        @submit="handleSubmit"
-        @cancel="handleCancel"
-      />
+    <div v-else-if="template"
+      class="bg-surface-0 dark:bg-surface-900 border border-slate-200 dark:border-surface-700 rounded-2xl p-6 md:p-8 shadow-sm">
+      <TemplateForm :template="template" :is-saving="isSaving" @submit="handleSubmit" @cancel="handleCancel" />
     </div>
   </BasePageContainer>
 </template>
