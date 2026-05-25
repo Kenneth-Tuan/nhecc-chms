@@ -165,6 +165,7 @@ export default defineNuxtConfig({
     lineChannelId: process.env.NUXT_LINE_CHANNEL_ID,
     lineChannelSecret: process.env.NUXT_LINE_CHANNEL_SECRET,
     firebaseAdminCredential: process.env.NUXT_FIREBASE_ADMIN_CREDENTIAL,
+    cronSecret: process.env.NUXT_CRON_SECRET,
 
     public: {
       liffId: process.env.NUXT_LINE_LIFF_ID,
