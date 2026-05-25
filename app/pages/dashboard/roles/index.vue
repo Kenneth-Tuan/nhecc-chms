@@ -4,6 +4,8 @@
  */
 import type { Role } from "~/types/role";
 import InvitationLinkDialog from "./_components/InvitationLinkDialog.vue";
+import BasePageContainer from "@/pages/dashboard/_components/BasePageContainer.vue";
+import BasePageHeader from "@/pages/dashboard/_components/BasePageHeader.vue";
 
 definePageMeta({
   layout: "dashboard",
@@ -101,41 +103,24 @@ function openInviteDialog(role: Role): void {
 </script>
 
 <template>
-  <div class="contents">
+  <BasePageContainer>
     <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
-      <div>
-        <h1 class="text-2xl font-bold">角色管理</h1>
-        <p class="text-sm text-slate-500 mt-1">管理系統角色與權限設定</p>
-      </div>
-      <Button
-        v-if="auth.can('manage', 'System')"
-        label="新增角色"
-        icon="pi pi-plus"
-        @click="router.push('/dashboard/roles/create')"
-      />
-    </div>
+    <BasePageHeader title="角色管理" description="管理系統角色與權限設定">
+      <template #actions>
+        <Button v-if="auth.can('manage', 'System')" label="新增角色" icon="pi pi-plus"
+          @click="router.push('/dashboard/roles/create')" />
+      </template>
+    </BasePageHeader>
 
     <!-- Table -->
     <div
-      class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700"
-    >
-      <DataTable
-        :value="roles"
-        :loading="isLoading"
-        stripedRows
-        class="!border-none"
-      >
+      class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 overflow-hidden">
+      <DataTable :value="roles" :loading="isLoading" stripedRows class="!border-none">
         <Column field="name" header="角色名稱">
           <template #body="{ data }">
             <div class="flex items-center gap-2">
               <span class="font-semibold">{{ data.name }}</span>
-              <Tag
-                v-if="data.isSystem"
-                value="系統"
-                severity="secondary"
-                class="!text-xs"
-              />
+              <Tag v-if="data.isSystem" value="系統" severity="secondary" class="!text-xs" />
             </div>
           </template>
         </Column>
@@ -150,11 +135,8 @@ function openInviteDialog(role: Role): void {
 
         <Column field="scope" header="資料範圍">
           <template #body="{ data }">
-            <Tag
-              :value="scopeLabel[data.scope] || data.scope"
-              :severity="(scopeSeverity[data.scope] as any) || 'info'"
-              class="!text-xs"
-            />
+            <Tag :value="scopeLabel[data.scope] || data.scope" :severity="(scopeSeverity[data.scope] as any) || 'info'"
+              class="!text-xs" />
           </template>
         </Column>
 
@@ -169,31 +151,12 @@ function openInviteDialog(role: Role): void {
         <Column header="操作">
           <template #body="{ data }">
             <div class="flex items-center gap-1">
-              <Button
-                icon="pi pi-pencil"
-                text
-                rounded
-                size="small"
-                @click="router.push(`/dashboard/roles/edit/${data.id}`)"
-              />
-              <Button
-                icon="pi pi-link"
-                text
-                rounded
-                size="small"
-                severity="info"
-                v-tooltip.top="'產生邀請連結'"
-                @click="openInviteDialog(data)"
-              />
-              <Button
-                v-if="!data.isSystem"
-                icon="pi pi-trash"
-                text
-                rounded
-                size="small"
-                severity="danger"
-                @click="deleteRole(data)"
-              />
+              <Button icon="pi pi-pencil" text rounded size="small"
+                @click="router.push(`/dashboard/roles/edit/${data.id}`)" />
+              <Button icon="pi pi-link" text rounded size="small" severity="info" v-tooltip.top="'產生邀請連結'"
+                @click="openInviteDialog(data)" />
+              <Button v-if="!data.isSystem" icon="pi pi-trash" text rounded size="small" severity="danger"
+                @click="deleteRole(data)" />
             </div>
           </template>
         </Column>
@@ -208,10 +171,6 @@ function openInviteDialog(role: Role): void {
     </div>
 
     <!-- Invitation Dialog -->
-    <InvitationLinkDialog
-      v-model:visible="showInviteDialog"
-      :role-id="inviteRoleId"
-      :role-name="inviteRoleName"
-    />
-  </div>
+    <InvitationLinkDialog v-model:visible="showInviteDialog" :role-id="inviteRoleId" :role-name="inviteRoleName" />
+  </BasePageContainer>
 </template>

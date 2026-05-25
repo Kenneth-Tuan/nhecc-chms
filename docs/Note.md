@@ -79,3 +79,20 @@
    https://deepwiki.com/vbenjs/vue-vben-admin
    https://doc.vben.pro/
    https://github.com/Kenneth-Tuan/vue-vben-admin
+
+# casl 跟 rbac 的功能算是重複了嗎？
+
+**不重複，職責完全不同。** 它們是互補的兩層：
+
+| | [casl/ability.ts](file:///Users/kennethtuan/projects/nhecc-chms/app/utils/casl/ability.ts) | [rbac/permissions.ts](file:///Users/kennethtuan/projects/nhecc-chms/app/utils/rbac/permissions.ts) |
+|---|---|---|
+| **本質** | **Runtime 權限引擎** — 將 `UserContext` 轉成 CASL `Ability` 實例，用於執行時期的 `can(action, subject)` 判斷 | **靜態常數 & UI 輔助** — 權限 key 列表、中文 label、分組、scope 選項等 metadata |
+| **消費者** | Server middleware (`02.rbac.ts`)、Service 層 (`member.service.ts`, `courseClass.service.ts`)、Client plugin (`casl.ts`)、Auth store | 角色表單 UI (`RoleFormFields.vue`, 角色 CRUD 頁面) |
+| **做的事** | 決定「這個使用者**能不能**做某件事」 | 提供「系統有**哪些權限可以勾選**」給管理介面渲染 |
+
+簡單說：
+
+- `rbac/permissions.ts` = **定義有哪些權限、怎麼顯示**（給管理員設定角色用的 UI 常數）
+- `casl/ability.ts` = **根據使用者實際的權限，建構可查詢的 Ability 物件**（runtime enforcement）
+
+一個是 **config/metadata**，一個是 **enforcement engine**，兩者缺一不可。如果硬要合併反而會讓 UI 常數跟 runtime 邏輯耦合在一起，沒好處。

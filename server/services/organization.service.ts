@@ -315,6 +315,33 @@ export class OrganizationService {
   }
 
   /**
+   * 將會友移出小組或退回待分發。
+   */
+  async unassignMember(
+    memberId: string,
+    clearZone: boolean,
+    ctx: UserContext,
+  ): Promise<{ success: boolean; message: string }> {
+    if (!memberId) {
+      throw createError({ statusCode: 400, message: "需提供 memberId" });
+    }
+    const member = await memberRepo.findById(memberId);
+    if (!member) {
+      throw createError({ statusCode: 404, message: "找不到該會友" });
+    }
+
+    if (ctx.scope === "Zone" && member.zoneId !== ctx.zoneId) {
+       throw createError({ statusCode: 403, message: "無權操作非本牧區之會友" });
+    } else if (ctx.scope === "Group" && (!member.groupId || !ctx.managedGroupIds.includes(member.groupId))) {
+       throw createError({ statusCode: 403, message: "無權操作非本小組之會友" });
+    } else if (ctx.scope === "Self") {
+       throw createError({ statusCode: 403, message: "無權操作" });
+    }
+
+    return orgRepo.unassignMember(memberId, clearZone);
+  }
+
+  /**
    * 獲取所有課程。
    */
   async getCourses(): Promise<Course[]> {

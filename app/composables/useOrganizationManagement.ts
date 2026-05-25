@@ -28,64 +28,8 @@ interface GroupMember {
   createdAt: string;
 }
 
-/**
- * 為待分配池建立 PrimeVue TreeNode[]（將清單轉換為可拖動的小節點）。
- */
-function buildPendingTreeNodes(members: PendingMember[]): TreeNode[] {
-  return members.map((m) => ({
-    key: m.uuid,
-    label: m.fullName,
-    data: {
-      type: "pending-member",
-      uuid: m.uuid,
-      fullName: m.fullName,
-      gender: m.gender,
-      baptismStatus: m.baptismStatus,
-      createdAt: m.createdAt,
-    },
-    type: "pending-member",
-    leaf: true,
-    draggable: true,
-    droppable: false,
-  }));
-}
-
-/**
- * 為小組成員建立 PrimeVue TreeNode[]（供拖拉移動小組使用）。
- */
-function buildGroupMemberTreeNodes(members: GroupMember[]): TreeNode[] {
-  return members.map((m) => ({
-    key: m.uuid,
-    label: m.fullName,
-    data: {
-      type: "group-member",
-      id: m.uuid,
-      fullName: m.fullName,
-      gender: m.gender,
-      mobile: m.mobile,
-      roleLabel: m.roleLabel,
-      baptismStatus: m.baptismStatus,
-      status: m.status,
-      createdAt: m.createdAt,
-    },
-    type: "group-member",
-    leaf: true,
-    draggable: true,
-    droppable: false,
-  }));
-}
-
 export function useOrganizationManagement() {
-
-  const pendingTreeNodes = ref<TreeNode[]>([]);
   const pendingMembers = ref<PendingMember[]>([]);
-  const selectedGroupMembers = ref<GroupMember[]>([]);
-  const groupMemberTreeNodes = ref<TreeNode[]>([]);
-  const selectedGroup = ref<{
-    id: string;
-    name: string;
-    zoneName: string;
-  } | null>(null);
   const expandedKeys = ref<Record<string, boolean>>({});
   const isLoadingTree = ref(false);
   const isLoadingPending = ref(false);
@@ -146,36 +90,11 @@ export function useOrganizationManagement() {
         "/api/organization/pending-members",
       );
       pendingMembers.value = data;
-      pendingTreeNodes.value = buildPendingTreeNodes(data);
+
     } catch (error) {
       console.error("Failed to load pending members:", error);
     } finally {
       isLoadingPending.value = false;
-    }
-  }
-
-  /** 載入所選小組的成員清單 */
-  async function loadGroupMembers(
-    groupId: string,
-    groupName: string,
-    zoneName: string,
-  ): Promise<void> {
-    isLoadingMembers.value = true;
-    selectedGroup.value = { id: groupId, name: groupName, zoneName };
-    try {
-      selectedGroupMembers.value = await $fetch<GroupMember[]>(
-        "/api/organization/group-members",
-        {
-          params: { groupId },
-        },
-      );
-      groupMemberTreeNodes.value = buildGroupMemberTreeNodes(
-        selectedGroupMembers.value,
-      );
-    } catch (error) {
-      console.error("Failed to load group members:", error);
-    } finally {
-      isLoadingMembers.value = false;
     }
   }
 
@@ -196,23 +115,39 @@ export function useOrganizationManagement() {
 
       // 指派後重新整理資料
       await Promise.all([loadStructure(), loadPendingMembers()]);
-
-      // 若當前正選取目標小組，則重新整理該小組的成員清單
-      const currentGroup = selectedGroup.value;
-      if (currentGroup && currentGroup.id === groupId) {
-        await loadGroupMembers(
-          groupId,
-          currentGroup.name,
-          currentGroup.zoneName,
-        );
-      }
-
       return result;
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "分配失敗";
       return { success: false, message };
     } finally {
       isAssigning.value = false;
+    }
+  }
+
+  /** 將會友移出小組或退回待分發 */
+  async function unassignMember(
+    memberId: string,
+    clearZone: boolean = false,
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      const result = await $fetch<{ success: boolean; message: string }>(
+        "/api/organization/unassign-member",
+        {
+          method: "POST",
+          body: { memberId, clearZone },
+        },
+      );
+
+      // 重新整理資料
+      await Promise.all([loadStructure(), loadPendingMembers()]);
+      if (activeZoneId.value) {
+        await loadMembersByZoneId(activeZoneId.value);
+      }
+
+      return result;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "操作失敗";
+      return { success: false, message };
     }
   }
 
@@ -313,11 +248,7 @@ export function useOrganizationManagement() {
         },
       );
       await loadStructure();
-      if (selectedGroup.value?.id === groupId) {
-        selectedGroup.value = null;
-        selectedGroupMembers.value = [];
-        groupMemberTreeNodes.value = [];
-      }
+
       return result;
     } catch (error: unknown) {
       return {
@@ -396,7 +327,7 @@ export function useOrganizationManagement() {
         activeTab.value = memberData.zoneId;
         activeZoneId.value = memberData.zoneId;
         await loadMembersByZoneId(memberData.zoneId);
-        
+
         expandedRowGroups.value = [memberData.groupId || "unassigned"];
         scrollToHighlightRow();
       } else {
@@ -412,12 +343,7 @@ export function useOrganizationManagement() {
   }
 
   return {
-
-
     pendingMembers,
-
-    selectedGroup,
-
     isLoadingTree,
     isLoadingPending,
     isLoadingMembers,
@@ -425,8 +351,8 @@ export function useOrganizationManagement() {
     memberCounts,
     loadStructure,
     loadPendingMembers,
-    loadGroupMembers,
     assignMember,
+    unassignMember,
     initialize,
 
     isSavingZone,

@@ -356,6 +356,36 @@ export class OrganizationRepository {
     };
   }
 
+  /**
+   * 將會友移出小組或退回待分發。
+   */
+  async unassignMember(
+    memberId: string,
+    clearZone: boolean = false
+  ): Promise<{ success: boolean; message: string }> {
+    const memberRef = this.db.collection("members").doc(memberId);
+    const memberDoc = await memberRef.get();
+    if (!memberDoc.exists) {
+      return { success: false, message: "找不到該會友" };
+    }
+
+    const updateData: any = {
+      groupId: null,
+      updatedAt: new Date().toISOString(),
+    };
+
+    if (clearZone) {
+      updateData.zoneId = null;
+    }
+
+    await memberRef.update(updateData);
+
+    return {
+      success: true,
+      message: clearZone ? "已將會友退回待分發" : "已將會友移出小組",
+    };
+  }
+
   // ===== 課程相關方法 (Course methods) =====
 
   /**

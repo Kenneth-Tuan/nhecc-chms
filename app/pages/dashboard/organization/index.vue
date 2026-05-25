@@ -39,12 +39,13 @@ const {
   getGroupInfosByGroupId,
   isLoadingTree,
   highlightMemberId,
-  resolveHighlightMember, loadMembersByZoneId
+  resolveHighlightMember, loadMembersByZoneId,
+  unassignMember,
 } = useOrganizationManagement();
 
-// 處理有 zoneId 但 groupId 為 null 的會友，歸類為未分小組
+// 處理有 zoneId 但 groupId 為 null 的會友，歸類為未分小組，並依 groupId 排序以確保 PrimeVue DataTable 分組正確
 const processedMembersByZoneId = computed(() => {
-  return membersByZoneId.value.map((m) => {
+  const mapped = membersByZoneId.value.map((m) => {
     if (!m.groupId) {
       return {
         ...m,
@@ -54,6 +55,9 @@ const processedMembersByZoneId = computed(() => {
     }
     return m;
   });
+
+
+  return mapped
 });
 
 // ── Tab 狀態 ──────────────────────────────────────────────
@@ -119,6 +123,26 @@ async function handleConfirmAssign(
       goToFirstZoneTab();
     }
   }
+}
+
+// ── Unassign Member ────────────────────────────────────────
+async function handleUnassign(memberId: string, clearZone: boolean = false): Promise<void> {
+  confirm.require({
+    message: clearZone ? "確定要將此會友退回待分發嗎？" : "確定要將此會友移出目前小組嗎？",
+    header: clearZone ? "確認退回待分發" : "確認移出小組",
+    icon: "pi pi-exclamation-triangle",
+    rejectProps: { label: "取消", severity: "secondary", outlined: true },
+    acceptProps: { label: "確定", severity: "danger" },
+    accept: async () => {
+      const result = await unassignMember(memberId, clearZone);
+      toast.add({
+        severity: result.success ? "success" : "error",
+        summary: result.success ? "操作成功" : "操作失敗",
+        detail: result.message,
+        life: 3000,
+      });
+    },
+  });
 }
 
 // ── Zone Dialog ────────────────────────────────────────────
@@ -339,7 +363,7 @@ onMounted(async () => {
                     " />
                   <span class="font-medium text-slate-800 dark:text-surface-100">{{
                     data.fullName
-                    }}</span>
+                  }}</span>
                 </div>
               </template>
             </Column>
@@ -402,7 +426,7 @@ onMounted(async () => {
                     currentZone.leaders?.map((l) => l.name).join("、") ||
                     currentZone.leaderName ||
                     "未指派"
-                    }}</strong>
+                  }}</strong>
                 </span>
                 <span class="text-slate-300 dark:text-surface-700 hidden sm:inline">•</span>
                 <span>{{ currentZone.groups.length }} 個小組</span>
@@ -433,7 +457,7 @@ onMounted(async () => {
           class="bg-surface-0 dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 shadow-sm overflow-hidden">
           <DataTable v-model:expandedRowGroups="expandedRowGroups" :value="processedMembersByZoneId"
             tableStyle="min-width: 40rem" expandableRowGroups rowGroupMode="subheader" groupRowsBy="groupId" scrollable
-            class="flex-1" :pt="{
+            sortMode="single" sortField="groupId" :sortOrder="1" class="flex-1" :pt="{
               rowGroupHeaderCell: {
                 class: ['align-middle', '[&>*]:align-middle']
               }
@@ -450,7 +474,7 @@ onMounted(async () => {
                   <div>
                     <span class="font-bold text-slate-800 dark:text-surface-100">{{
                       data.groupName
-                      }}</span>
+                    }}</span>
                     <span class="text-xs text-slate-400 ml-2" v-if="data.groupId !== 'unassigned'">
                       組長：{{
                         getGroupInfosByGroupId(data.groupId)?.groupInfo?.leaders
@@ -497,7 +521,7 @@ onMounted(async () => {
                     " />
                   <span class="font-medium text-slate-800 dark:text-surface-100">{{
                     data.fullName
-                    }}</span>
+                  }}</span>
                 </div>
               </template>
             </Column>
@@ -506,7 +530,7 @@ onMounted(async () => {
               <template #body="{ data }">
                 <span class="text-slate-600 dark:text-surface-300 text-sm">{{
                   data.mobile || "—"
-                  }}</span>
+                }}</span>
               </template>
             </Column>
 
@@ -514,7 +538,7 @@ onMounted(async () => {
               <template #body="{ data }">
                 <span class="text-slate-600 dark:text-surface-300 text-sm truncate">{{
                   data.email || "—"
-                  }}</span>
+                }}</span>
               </template>
             </Column>
 
@@ -531,6 +555,10 @@ onMounted(async () => {
                     @click="router.push(`/dashboard/members/edit/${data.uuid}`)" />
                   <Button icon="pi pi-arrow-right-arrow-left" text rounded size="small" v-tooltip.top="'移動到其他小組'"
                     @click="openAssignDialog({ uuid: data.uuid, fullName: data.fullName })" />
+                  <Button v-if="data.groupId !== 'unassigned'" icon="pi pi-user-minus" text rounded size="small"
+                    severity="warn" v-tooltip.top="'移出小組'" @click="handleUnassign(data.uuid, false)" />
+                  <Button icon="pi pi-sign-out" text rounded size="small" severity="danger" v-tooltip.top="'退回待分發'"
+                    @click="handleUnassign(data.uuid, true)" />
                 </div>
               </template>
             </Column>

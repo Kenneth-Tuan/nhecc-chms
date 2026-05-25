@@ -465,7 +465,7 @@ onMounted(() => {
               @input="clearFieldError('fullName')" />
             <small v-if="fieldErrors.fullName" class="text-red-500">{{
               fieldErrors.fullName
-            }}</small>
+              }}</small>
           </div>
 
           <!-- Gender -->
@@ -479,7 +479,7 @@ onMounted(() => {
             </div>
             <small v-if="fieldErrors.gender" class="text-red-500">{{
               fieldErrors.gender
-            }}</small>
+              }}</small>
           </div>
 
           <!-- Date of Birth -->
@@ -489,7 +489,7 @@ onMounted(() => {
               placeholder="選擇日期" :invalid="!!fieldErrors.dob" />
             <small v-if="fieldErrors.dob" class="text-red-500">{{
               fieldErrors.dob
-            }}</small>
+              }}</small>
           </div>
         </div>
       </div>
@@ -514,10 +514,10 @@ onMounted(() => {
             </div>
             <small v-if="fieldErrors.mobile" class="text-red-500">{{
               fieldErrors.mobile
-            }}</small>
+              }}</small>
             <small v-else-if="mobileError" class="text-red-500">{{
               mobileError
-            }}</small>
+              }}</small>
           </div>
 
           <!-- Email -->
@@ -531,10 +531,10 @@ onMounted(() => {
             </div>
             <small v-if="fieldErrors.email" class="text-red-500">{{
               fieldErrors.email
-            }}</small>
+              }}</small>
             <small v-else-if="emailWarning" class="text-amber-500">{{
               emailWarning
-            }}</small>
+              }}</small>
           </div>
 
           <!-- Line ID -->
@@ -549,7 +549,7 @@ onMounted(() => {
             <Textarea v-model="form.address" rows="2" placeholder="選填" />
             <small v-if="fieldErrors.address" class="text-red-500">{{
               fieldErrors.address
-            }}</small>
+              }}</small>
           </div>
         </div>
       </div>
@@ -567,7 +567,7 @@ onMounted(() => {
             <InputText v-model="form.emergencyContactName" placeholder="緊急聯絡人姓名"
               :invalid="!!fieldErrors.emergencyContactName" @input="clearFieldError('emergencyContactName')" />
             <small v-if="fieldErrors.emergencyContactName" class="text-red-500">{{ fieldErrors.emergencyContactName
-            }}</small>
+              }}</small>
           </div>
 
           <div class="flex flex-col gap-2">
@@ -584,7 +584,7 @@ onMounted(() => {
             <InputMask v-model="form.emergencyContactPhone" mask="9999-999-999" placeholder="09xx-xxx-xxx"
               :invalid="!!fieldErrors.emergencyContactPhone" @input="clearFieldError('emergencyContactPhone')" />
             <small v-if="fieldErrors.emergencyContactPhone" class="text-red-500">{{ fieldErrors.emergencyContactPhone
-            }}</small>
+              }}</small>
           </div>
         </div>
       </div>
@@ -628,7 +628,7 @@ onMounted(() => {
                 placeholder="請先選擇牧區" showClear :disabled="!form.zoneId" :invalid="!!fieldErrors.groupId" />
               <small v-if="fieldErrors.groupId" class="text-red-500">{{
                 fieldErrors.groupId
-              }}</small>
+                }}</small>
             </div>
           </template>
           <template v-else>
