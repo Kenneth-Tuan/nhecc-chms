@@ -21,7 +21,7 @@ withDefaults(
     description: "",
     stats: () => [],
     statsLayout: "metric",
-  }
+  },
 );
 </script>
 
@@ -39,9 +39,7 @@ withDefaults(
       class="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent dark:via-white/40"
     />
 
-    <div
-      class="relative z-10 flex flex-col gap-7 md:flex-row md:items-end md:justify-between"
-    >
+    <div class="relative z-10 flex flex-col gap-7 md:justify-between">
       <div class="min-w-0">
         <slot name="eyebrow">
           <p
@@ -71,7 +69,9 @@ withDefaults(
       <div
         v-if="stats.length > 0"
         class="grid gap-3 md:min-w-80"
-        :class="statsLayout === 'info' ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-3'"
+        :class="
+          statsLayout === 'info' ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-3'
+        "
       >
         <div
           v-for="stat in stats"
@@ -80,7 +80,9 @@ withDefaults(
         >
           <div v-if="stat.value === undefined" class="flex items-center gap-2">
             <i v-if="stat.icon" :class="[stat.icon, stat.iconClass]" />
-            <p class="min-w-0 break-words text-sm font-bold text-slate-500 dark:text-surface-200">
+            <p
+              class="min-w-0 break-words text-sm font-bold text-slate-500 dark:text-surface-200"
+            >
               {{ stat.label }}
             </p>
           </div>

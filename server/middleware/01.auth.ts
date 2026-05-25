@@ -30,6 +30,11 @@ export default defineEventHandler(async (event) => {
     return;
   }
 
+  // 簽到 token 驗證為公開 API（GET /api/courses/attendances/verify）
+  if (event.method === "GET" && url.pathname === "/api/courses/attendances/verify") {
+    return;
+  }
+
   const sessionCookie = getCookie(event, "session");
   if (!sessionCookie) {
     return;

@@ -58,7 +58,10 @@ onMounted(async () => {
       });
     } else {
       const authStore = useAuthStore();
-      if (authStore.isAdmin) {
+      const redirectTo = route.query.redirect as string | undefined
+      if (redirectTo) {
+        navigateTo(redirectTo);
+      } else if (authStore.isAdmin) {
         navigateTo("/dashboard");
       } else {
         navigateTo("/");

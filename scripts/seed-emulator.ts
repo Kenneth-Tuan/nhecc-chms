@@ -29,6 +29,7 @@ import { mockCourseTemplates } from "../server/mockData/courseTemplates.data";
 import { mockCourseClasses } from "../server/mockData/courseClasses.data";
 import { mockCourseEnrollments } from "../server/mockData/courseEnrollments.data";
 import { mockCourseAttendances } from "../server/mockData/courseAttendances.data";
+import { mockAttendanceTokens } from "../server/mockData/attendanceTokens.data";
 
 const TEST_PASSWORD = "Test@12345";
 const PROJECT_ID = "nhecc-chms";
@@ -303,6 +304,21 @@ async function seedCourseClasses() {
       scannedBy: a.scannedBy,
       createdAt: a.createdAt,
       updatedAt: a.updatedAt,
+    })
+  );
+
+  console.log("\n[11] Seeding attendance tokens...");
+  await clearCollection("attendanceTokens");
+  await writeInBatches(
+    "attendanceTokens",
+    mockAttendanceTokens,
+    (t) => t.id,
+    (t) => ({
+      token: t.token,
+      classId: t.classId,
+      sessionId: t.sessionId,
+      createdBy: t.createdBy,
+      createdAt: t.createdAt,
     })
   );
 }

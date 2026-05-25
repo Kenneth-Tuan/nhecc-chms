@@ -10,6 +10,18 @@ import { useAuthStore } from "~/stores/auth.store";
 
 const firebaseAuth = useFirebaseAuth();
 const toast = useToast();
+const route = useRoute();
+
+function redirectAfterLogin(authStore: ReturnType<typeof useAuthStore>) {
+  const redirectTo = route.query.redirect as string | undefined
+  if (redirectTo) {
+    navigateTo(redirectTo)
+  } else if (authStore.isAdmin) {
+    navigateTo("/dashboard")
+  } else {
+    navigateTo("/")
+  }
+}
 
 const formData = ref({
   account: "",
@@ -30,11 +42,7 @@ const handleLogin = async () => {
       formData.value.password
     );
     const authStore = useAuthStore();
-    if (authStore.isAdmin) {
-      navigateTo("/dashboard");
-    } else {
-      navigateTo("/");
-    }
+    redirectAfterLogin(authStore);
   } catch (e: any) {
     const msg =
       e.code === "auth/invalid-credential"
@@ -73,14 +81,11 @@ const handleSocialLogin = async (provider: "google" | "line") => {
         });
       } else {
         const authStore = useAuthStore();
-        if (authStore.isAdmin) {
-          navigateTo("/dashboard");
-        } else {
-          navigateTo("/");
-        }
+        redirectAfterLogin(authStore);
       }
     } else {
-      navigateTo("/liff");
+      const redirect = route.query.redirect as string | undefined
+      navigateTo(redirect ? `/liff?redirect=${encodeURIComponent(redirect)}` : "/liff");
     }
   } catch (e: any) {
     toast.add({

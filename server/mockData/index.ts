@@ -12,3 +12,4 @@ export { mockTestUsers, DEFAULT_TEST_USER_ID } from './auth.data';
 export { mockCourseClasses } from './courseClasses.data';
 export { mockCourseEnrollments } from './courseEnrollments.data';
 export { mockCourseAttendances } from './courseAttendances.data';
+export { mockAttendanceTokens } from './attendanceTokens.data';

@@ -9,10 +9,9 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody(event)
-  if (!body.payload) {
-    throw createError({ statusCode: 400, message: '缺少 QR Code Payload' })
+  if (!body.token) {
+    throw createError({ statusCode: 400, message: '缺少簽到 token' })
   }
 
-  // 學生掃碼簽到
-  return attendanceService.submitAttendance(userContext.userId, body.payload)
+  return attendanceService.submitAttendance(userContext.userId, body.token)
 })

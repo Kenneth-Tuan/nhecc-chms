@@ -17,7 +17,6 @@
     "seed:emulator": "dotenv -e .env.emulator -- tsx --tsconfig tsconfig.seed.json scripts/seed-emulator.ts",
     "dev:emulator:all": "yarn emulator:clean && firebase emulators:exec --import=.firebase-data --export-on-exit=.firebase-data \"yarn seed:emulator && yarn dev:emulator\"",
     "emulator:clean": "for pid in $(lsof -t -i :8080 -i :9099 -i :4000 -i :4400 -i :9199); do kill -9 $pid; done 2>/dev/null || true"
-
   },
   "dependencies": {
     "@casl/ability": "^6.8.0",
@@ -25,6 +24,7 @@
     "@line/liff": "^2.27.3",
     "@pinia/nuxt": "^0.11.3",
     "@primeuix/themes": "^2.0.2",
+    "@types/qrcode": "^1.5.6",
     "@unocss/reset": "^66.6.0",
     "@vueuse/core": "^14.1.0",
     "@vueuse/nuxt": "^14.1.0",
@@ -37,6 +37,7 @@
     "pinia-plugin-persistedstate": "^4.7.1",
     "primeicons": "^7.0.0",
     "primevue": "^4.5.4",
+    "qrcode": "^1.5.4",
     "quill": "^2.0.3",
     "uuid": "^13.0.0",
     "vue": "^3.5.26",

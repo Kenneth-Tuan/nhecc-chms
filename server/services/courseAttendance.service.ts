@@ -1,69 +1,166 @@
+import { randomUUID } from 'crypto'
+import { createError } from 'h3'
 import { CourseAttendanceRepository } from '../repositories/courseAttendance.repository'
 import { CourseClassRepository } from '../repositories/courseClass.repository'
-import { createError } from 'h3'
-import type { CourseAttendance } from '~/types/course-attendance'
+import type { AttendanceToken, AttendanceStatus, CourseAttendance } from '~/types/course-attendance'
 
 const attendanceRepo = new CourseAttendanceRepository()
 const classRepo = new CourseClassRepository()
 
 export class CourseAttendanceService {
-  
+
   /**
-   * 產生簽到 QR Code 內容 (Payload)
-   * 實務上應該要使用 JWT 並加上過期時間，這裡暫時使用 Base64 編碼的 JSON
+   * 產生或取回該 session 的簽到 token，回傳完整 URL
    */
-  async generateAttendanceQrCode(classId: string, sessionId: string, teacherId: string): Promise<string> {
+  async generateAttendanceQrCode(
+    classId: string,
+    sessionId: string,
+    teacherId: string,
+    origin: string,
+  ): Promise<{ token: string; url: string }> {
     const targetClass = await classRepo.findById(classId)
     if (!targetClass) {
       throw createError({ statusCode: 404, message: '找不到指定的班級' })
     }
 
-    if (!targetClass.teacherIds.includes(teacherId)) {
+    const canManage =
+      targetClass.teacherIds.includes(teacherId) ||
+      // CASL manage (Global scope) — 由 API handler 在 service 外驗，這裡保留教師 check
+      false
+
+    if (!canManage) {
       throw createError({ statusCode: 403, message: '您不是此班級的老師' })
     }
 
-    const payload = {
-      classId,
-      sessionId,
-      exp: Date.now() + 5 * 60 * 1000 // 5 分鐘有效
+    // 若同一 session 已有 token，直接回傳（冪等）
+    const existing = await attendanceRepo.findTokenByClassSession(classId, sessionId)
+    if (existing) {
+      return { token: existing.token, url: `${origin}/attend?token=${existing.token}` }
     }
 
-    return Buffer.from(JSON.stringify(payload)).toString('base64')
+    const token = randomUUID()
+    await attendanceRepo.createToken({
+      token,
+      classId,
+      sessionId,
+      createdBy: teacherId,
+      createdAt: new Date().toISOString(),
+    })
+
+    return { token, url: `${origin}/attend?token=${token}` }
   }
 
   /**
-   * 學生掃碼簽到
+   * 驗證 token，回傳課程摘要（公開，免登入）
    */
-  async submitAttendance(userId: string, qrCodePayload: string): Promise<CourseAttendance> {
-    let payload: any
-    try {
-      const decoded = Buffer.from(qrCodePayload, 'base64').toString('utf-8')
-      payload = JSON.parse(decoded)
-    } catch (e) {
-      throw createError({ statusCode: 400, message: '無效的 QR Code' })
+  async verifyToken(token: string): Promise<{
+    valid: boolean
+    expired: boolean
+    className?: string
+    sessionDate?: string
+    classId?: string
+    sessionId?: string
+  }> {
+    const tokenDoc = await attendanceRepo.findTokenByValue(token)
+    if (!tokenDoc) {
+      return { valid: false, expired: false }
     }
 
-    if (!payload.classId || !payload.sessionId || !payload.exp) {
-      throw createError({ statusCode: 400, message: 'QR Code 格式錯誤' })
+    const targetClass = await classRepo.findById(tokenDoc.classId)
+    if (!targetClass) {
+      return { valid: false, expired: false }
     }
 
-    if (Date.now() > payload.exp) {
-      throw createError({ statusCode: 400, message: 'QR Code 已過期' })
+    const session = targetClass.sessions.find(s => s.sessionId === tokenDoc.sessionId)
+    if (!session) {
+      return { valid: false, expired: false }
     }
 
-    // 檢查是否已簽到
-    const existing = await attendanceRepo.findByUserClassSession(userId, payload.classId, payload.sessionId)
+    const expired = Date.now() > new Date(session.endTime).getTime()
+
+    return {
+      valid: true,
+      expired,
+      className: targetClass.name,
+      sessionDate: session.startTime,
+      classId: tokenDoc.classId,
+      sessionId: tokenDoc.sessionId,
+    }
+  }
+
+  /**
+   * 學生掃碼簽到（token-based）
+   */
+  async submitAttendance(userId: string, token: string): Promise<CourseAttendance> {
+    const tokenDoc = await attendanceRepo.findTokenByValue(token)
+    if (!tokenDoc) {
+      throw createError({ statusCode: 400, message: '無效的簽到 QR Code' })
+    }
+
+    const targetClass = await classRepo.findById(tokenDoc.classId)
+    if (!targetClass) {
+      throw createError({ statusCode: 404, message: '找不到指定的班級' })
+    }
+
+    const session = targetClass.sessions.find(s => s.sessionId === tokenDoc.sessionId)
+    if (!session) {
+      throw createError({ statusCode: 400, message: '找不到對應的課堂' })
+    }
+
+    if (Date.now() > new Date(session.endTime).getTime()) {
+      throw createError({ statusCode: 400, message: '簽到時間已過期' })
+    }
+
+    if (!targetClass.studentIds.includes(userId)) {
+      throw createError({ statusCode: 403, message: '您不是此班級的學員' })
+    }
+
+    const existing = await attendanceRepo.findByUserClassSession(userId, tokenDoc.classId, tokenDoc.sessionId)
     if (existing) {
-      return existing // 已經簽到過，直接回傳
+      return existing
     }
 
     return attendanceRepo.create({
-      classId: payload.classId,
-      sessionId: payload.sessionId,
+      classId: tokenDoc.classId,
+      sessionId: tokenDoc.sessionId,
       userId,
       status: 'PRESENT',
       scannedAt: new Date().toISOString(),
-      scannedBy: null
+      scannedBy: null,
     })
+  }
+
+  /**
+   * 列出班級出席紀錄（教師/管理員）
+   */
+  async listAttendance(classId: string, sessionId?: string): Promise<CourseAttendance[]> {
+    if (sessionId) {
+      return attendanceRepo.findByClassAndSession(classId, sessionId)
+    }
+    return attendanceRepo.findByClass(classId)
+  }
+
+  /**
+   * 取得學生自己在某班的出席紀錄
+   */
+  async listMyAttendance(userId: string, classId: string): Promise<CourseAttendance[]> {
+    return attendanceRepo.findByUserAndClass(userId, classId)
+  }
+
+  /**
+   * 修改出席狀態（教師/管理員）
+   */
+  async updateAttendanceStatus(
+    id: string,
+    status: AttendanceStatus,
+    updatedBy: string,
+  ): Promise<CourseAttendance> {
+    const attendance = await attendanceRepo.findById(id)
+    if (!attendance) {
+      throw createError({ statusCode: 404, message: '找不到出席紀錄' })
+    }
+
+    const updated = await attendanceRepo.update(id, { status, scannedBy: updatedBy })
+    return updated!
   }
 }

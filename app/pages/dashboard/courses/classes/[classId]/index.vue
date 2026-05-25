@@ -305,12 +305,17 @@ function confirmConcludeCourse() {
 
       <!-- Main Content Grid -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-12">
-        <!-- Left Col: Students -->
-        <div class="lg:col-span-2">
+        <!-- Left Col: Students + Attendance -->
+        <div class="lg:col-span-2 space-y-8">
           <ClassStudentList
             :classId="currentClass.id"
             :students="students"
             :can-manage="canAssignStudents"
+          />
+          <CourseClassAttendancePanel
+            :class-id="currentClass.id"
+            :sessions="currentClass.sessions"
+            :can-edit="canManageCourseClass"
           />
         </div>
 

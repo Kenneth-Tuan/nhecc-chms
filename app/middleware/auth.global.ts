@@ -7,6 +7,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (
     to.path === "/login" ||
     to.path === "/liff" ||
+    to.path === "/attend" ||
     to.path.startsWith("/register")
   )
     return;

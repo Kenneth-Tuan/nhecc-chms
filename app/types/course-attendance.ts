@@ -18,3 +18,12 @@ export interface CourseAttendance {
 
 export type CreateCourseAttendancePayload = Omit<CourseAttendance, 'id' | 'createdAt' | 'updatedAt'>
 export type UpdateCourseAttendancePayload = Partial<CreateCourseAttendancePayload>
+
+export interface AttendanceToken {
+  id: string
+  token: string
+  classId: string
+  sessionId: string
+  createdBy: string
+  createdAt: string
+}

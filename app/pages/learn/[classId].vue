@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import LearnHeroBanner from "./_component/LearnHeroBanner.vue";
+import AttendanceQrDialog from "./_component/AttendanceQrDialog.vue";
 import type {
   ClassAttachment,
   ClassSession,
@@ -38,6 +39,10 @@ interface LearnClassDetail {
 
 const route = useRoute();
 const classId = computed(() => route.params.classId as string);
+
+const auth = useAuth();
+const showQrDialog = ref(false);
+const showScanGuideDialog = ref(false);
 
 const { data, pending, error, refresh } = useFetch<{ data: LearnClassDetail }>(
   () => `/api/learn/classes/${classId.value}`
@@ -108,7 +113,8 @@ const actionCards = computed(() => {
         description: "開啟 QR Code、查看出席狀態",
         icon: "pi pi-qrcode",
         tone: "blue",
-        disabled: true,
+        disabled: false,
+        action: () => { showQrDialog.value = true },
       },
       {
         title: "批改作業",
@@ -116,6 +122,7 @@ const actionCards = computed(() => {
         icon: "pi pi-pencil",
         tone: "emerald",
         disabled: true,
+        action: undefined,
       },
       {
         title: "學員名單",
@@ -123,6 +130,7 @@ const actionCards = computed(() => {
         icon: "pi pi-users",
         tone: "amber",
         disabled: true,
+        action: undefined,
       },
     ];
   }
@@ -130,10 +138,11 @@ const actionCards = computed(() => {
   return [
     {
       title: "我要簽到",
-      description: "課堂開始後可進行簽到",
+      description: "請用手機相機掃描教室 QR Code",
       icon: "pi pi-check-circle",
       tone: "blue",
-      disabled: true,
+      disabled: false,
+      action: () => { showScanGuideDialog.value = true },
     },
     {
       title: "繳交作業",
@@ -141,13 +150,15 @@ const actionCards = computed(() => {
       icon: "pi pi-upload",
       tone: "emerald",
       disabled: true,
+      action: undefined,
     },
     {
       title: "課堂教材",
       description: "查看講義、連結與課後資源",
       icon: "pi pi-folder-open",
       tone: "amber",
-        disabled: true,
+      disabled: true,
+      action: undefined,
     },
   ];
 });
@@ -237,6 +248,38 @@ function getActionToneClass(tone: string) {
     </div>
 
     <template v-else>
+      <!-- 教師 QR 簽到 Dialog -->
+      <AttendanceQrDialog
+        v-if="isTeacher && courseClass"
+        v-model:visible="showQrDialog"
+        :class-id="classId"
+        :sessions="courseClass.sessions"
+        :initial-session-id="courseClass.currentSessionId ?? currentOrNextSession?.sessionId"
+      />
+
+      <!-- 學生掃碼指引 Dialog -->
+      <Dialog
+        v-model:visible="showScanGuideDialog"
+        header="如何簽到？"
+        modal
+        :draggable="false"
+        class="w-full max-w-sm"
+      >
+        <div class="flex flex-col items-center gap-5 py-2 text-center">
+          <div class="flex h-20 w-20 items-center justify-center rounded-3xl bg-blue-50 dark:bg-blue-950/40">
+            <i class="pi pi-qrcode text-4xl text-blue-600 dark:text-blue-400" />
+          </div>
+          <div>
+            <p class="text-lg font-black text-slate-950 dark:text-white">掃描教室 QR Code</p>
+            <p class="mt-2 text-sm font-semibold leading-relaxed text-slate-500 dark:text-surface-400">
+              請用手機相機掃描老師投影的 QR Code，<br />
+              系統會自動引導你完成簽到。
+            </p>
+          </div>
+          <Button label="我知道了" class="w-full" @click="showScanGuideDialog = false" />
+        </div>
+      </Dialog>
+
       <LearnHeroBanner
         :title="courseClass.templateName"
         :subtitle="courseClass.name"
@@ -276,6 +319,7 @@ function getActionToneClass(tone: string) {
               ? 'cursor-not-allowed opacity-60'
               : 'hover:-translate-y-1 hover:shadow-xl'
           "
+          @click="action.action?.()"
         >
           <div
             class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl"
@@ -411,6 +455,14 @@ function getActionToneClass(tone: string) {
           </div>
         </article>
       </section>
+
+      <!-- 出席紀錄 -->
+      <CourseClassAttendancePanel
+        :class-id="classId"
+        :sessions="courseClass.sessions"
+        :can-edit="isTeacher"
+        :student-only="!isTeacher ? auth.userContext.value?.userId : undefined"
+      />
 
       <section class="rounded-[1.75rem] border border-slate-100 bg-white p-5 shadow-sm dark:border-surface-700 dark:bg-surface-900 md:p-6">
         <p class="text-sm font-black text-blue-600 dark:text-blue-400">
