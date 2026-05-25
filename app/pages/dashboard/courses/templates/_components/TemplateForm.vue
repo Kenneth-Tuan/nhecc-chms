@@ -26,11 +26,13 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  submit: [payload: any];
+  submit: [payload: any, pendingFiles: File[]];
   cancel: [];
 }>();
 
 const { list: listCategories } = useCourseCategories();
+const toast = useToast();
+const { deleteAttachment } = useCourseAttachmentUpload();
 
 // ── Form state ──
 const name = ref("");
@@ -43,8 +45,11 @@ const durationWeeks = ref<number | undefined>(undefined);
 const durationHours = ref<number | undefined>(undefined);
 const frequency = ref<FrequencyType | undefined>(undefined);
 const attachments = ref<CourseAttachment[]>([]);
+const pendingFiles = ref<File[]>([]);
 const syllabus = ref("");
 const status = ref<"ACTIVE" | "INACTIVE">("ACTIVE");
+
+const isDeletingAttachment = ref(false);
 
 // ── 分類選項 ──
 const categories = ref<CourseCategory[]>([]);
@@ -111,39 +116,104 @@ function handleSubmit(): void {
     attachments: attachments.value,
     syllabus: syllabus.value,
     status: status.value,
-  });
+  }, pendingFiles.value);
 }
 
-function inferAttachmentType(mimeType: string): AttachmentType {
-  if (mimeType.includes("pdf")) return "PDF";
-  if (mimeType.includes("image")) return "IMAGE";
-  if (mimeType.includes("word") || mimeType.includes("officedocument"))
-    return "DOCUMENT";
-  return "LINK"; // 預設
+interface AttachmentItem {
+  id: string
+  name: string
+  size?: number
+  mimeType?: string
+  url: string
+  file?: File
 }
+
+const allAttachments = computed(() => {
+  const items: AttachmentItem[] = attachments.value.map(a => ({
+    id: a.url,
+    name: a.name,
+    size: a.size,
+    mimeType: a.mimeType,
+    url: a.url
+  }))
+  
+  const pendingItems: AttachmentItem[] = pendingFiles.value.map(f => ({
+    id: `pending-${f.name}-${f.size}`,
+    name: f.name,
+    size: f.size,
+    mimeType: f.type,
+    url: '',
+    file: f
+  }))
+  
+  return [...items, ...pendingItems]
+})
 
 // ── 附件上傳 ──
 function onFileUpload(event: any): void {
   const files = event.files as File[];
   for (const file of files) {
-    // TODO: 實際上傳至 Firebase Storage，取得 URL
-    // 目前先建立 placeholder
-    attachments.value.push({
-      name: file.name,
-      url: "", // 待接 Firebase Storage
-      size: file.size,
-      mimeType: file.type,
-      type: inferAttachmentType(file.type),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
+    // 檢查檔案大小是否超過 10MB
+    if (file.size > 10 * 1024 * 1024) {
+      toast.add({
+        severity: "warn",
+        summary: "檔案太大",
+        detail: `檔案 ${file.name} 超過 10MB 限制`,
+        life: 4000
+      })
+      continue
+    }
+    const isDup = pendingFiles.value.some(f => f.name === file.name && f.size === file.size) ||
+                  attachments.value.some(a => a.name === file.name && a.size === file.size)
+    if (!isDup) {
+      pendingFiles.value.push(file)
+    }
   }
 }
 
-function removeAttachment(index: number): void {
-  attachments.value.splice(index, 1);
+async function removeAttachmentItem(item: AttachmentItem): Promise<void> {
+  if (!item.url) {
+    // 本地待上傳檔案，直接移除
+    pendingFiles.value = pendingFiles.value.filter(f => f !== item.file)
+    return
+  }
+
+  // 已上傳檔案
+  if (!props.template?.id) return
+
+  try {
+    isDeletingAttachment.value = true
+    await deleteAttachment(props.template.id, item.url)
+    attachments.value = attachments.value.filter(a => a.url !== item.url)
+    toast.add({
+      severity: 'success',
+      summary: '成功',
+      detail: '附件已刪除',
+      life: 3000,
+    })
+  } catch (err: any) {
+    toast.add({
+      severity: 'error',
+      summary: '刪除失敗',
+      detail: err.message || '刪除附件失敗',
+      life: 4000,
+    })
+  } finally {
+    isDeletingAttachment.value = false
+  }
+}
+
+function previewAttachment(item: AttachmentItem): void {
+  if (item.url) {
+    window.open(item.url, '_blank')
+  } else if (item.file) {
+    const objectUrl = URL.createObjectURL(item.file)
+    window.open(objectUrl, '_blank')
+  }
 }
 </script>
+
+
 
 <template>
   <form @submit.prevent="handleSubmit">
@@ -273,18 +343,25 @@ function removeAttachment(index: number): void {
           custom-upload
           @uploader="onFileUpload"
         />
-        <div v-if="attachments.length > 0" class="flex flex-col gap-3">
+        <div v-if="allAttachments.length > 0" class="flex flex-col gap-3">
           <div
-            v-for="(att, idx) in attachments"
-            :key="idx"
+            v-for="att in allAttachments"
+            :key="att.id"
             class="flex items-center justify-between p-4 bg-slate-50 dark:bg-surface-900 border border-slate-200 dark:border-surface-700 rounded-xl"
           >
-            <div class="flex items-center gap-3">
-              <i class="pi pi-file text-slate-500 dark:text-surface-400 text-lg" />
+            <div
+              class="flex items-center gap-3 cursor-pointer group flex-1 mr-4"
+              title="點擊預覽/下載檔案"
+              @click="previewAttachment(att)"
+            >
+              <i class="pi pi-file text-slate-500 dark:text-surface-400 text-lg group-hover:text-primary-500 dark:group-hover:text-primary-400 transition-colors" />
               <div class="flex flex-col">
-                <span class="text-base font-bold text-slate-800 dark:text-surface-100">{{ att.name }}</span>
+                <span class="text-base font-bold text-slate-800 dark:text-surface-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 group-hover:underline transition-all">
+                  {{ att.name }}
+                </span>
                 <span v-if="att.size" class="text-base text-slate-400 dark:text-surface-400">
                   {{ (att.size / 1024).toFixed(1) }} KB
+                  <span v-if="!att.url" class="ml-2 text-primary-500 dark:text-primary-400 font-normal italic">(待上傳)</span>
                 </span>
               </div>
             </div>
@@ -293,11 +370,15 @@ function removeAttachment(index: number): void {
               text
               rounded
               severity="danger"
-              class="p-2"
-              @click="removeAttachment(idx)"
+              class="p-2 flex-shrink-0"
+              :loading="isDeletingAttachment && att.url !== ''"
+              :disabled="isDeletingAttachment"
+              @click="removeAttachmentItem(att)"
             />
           </div>
         </div>
+
+
       </div>
 
       <!-- 課程大綱 -->

@@ -20,13 +20,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <DataTable
-    :value="templates"
-    :loading="isLoading"
-    striped-rows
-    responsive-layout="scroll"
-    class="text-base"
-  >
+  <DataTable :value="templates" :loading="isLoading" striped-rows responsive-layout="scroll" class="text-base">
     <Column field="code" header="課程代號" sortable>
       <template #body="{ data }">
         <span class="font-mono font-bold text-slate-600">{{ data.code }}</span>
@@ -49,52 +43,24 @@ const emit = defineEmits<{
 
     <Column field="prerequisiteCount" header="擋修條件">
       <template #body="{ data }">
-        <Tag
-          v-if="data.prerequisiteCount > 0"
-          :value="`${data.prerequisiteCount} 項`"
-          severity="info"
-          class="text-base px-3 py-1"
-        />
+        <Tag v-if="data.prerequisiteCount > 0" :value="`${data.prerequisiteCount} 項`" severity="info"
+          class="text-base px-3 py-1" />
         <span v-else class="text-slate-400">無</span>
       </template>
     </Column>
 
     <Column field="status" header="狀態">
       <template #body="{ data }">
-        <ToggleSwitch
-          :model-value="data.status === 'ACTIVE'"
-          @update:model-value="emit('toggleStatus', data)"
-        />
+        <ToggleSwitch :model-value="data.status === 'ACTIVE'" @update:model-value="emit('toggleStatus', data)" />
       </template>
     </Column>
 
     <Column header="操作">
       <template #body="{ data }">
         <div class="flex gap-3">
-          <Button
-            icon="pi pi-calendar-plus"
-            text
-            rounded
-            class="p-2"
-            v-tooltip.top="'建立班級'"
-            @click="emit('createClass', data)"
-          />
-          <Button
-            icon="pi pi-book"
-            text
-            rounded
-            class="p-2"
-            v-tooltip.top="'管理實體班級'"
-            @click="emit('viewClasses', data)"
-          />
-          <Button
-            icon="pi pi-pencil"
-            text
-            rounded
-            class="p-2"
-            v-tooltip.top="'編輯模板'"
-            @click="emit('edit', data)"
-          />
+          <Button icon="pi pi-calendar-plus" text rounded class="p-2" v-tooltip.top="'建立班級'"
+            @click="emit('createClass', data)" />
+          <Button icon="pi pi-pencil" text rounded class="p-2" v-tooltip.top="'編輯模板'" @click="emit('edit', data)" />
         </div>
       </template>
     </Column>

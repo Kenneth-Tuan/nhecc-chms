@@ -1,0 +1,11 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // 所有操作皆經由後端 Admin SDK，前端不直接存取
+    // Admin SDK 繞過規則；此處封鎖一般 Client SDK
+    match /{allPaths=**} {
+      allow read: if false;
+      allow write: if false;
+    }
+  }
+}

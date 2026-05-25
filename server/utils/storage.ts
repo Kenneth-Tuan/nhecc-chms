@@ -187,3 +187,82 @@ export async function getAvatarStorageStats(): Promise<{
     };
   }
 }
+
+/**
+ * 上傳課程附件檔案並回傳公共 URL
+ */
+export async function uploadCourseAttachment(
+  fileBuffer: Buffer,
+  mimeType: string,
+  templateId: string,
+  filename: string,
+): Promise<string> {
+  const storage = getStorage();
+  const bucket = storage.bucket();
+
+  const timestamp = Date.now();
+  const safeFilename = filename.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+  const filePath = `courses/templates/${templateId}/attachments/${timestamp}_${safeFilename}`;
+
+  const file = bucket.file(filePath);
+  const token = crypto.randomUUID();
+
+  await file.save(fileBuffer, {
+    metadata: {
+      contentType: mimeType,
+      metadata: {
+        firebaseStorageDownloadTokens: token,
+      },
+    },
+  });
+
+  const bucketName = bucket.name;
+  const encodedPath = encodeURIComponent(filePath);
+  return `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodedPath}?alt=media&token=${token}`;
+}
+
+/**
+ * 根據 URL 刪除單一課程附件檔案。
+ */
+export async function deleteCourseAttachment(fileUrl: string): Promise<void> {
+  if (!fileUrl) return;
+
+  try {
+    const filePath = getPathFromUrl(fileUrl);
+    if (!filePath || filePath === fileUrl) return;
+
+    const storage = getStorage();
+    const bucket = storage.bucket();
+    const file = bucket.file(filePath);
+    await file.delete({ ignoreNotFound: true });
+  } catch (error) {
+    console.error("刪除課程附件檔案失敗:", error);
+  }
+}
+
+/**
+ * 刪除特定模板的所有課程附件檔案。
+ */
+export async function deleteAllCourseAttachments(
+  templateId: string,
+): Promise<number> {
+  let deletedCount = 0;
+
+  try {
+    const storage = getStorage();
+    const bucket = storage.bucket();
+    const prefix = `courses/templates/${templateId}/attachments/`;
+
+    const [files] = await bucket.getFiles({ prefix });
+
+    for (const file of files) {
+      await file.delete({ ignoreNotFound: true });
+      deletedCount++;
+    }
+  } catch (error) {
+    console.error(`刪除課程模板 ${templateId} 所有的附件檔案失敗:`, error);
+  }
+
+  return deletedCount;
+}
+

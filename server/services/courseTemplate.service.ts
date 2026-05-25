@@ -8,9 +8,13 @@ import type {
   CourseTemplateFilters,
   CreateCourseTemplatePayload,
   UpdateCourseTemplatePayload,
+  CourseAttachment,
+  AttachmentType,
 } from '~/types/course'
 import { CourseTemplateRepository } from '../repositories/courseTemplate.repository'
 import { createError } from 'h3'
+import { uploadCourseAttachment, deleteCourseAttachment } from '../utils/storage'
+
 
 const templateRepo = new CourseTemplateRepository()
 
@@ -146,4 +150,88 @@ export class CourseTemplateService {
 
     return { passed: failed.length === 0, failedPrerequisites: failed }
   }
+
+  /**
+   * 新增附件到課程模板。
+   */
+  async addAttachment(
+    id: string,
+    fileBuffer: Buffer,
+    mimeType: string,
+    filename: string,
+  ): Promise<CourseAttachment> {
+    const existing = await templateRepo.findById(id)
+    if (!existing) {
+      throw createError({ statusCode: 404, message: '找不到此課程模板' })
+    }
+
+    // 檔案類型轉為 AttachmentType
+    let type: AttachmentType = 'DOCUMENT'
+    if (mimeType.startsWith('image/')) {
+      type = 'IMAGE'
+    } else if (mimeType === 'application/pdf') {
+      type = 'PDF'
+    }
+
+    const fileUrl = await uploadCourseAttachment(
+      fileBuffer,
+      mimeType,
+      id,
+      filename,
+    )
+
+    const now = new Date().toISOString()
+    const newAttachment: CourseAttachment = {
+      name: filename,
+      url: fileUrl,
+      type,
+      size: fileBuffer.length,
+      mimeType,
+      createdAt: now,
+      updatedAt: now,
+    }
+
+    const currentAttachments = existing.attachments || []
+    const updatedAttachments = [...currentAttachments, newAttachment]
+
+    const updated = await templateRepo.update(id, {
+      attachments: updatedAttachments,
+    })
+
+    if (!updated) {
+      // 嘗試復原 Storage 檔案
+      await deleteCourseAttachment(fileUrl)
+      throw createError({ statusCode: 500, message: '更新課程模板附件失敗' })
+    }
+
+    return newAttachment
+  }
+
+  /**
+   * 從課程模板移除附件。
+   */
+  async removeAttachment(id: string, fileUrl: string): Promise<void> {
+    const existing = await templateRepo.findById(id)
+    if (!existing) {
+      throw createError({ statusCode: 404, message: '找不到此課程模板' })
+    }
+
+    // 1. 刪除 Storage 中的檔案
+    await deleteCourseAttachment(fileUrl)
+
+    // 2. 從 Firestore 移除該附件
+    const currentAttachments = existing.attachments || []
+    const updatedAttachments = currentAttachments.filter(
+      (att) => att.url !== fileUrl,
+    )
+
+    const updated = await templateRepo.update(id, {
+      attachments: updatedAttachments,
+    })
+
+    if (!updated) {
+      throw createError({ statusCode: 500, message: '更新課程模板附件失敗' })
+    }
+  }
 }
+
