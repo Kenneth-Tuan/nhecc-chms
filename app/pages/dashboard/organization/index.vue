@@ -10,10 +10,12 @@ import ZoneDialog from "./_components/ZoneDialog.vue";
 import GroupDialog from "./_components/GroupDialog.vue";
 import BasePageContainer from "@/pages/dashboard/_components/BasePageContainer.vue";
 import BasePageHeader from "@/pages/dashboard/_components/BasePageHeader.vue";
+import type { MemberDetail } from "~/types/member";
 
 definePageMeta({ layout: "dashboard" as const });
 useHead({ title: "組織架構管理 - NHECC ChMS" });
 
+const route = useRoute();
 const router = useRouter();
 const toast = useToast();
 const auth = useAuth();
@@ -33,10 +35,11 @@ const {
   fetchLeaderCandidates,
   organizationStructure,
   activeZoneId,
-  loadMembersByZoneId,
   membersByZoneId,
   getGroupInfosByGroupId,
   isLoadingTree,
+  highlightMemberId,
+  resolveHighlightMember, loadMembersByZoneId
 } = useOrganizationManagement();
 
 // 處理有 zoneId 但 groupId 為 null 的會友，歸類為未分小組
@@ -84,7 +87,10 @@ const currentZone = computed<ZoneWithGroups | null>(
 );
 
 // ── DataTable 展開狀態 ──────────────────────────────────────
-const expandedRowGroups = ref();
+const expandedRowGroups = ref<any[]>([]);
+
+// ── Highlight 目標會友 ──────────────────────────────────────
+const highlightMemberIdFromRoute = route.query.highlightMember as string | undefined;
 
 // ── Assignment Dialog ──────────────────────────────────────
 const showAssignDialog = ref(false);
@@ -248,8 +254,19 @@ const statusLabel: Record<string, string> = {
 // ── Init ───────────────────────────────────────────────────
 onMounted(async () => {
   await initialize();
-  // 預設先停在 pending tab，若無待分發則跳第一個 zone
-  if (pendingMembers.value.length === 0) {
+
+  if (highlightMemberIdFromRoute) {
+    const success = await resolveHighlightMember(
+      highlightMemberIdFromRoute,
+      activeTab,
+      expandedRowGroups,
+      PENDING_TAB
+    );
+
+    if (!success && pendingMembers.value.length === 0) {
+      goToFirstZoneTab();
+    }
+  } else if (pendingMembers.value.length === 0) {
     goToFirstZoneTab();
   }
 });
@@ -268,7 +285,8 @@ onMounted(async () => {
     <div class="flex flex-col gap-4">
       <!-- Tabs -->
       <Tabs :value="activeTab" scrollable @update:value="onTabChange">
-        <TabList class="rounded-xl border border-slate-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 overflow-hidden p-0.5">
+        <TabList
+          class="rounded-xl border border-slate-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 overflow-hidden p-0.5">
           <!-- 待分發 Tab -->
           <Tab :value="PENDING_TAB">
             <div class="flex items-center gap-2">
@@ -300,9 +318,11 @@ onMounted(async () => {
         </div>
 
         <!-- DataTable -->
-        <div v-else class="bg-surface-0 dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 shadow-sm overflow-hidden">
+        <div v-else
+          class="bg-surface-0 dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 shadow-sm overflow-hidden">
           <DataTable :value="pendingMembers" :loading="isLoadingPending" tableStyle="min-width: 36rem" scrollable
-            class="flex-1">
+            class="flex-1"
+            :rowClass="(data: any) => data.uuid === highlightMemberId ? 'bg-blue-50/50 dark:bg-blue-900/20 transition-colors duration-500 highlight-target-row' : ''">
             <template #header>
               <div class="flex items-center gap-2 text-amber-600">
                 <i class="pi pi-info-circle" />
@@ -319,7 +339,7 @@ onMounted(async () => {
                     " />
                   <span class="font-medium text-slate-800 dark:text-surface-100">{{
                     data.fullName
-                  }}</span>
+                    }}</span>
                 </div>
               </template>
             </Column>
@@ -361,8 +381,7 @@ onMounted(async () => {
       <template v-else-if="currentZone">
         <!-- 牧區資訊列 -->
         <div
-          class="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 bg-blue-50/50 dark:bg-surface-800/40 rounded-2xl border border-blue-100 dark:border-surface-700 flex-shrink-0 gap-4"
-        >
+          class="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 bg-blue-50/50 dark:bg-surface-800/40 rounded-2xl border border-blue-100 dark:border-surface-700 flex-shrink-0 gap-4">
           <div class="flex items-start gap-3 sm:gap-4 min-w-0 flex-1">
             <div class="size-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
               <i class="pi pi-folder-open text-xl c-white" />
@@ -376,20 +395,22 @@ onMounted(async () => {
                   共 {{ membersByZoneId.length }} 位會友
                 </Tag>
               </div>
-              <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm sm:text-base text-slate-600 dark:text-surface-300">
+              <div
+                class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm sm:text-base text-slate-600 dark:text-surface-300">
                 <span class="break-all">
                   牧區長：<strong class="text-slate-800 dark:text-surface-100">{{
                     currentZone.leaders?.map((l) => l.name).join("、") ||
                     currentZone.leaderName ||
                     "未指派"
-                  }}</strong>
+                    }}</strong>
                 </span>
                 <span class="text-slate-300 dark:text-surface-700 hidden sm:inline">•</span>
                 <span>{{ currentZone.groups.length }} 個小組</span>
               </div>
             </div>
           </div>
-          <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-start sm:justify-end border-t sm:border-t-0 border-slate-200/60 dark:border-surface-700/60 pt-3 sm:pt-0">
+          <div
+            class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-start sm:justify-end border-t sm:border-t-0 border-slate-200/60 dark:border-surface-700/60 pt-3 sm:pt-0">
             <Button v-if="auth.can('manage', 'Organization')" icon="pi pi-plus" label="新增小組" size="small"
               class="font-bold flex-1 sm:flex-initial" @click="openGroupDialog(currentZone.id)" />
             <div class="flex items-center gap-1 border-l border-slate-200 dark:border-surface-700 pl-2 ml-auto sm:ml-0"
@@ -408,14 +429,16 @@ onMounted(async () => {
         </div>
 
         <!-- DataTable 按小組分組 -->
-        <div v-else class="bg-surface-0 dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 shadow-sm overflow-hidden">
+        <div v-else
+          class="bg-surface-0 dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 shadow-sm overflow-hidden">
           <DataTable v-model:expandedRowGroups="expandedRowGroups" :value="processedMembersByZoneId"
             tableStyle="min-width: 40rem" expandableRowGroups rowGroupMode="subheader" groupRowsBy="groupId" scrollable
             class="flex-1" :pt="{
               rowGroupHeaderCell: {
                 class: ['align-middle', '[&>*]:align-middle']
               }
-            }">
+            }"
+            :rowClass="(data: any) => data.uuid === highlightMemberId ? 'bg-blue-50/50 dark:bg-blue-900/20 transition-colors duration-500 highlight-target-row' : ''">
             <!-- 小組 Group Header -->
             <template #groupheader="{ data }">
               <div class="inline-flex items-center justify-between w-[calc(100%-2.5rem)] py-1 gap-4 align-middle">
@@ -427,7 +450,7 @@ onMounted(async () => {
                   <div>
                     <span class="font-bold text-slate-800 dark:text-surface-100">{{
                       data.groupName
-                    }}</span>
+                      }}</span>
                     <span class="text-xs text-slate-400 ml-2" v-if="data.groupId !== 'unassigned'">
                       組長：{{
                         getGroupInfosByGroupId(data.groupId)?.groupInfo?.leaders
@@ -474,7 +497,7 @@ onMounted(async () => {
                     " />
                   <span class="font-medium text-slate-800 dark:text-surface-100">{{
                     data.fullName
-                  }}</span>
+                    }}</span>
                 </div>
               </template>
             </Column>
@@ -483,7 +506,7 @@ onMounted(async () => {
               <template #body="{ data }">
                 <span class="text-slate-600 dark:text-surface-300 text-sm">{{
                   data.mobile || "—"
-                }}</span>
+                  }}</span>
               </template>
             </Column>
 
@@ -491,7 +514,7 @@ onMounted(async () => {
               <template #body="{ data }">
                 <span class="text-slate-600 dark:text-surface-300 text-sm truncate">{{
                   data.email || "—"
-                }}</span>
+                  }}</span>
               </template>
             </Column>
 

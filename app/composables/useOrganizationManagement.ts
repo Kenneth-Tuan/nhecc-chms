@@ -367,6 +367,50 @@ export function useOrganizationManagement() {
     }
   }
 
+  // --- Highlight & Scroll ---
+  const highlightMemberId = ref<string | undefined>(undefined);
+
+  function scrollToHighlightRow() {
+    setTimeout(() => {
+      const row = document.querySelector('.highlight-target-row');
+      if (row) {
+        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 300);
+
+    setTimeout(() => {
+      highlightMemberId.value = undefined;
+    }, 3000);
+  }
+
+  async function resolveHighlightMember(
+    memberId: string,
+    activeTab: Ref<string>,
+    expandedRowGroups: Ref<any[]>,
+    PENDING_TAB: string
+  ) {
+    highlightMemberId.value = memberId;
+    try {
+      const memberData = await $fetch<{ zoneId?: string; groupId?: string }>(`/api/members/${memberId}`);
+      if (memberData.zoneId) {
+        activeTab.value = memberData.zoneId;
+        activeZoneId.value = memberData.zoneId;
+        await loadMembersByZoneId(memberData.zoneId);
+        
+        expandedRowGroups.value = [memberData.groupId || "unassigned"];
+        scrollToHighlightRow();
+      } else {
+        activeTab.value = PENDING_TAB;
+        scrollToHighlightRow();
+      }
+      return true;
+    } catch (error) {
+      console.error("Failed to load highlight member details", error);
+      highlightMemberId.value = undefined;
+      return false;
+    }
+  }
+
   return {
 
 
@@ -398,5 +442,8 @@ export function useOrganizationManagement() {
     activeZoneId,
     loadMembersByZoneId,
     getGroupInfosByGroupId,
+
+    highlightMemberId,
+    resolveHighlightMember,
   };
 }

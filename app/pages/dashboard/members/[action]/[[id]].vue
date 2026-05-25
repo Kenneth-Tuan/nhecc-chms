@@ -10,6 +10,8 @@ import type {
 import { useOrganizationStore } from "~/stores/organization.store";
 import { useConfirm } from "primevue/useconfirm";
 import dayjs from "dayjs";
+import BasePageContainer from "@/pages/dashboard/_components/BasePageContainer.vue";
+import BasePageHeader from "@/pages/dashboard/_components/BasePageHeader.vue";
 
 definePageMeta({
   layout: "dashboard",
@@ -95,6 +97,16 @@ const zoneOptions = computed(() =>
 const groupOptions = computed(() =>
   filteredGroups.value.map((g) => ({ label: g.name, value: g.id })),
 );
+
+const currentZoneName = computed(() => {
+  if (!form.value.zoneId) return "未安排牧區";
+  return orgStore.zones.find((z) => z.id === form.value.zoneId)?.name || "未知牧區";
+});
+
+const currentGroupName = computed(() => {
+  if (!form.value.groupId) return "未安排小組";
+  return orgStore.groups.find((g) => g.id === form.value.groupId)?.name || "未知小組";
+});
 
 const roleOptions = computed(() =>
   orgStore.roles.map((r) => ({ label: r.name, value: r.id })),
@@ -407,31 +419,18 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="max-w-4xl">
+  <BasePageContainer>
+
     <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
-      <div class="flex items-center gap-3">
-        <Button icon="pi pi-arrow-left" text rounded @click="router.back()" />
-        <div>
-          <h1 class="text-2xl font-bold">
-            {{ isEdit ? "編輯會友資料" : "新增會友" }}
-          </h1>
-          <p class="text-sm text-slate-500 mt-1">
-            {{ isEdit ? member?.fullName || "載入中..." : "填寫會友基本資料" }}
-          </p>
+    <BasePageHeader :title="isEdit ? '編輯會友資料' : '新增會友'"
+      :description="isEdit ? member?.fullName || '載入中...' : '填寫會友基本資料'" backTo="/dashboard/members">
+      <template #actions>
+        <div v-if="isEdit && !isLoading && member?.registrationProvider === 'email'">
+          <Button label="重設密碼" icon="pi pi-key" severity="danger" outlined :loading="isResettingPassword"
+            @click="confirmResetPassword" />
         </div>
-      </div>
-      <div v-if="isEdit && !isLoading && member?.registrationProvider === 'email'">
-        <Button
-          label="重設密碼"
-          icon="pi pi-key"
-          severity="danger"
-          outlined
-          :loading="isResettingPassword"
-          @click="confirmResetPassword"
-        />
-      </div>
-    </div>
+      </template>
+    </BasePageHeader>
 
     <!-- Confirm Dialog for Reset Password -->
     <ConfirmDialog />
@@ -443,44 +442,27 @@ onMounted(() => {
 
     <form v-else @submit.prevent="handleSubmit" class="space-y-6">
       <!-- Zone-Group Mismatch Warning -->
-      <Message
-        v-if="isEdit && zoneGroupMismatch"
-        severity="warn"
-        :closable="false"
-      >
+      <Message v-if="isEdit && zoneGroupMismatch" severity="warn" :closable="false">
         此會友的牧區與小組資料不匹配，請重新選擇牧區與小組。
       </Message>
 
       <!-- A. Basic Info -->
-      <div
-        class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-6"
-      >
+      <div class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-6">
         <h2 class="text-lg font-semibold mb-4">
           <i class="pi pi-user mr-2 text-primary" />
           基本資訊
         </h2>
 
         <!-- Avatar -->
-        <ProfileAvatarUpload
-          ref="avatarUploadRef"
-          :full-name="form.fullName"
-          :existing-avatar="form.existingAvatar"
-          plain
-          class="mb-6 !p-0 !bg-transparent !border-0"
-        />
+        <ProfileAvatarUpload ref="avatarUploadRef" :full-name="form.fullName" :existing-avatar="form.existingAvatar"
+          plain class="mb-6 !p-0 !bg-transparent !border-0" />
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Full Name -->
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium"
-              >姓名 <span class="text-red-500">*</span></label
-            >
-            <InputText
-              v-model="form.fullName"
-              placeholder="請輸入完整姓名"
-              :invalid="!!fieldErrors.fullName"
-              @input="clearFieldError('fullName')"
-            />
+            <label class="text-sm font-medium">姓名 <span class="text-red-500">*</span></label>
+            <InputText v-model="form.fullName" placeholder="請輸入完整姓名" :invalid="!!fieldErrors.fullName"
+              @input="clearFieldError('fullName')" />
             <small v-if="fieldErrors.fullName" class="text-red-500">{{
               fieldErrors.fullName
             }}</small>
@@ -488,25 +470,11 @@ onMounted(() => {
 
           <!-- Gender -->
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium"
-              >性別 <span class="text-red-500">*</span></label
-            >
+            <label class="text-sm font-medium">性別 <span class="text-red-500">*</span></label>
             <div class="flex items-center gap-4 h-[42px]">
-              <div
-                v-for="option in genderOptions"
-                :key="option.value"
-                class="flex items-center gap-2"
-              >
-                <RadioButton
-                  v-model="form.gender"
-                  :value="option.value"
-                  :inputId="`gender-${option.value}`"
-                />
-                <label
-                  :for="`gender-${option.value}`"
-                  class="text-sm cursor-pointer"
-                  >{{ option.label }}</label
-                >
+              <div v-for="option in genderOptions" :key="option.value" class="flex items-center gap-2">
+                <RadioButton v-model="form.gender" :value="option.value" :inputId="`gender-${option.value}`" />
+                <label :for="`gender-${option.value}`" class="text-sm cursor-pointer">{{ option.label }}</label>
               </div>
             </div>
             <small v-if="fieldErrors.gender" class="text-red-500">{{
@@ -516,18 +484,9 @@ onMounted(() => {
 
           <!-- Date of Birth -->
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium"
-              >出生年月日 <span class="text-red-500">*</span></label
-            >
-            <DatePicker
-              v-model="form.dob"
-              dateFormat="yy-mm-dd"
-              updateModelType="string"
-              :maxDate="maxDate"
-              showIcon
-              placeholder="選擇日期"
-              :invalid="!!fieldErrors.dob"
-            />
+            <label class="text-sm font-medium">出生年月日 <span class="text-red-500">*</span></label>
+            <DatePicker v-model="form.dob" dateFormat="yy-mm-dd" updateModelType="string" :maxDate="maxDate" showIcon
+              placeholder="選擇日期" :invalid="!!fieldErrors.dob" />
             <small v-if="fieldErrors.dob" class="text-red-500">{{
               fieldErrors.dob
             }}</small>
@@ -536,9 +495,7 @@ onMounted(() => {
       </div>
 
       <!-- B. Contact Info -->
-      <div
-        class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-6"
-      >
+      <div class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-6">
         <h2 class="text-lg font-semibold mb-4">
           <i class="pi pi-phone mr-2 text-primary" />
           聯絡資訊
@@ -547,23 +504,13 @@ onMounted(() => {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Mobile -->
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium"
-              >手機 <span class="text-red-500">*</span></label
-            >
+            <label class="text-sm font-medium">手機 <span class="text-red-500">*</span></label>
             <div class="relative">
-              <InputMask
-                v-model="form.mobile"
-                mask="9999-999-999"
-                placeholder="09xx-xxx-xxx"
-                :invalid="!!fieldErrors.mobile || !!mobileError"
-                class="w-full"
-                @blur="onMobileBlur"
-                @input="clearFieldError('mobile')"
-              />
-              <i
-                v-if="isCheckingMobile"
-                class="pi pi-spin pi-spinner absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
-              />
+              <InputMask v-model="form.mobile" mask="9999-999-999" placeholder="09xx-xxx-xxx"
+                :invalid="!!fieldErrors.mobile || !!mobileError" class="w-full" @blur="onMobileBlur"
+                @input="clearFieldError('mobile')" />
+              <i v-if="isCheckingMobile"
+                class="pi pi-spin pi-spinner absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
             </div>
             <small v-if="fieldErrors.mobile" class="text-red-500">{{
               fieldErrors.mobile
@@ -575,23 +522,12 @@ onMounted(() => {
 
           <!-- Email -->
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium"
-              >Email <span class="text-red-500">*</span></label
-            >
+            <label class="text-sm font-medium">Email <span class="text-red-500">*</span></label>
             <div class="relative">
-              <InputText
-                v-model="form.email"
-                type="email"
-                placeholder="email@example.com"
-                :invalid="!!fieldErrors.email"
-                class="w-full"
-                @blur="onEmailBlur"
-                @input="clearFieldError('email')"
-              />
-              <i
-                v-if="isCheckingEmail"
-                class="pi pi-spin pi-spinner absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
-              />
+              <InputText v-model="form.email" type="email" placeholder="email@example.com"
+                :invalid="!!fieldErrors.email" class="w-full" @blur="onEmailBlur" @input="clearFieldError('email')" />
+              <i v-if="isCheckingEmail"
+                class="pi pi-spin pi-spinner absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
             </div>
             <small v-if="fieldErrors.email" class="text-red-500">{{
               fieldErrors.email
@@ -619,9 +555,7 @@ onMounted(() => {
       </div>
 
       <!-- C. Emergency Contact -->
-      <div
-        class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-6"
-      >
+      <div class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-6">
         <h2 class="text-lg font-semibold mb-4">
           <i class="pi pi-exclamation-circle mr-2 text-primary" />
           緊急聯絡人
@@ -629,66 +563,34 @@ onMounted(() => {
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium"
-              >姓名 <span class="text-red-500">*</span></label
-            >
-            <InputText
-              v-model="form.emergencyContactName"
-              placeholder="緊急聯絡人姓名"
-              :invalid="!!fieldErrors.emergencyContactName"
-              @input="clearFieldError('emergencyContactName')"
-            />
-            <small
-              v-if="fieldErrors.emergencyContactName"
-              class="text-red-500"
-              >{{ fieldErrors.emergencyContactName }}</small
-            >
+            <label class="text-sm font-medium">姓名 <span class="text-red-500">*</span></label>
+            <InputText v-model="form.emergencyContactName" placeholder="緊急聯絡人姓名"
+              :invalid="!!fieldErrors.emergencyContactName" @input="clearFieldError('emergencyContactName')" />
+            <small v-if="fieldErrors.emergencyContactName" class="text-red-500">{{ fieldErrors.emergencyContactName
+            }}</small>
           </div>
 
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium"
-              >關係 <span class="text-red-500">*</span></label
-            >
-            <Select
-              v-model="form.emergencyContactRelationship"
-              :options="relationshipOptions"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="請選擇"
-              :invalid="!!fieldErrors.emergencyContactRelationship"
-              @change="clearFieldError('emergencyContactRelationship')"
-            />
-            <small
-              v-if="fieldErrors.emergencyContactRelationship"
-              class="text-red-500"
-              >{{ fieldErrors.emergencyContactRelationship }}</small
-            >
+            <label class="text-sm font-medium">關係 <span class="text-red-500">*</span></label>
+            <Select v-model="form.emergencyContactRelationship" :options="relationshipOptions" optionLabel="label"
+              optionValue="value" placeholder="請選擇" :invalid="!!fieldErrors.emergencyContactRelationship"
+              @change="clearFieldError('emergencyContactRelationship')" />
+            <small v-if="fieldErrors.emergencyContactRelationship" class="text-red-500">{{
+              fieldErrors.emergencyContactRelationship }}</small>
           </div>
 
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium"
-              >電話 <span class="text-red-500">*</span></label
-            >
-            <InputMask
-              v-model="form.emergencyContactPhone"
-              mask="9999-999-999"
-              placeholder="09xx-xxx-xxx"
-              :invalid="!!fieldErrors.emergencyContactPhone"
-              @input="clearFieldError('emergencyContactPhone')"
-            />
-            <small
-              v-if="fieldErrors.emergencyContactPhone"
-              class="text-red-500"
-              >{{ fieldErrors.emergencyContactPhone }}</small
-            >
+            <label class="text-sm font-medium">電話 <span class="text-red-500">*</span></label>
+            <InputMask v-model="form.emergencyContactPhone" mask="9999-999-999" placeholder="09xx-xxx-xxx"
+              :invalid="!!fieldErrors.emergencyContactPhone" @input="clearFieldError('emergencyContactPhone')" />
+            <small v-if="fieldErrors.emergencyContactPhone" class="text-red-500">{{ fieldErrors.emergencyContactPhone
+            }}</small>
           </div>
         </div>
       </div>
 
       <!-- D. Faith & Church Info -->
-      <div
-        class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-6"
-      >
+      <div class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-6">
         <h2 class="text-lg font-semibold mb-4">
           <i class="pi pi-heart mr-2 text-primary" />
           信仰與歸屬
@@ -699,96 +601,70 @@ onMounted(() => {
           <div class="flex flex-col gap-2">
             <label class="text-sm font-medium">受洗狀態</label>
             <div class="flex items-center gap-2 h-[42px]">
-              <Checkbox
-                v-model="form.baptismStatus"
-                :binary="true"
-                inputId="baptismStatus"
-              />
-              <label for="baptismStatus" class="text-sm cursor-pointer"
-                >已受洗</label
-              >
+              <Checkbox v-model="form.baptismStatus" :binary="true" inputId="baptismStatus" />
+              <label for="baptismStatus" class="text-sm cursor-pointer">已受洗</label>
             </div>
           </div>
 
           <div v-if="form.baptismStatus" class="flex flex-col gap-2">
             <label class="text-sm font-medium">受洗日期</label>
-            <DatePicker
-              v-model="form.baptismDate"
-              dateFormat="yy-mm-dd"
-              updateModelType="string"
-              :maxDate="maxDate"
-              showIcon
-              placeholder="選擇日期（選填）"
-            />
+            <DatePicker v-model="form.baptismDate" dateFormat="yy-mm-dd" updateModelType="string" :maxDate="maxDate"
+              showIcon placeholder="選擇日期（選填）" />
           </div>
 
-          <!-- Zone -->
-          <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium">牧區</label>
-            <Select
-              v-model="form.zoneId"
-              :options="zoneOptions"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="請選擇牧區（選填）"
-              showClear
-              :loading="orgStore.isLoadingStructure"
-              @change="onZoneChange"
-            />
-          </div>
+          <!-- Zone & Group -->
+          <template v-if="!isEdit">
+            <!-- Zone -->
+            <div class="flex flex-col gap-2">
+              <label class="text-sm font-medium">牧區</label>
+              <Select v-model="form.zoneId" :options="zoneOptions" optionLabel="label" optionValue="value"
+                placeholder="請選擇牧區（選填）" showClear :loading="orgStore.isLoadingStructure" @change="onZoneChange" />
+            </div>
 
-          <!-- Group -->
-          <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium">小組</label>
-            <Select
-              v-model="form.groupId"
-              :options="groupOptions"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="請先選擇牧區"
-              showClear
-              :disabled="!form.zoneId"
-              :invalid="!!fieldErrors.groupId"
-            />
-            <small v-if="fieldErrors.groupId" class="text-red-500">{{
-              fieldErrors.groupId
-            }}</small>
-          </div>
+            <!-- Group -->
+            <div class="flex flex-col gap-2">
+              <label class="text-sm font-medium">小組</label>
+              <Select v-model="form.groupId" :options="groupOptions" optionLabel="label" optionValue="value"
+                placeholder="請先選擇牧區" showClear :disabled="!form.zoneId" :invalid="!!fieldErrors.groupId" />
+              <small v-if="fieldErrors.groupId" class="text-red-500">{{
+                fieldErrors.groupId
+              }}</small>
+            </div>
+          </template>
+          <template v-else>
+            <div class="flex flex-col gap-2 md:col-span-2">
+              <label class="text-sm font-medium">所屬組織</label>
+              <div
+                class="flex items-center gap-3 bg-surface-50 dark:bg-surface-800 p-3 rounded-lg border border-surface-200 dark:border-surface-700">
+                <div class="flex-1 text-sm">
+                  <span class="font-medium text-surface-900 dark:text-surface-0">{{ currentZoneName }}</span>
+                  <span class="mx-2 text-surface-400">/</span>
+                  <span class="font-medium text-surface-900 dark:text-surface-0">{{ currentGroupName }}</span>
+                </div>
+                <Button label="前往調整" icon="pi pi-external-link" size="small" outlined
+                  @click="router.push({ path: '/dashboard/organization', query: { highlightMember: memberUuid } })" />
+              </div>
+            </div>
+          </template>
 
           <!-- Role -->
           <div class="flex flex-col gap-2">
             <label class="text-sm font-medium">角色</label>
-            <MultiSelect
-              v-model="form.roleIds"
-              :options="roleOptions"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="請選擇角色（選填）"
-              display="chip"
-              :loading="orgStore.isLoadingRoles"
-            />
+            <MultiSelect v-model="form.roleIds" :options="roleOptions" optionLabel="label" optionValue="value"
+              placeholder="請選擇角色（選填）" display="chip" :loading="orgStore.isLoadingRoles" />
           </div>
 
           <!-- Past Courses -->
           <div class="flex flex-col gap-2">
             <label class="text-sm font-medium">已上過的課程</label>
-            <MultiSelect
-              v-model="form.pastCourses"
-              :options="courseOptions"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="請選擇（選填）"
-              :maxSelectedLabels="3"
-              :loading="orgStore.isLoadingCourses"
-            />
+            <MultiSelect v-model="form.pastCourses" :options="courseOptions" optionLabel="label" optionValue="value"
+              placeholder="請選擇（選填）" :maxSelectedLabels="3" :loading="orgStore.isLoadingCourses" />
           </div>
         </div>
       </div>
 
       <!-- E. System Settings -->
-      <div
-        class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-6"
-      >
+      <div class="bg-white dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 p-6">
         <h2 class="text-lg font-semibold mb-4">
           <i class="pi pi-cog mr-2 text-primary" />
           系統設定
@@ -796,34 +672,19 @@ onMounted(() => {
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium"
-              >會籍狀態 <span class="text-red-500">*</span></label
-            >
-            <Select
-              v-model="form.status"
-              :options="statusOptions"
-              optionLabel="label"
-              optionValue="value"
-            />
+            <label class="text-sm font-medium">會籍狀態 <span class="text-red-500">*</span></label>
+            <Select v-model="form.status" :options="statusOptions" optionLabel="label" optionValue="value" />
           </div>
         </div>
       </div>
 
       <!-- Actions -->
       <div class="flex items-center gap-3 justify-end">
-        <Button
-          label="取消"
-          severity="secondary"
-          outlined
-          @click="router.back()"
-        />
-        <Button
-          :label="isEdit ? '儲存變更' : '建立會友'"
-          icon="pi pi-check"
-          type="submit"
-          :loading="isSubmitting || isUploading"
-        />
+        <Button label="取消" severity="secondary" outlined @click="router.back()" />
+        <Button :label="isEdit ? '儲存變更' : '建立會友'" icon="pi pi-check" type="submit"
+          :loading="isSubmitting || isUploading" />
       </div>
     </form>
-  </div>
+
+  </BasePageContainer>
 </template>

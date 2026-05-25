@@ -7,6 +7,8 @@ import MemberListFilters from "./_components/MemberListFilters.vue";
 import MemberListTable from "./_components/MemberListTable.vue";
 import MemberQuickViewModal from "./_components/MemberQuickViewModal.vue";
 import MemberDeleteDialog from "./_components/MemberDeleteDialog.vue";
+import BasePageContainer from "@/pages/dashboard/_components/BasePageContainer.vue";
+import BasePageHeader from "@/pages/dashboard/_components/BasePageHeader.vue";
 
 definePageMeta({
   layout: "dashboard",
@@ -92,22 +94,18 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
+  <BasePageContainer>
     <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
-      <div>
-        <h1 class="text-2xl font-bold">會友管理</h1>
-        <p class="text-sm text-slate-500 mt-1">
-          共 {{ pagination.totalItems }} 位會友
-        </p>
-      </div>
-      <Button
-        v-if="auth.can('create', 'Member')"
-        label="新增會友"
-        icon="pi pi-plus"
-        @click="router.push('/dashboard/members/create')"
-      />
-    </div>
+    <BasePageHeader title="會友管理" :description="`共 ${pagination.totalItems} 位會友`">
+      <template #actions>
+        <Button
+          v-if="auth.can('create', 'Member')"
+          label="新增會友"
+          icon="pi pi-plus"
+          @click="router.push('/dashboard/members/create')"
+        />
+      </template>
+    </BasePageHeader>
 
     <!-- Filters -->
     <div class="mb-4">
@@ -208,5 +206,5 @@ onMounted(() => {
       :member-uuid="memberToDelete.uuid"
       @deleted="onMemberDeleted"
     />
-  </div>
+  </BasePageContainer>
 </template>
