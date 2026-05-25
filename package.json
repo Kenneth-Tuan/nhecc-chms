@@ -12,9 +12,11 @@
     "postinstall": "nuxt prepare",
     "test": "vitest run",
     "test:watch": "vitest",
-    "emulator:start": "firebase emulators:start --import=.firebase-data --export-on-exit",
+    "emulator:start": "yarn emulator:clean && firebase emulators:start --import=.firebase-data --export-on-exit",
     "dev:emulator": "dotenv -e .env.emulator -- nuxt dev",
-    "seed:emulator": "dotenv -e .env.emulator -- tsx --tsconfig tsconfig.seed.json scripts/seed-emulator.ts"
+    "seed:emulator": "dotenv -e .env.emulator -- tsx --tsconfig tsconfig.seed.json scripts/seed-emulator.ts",
+    "dev:emulator:all": "yarn emulator:clean && firebase emulators:exec --import=.firebase-data --export-on-exit=.firebase-data \"yarn seed:emulator && yarn dev:emulator\"",
+    "emulator:clean": "for pid in $(lsof -t -i :8080 -i :9099 -i :4000 -i :4400); do kill -9 $pid; done 2>/dev/null || true"
   },
   "dependencies": {
     "@casl/ability": "^6.8.0",

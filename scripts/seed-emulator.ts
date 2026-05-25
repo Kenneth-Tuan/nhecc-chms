@@ -26,6 +26,9 @@ import { mockRoles } from "../server/mockData/roles.data";
 import { mockCourses } from "../server/mockData/courses.data";
 import { mockCourseCategories } from "../server/mockData/courseCategories.data";
 import { mockCourseTemplates } from "../server/mockData/courseTemplates.data";
+import { mockCourseClasses } from "../server/mockData/courseClasses.data";
+import { mockCourseEnrollments } from "../server/mockData/courseEnrollments.data";
+import { mockCourseAttendances } from "../server/mockData/courseAttendances.data";
 
 const TEST_PASSWORD = "Test@12345";
 const PROJECT_ID = "nhecc-chms";
@@ -237,6 +240,73 @@ async function seedCourses() {
   );
 }
 
+async function seedCourseClasses() {
+  console.log("\n[8] Seeding course classes...");
+  await clearCollection("courseClasses");
+  await writeInBatches(
+    "courseClasses",
+    mockCourseClasses,
+    (c) => c.id,
+    (c) => ({
+      templateId: c.templateId,
+      name: c.name,
+      teachers: c.teachers,
+      teacherIds: c.teacherIds,
+      status: c.status,
+      startDate: c.startDate,
+      endDate: c.endDate,
+      scheduleDescription: c.scheduleDescription ?? null,
+      sessions: c.sessions,
+      currentSessionId: c.currentSessionId,
+      location: c.location,
+      meetingLink: c.meetingLink ?? null,
+      description: c.description,
+      attachments: c.attachments,
+      maxCapacity: c.maxCapacity,
+      enrollmentCount: c.enrollmentCount,
+      isPublished: c.isPublished,
+      studentIds: c.studentIds,
+      createdAt: c.createdAt,
+      updatedAt: c.updatedAt,
+    })
+  );
+
+  console.log("\n[9] Seeding course enrollments...");
+  await clearCollection("courseEnrollments");
+  await writeInBatches(
+    "courseEnrollments",
+    mockCourseEnrollments,
+    (e) => e.id,
+    (e) => ({
+      userId: e.userId,
+      templateId: e.templateId,
+      classId: e.classId,
+      status: e.status,
+      credits: e.credits,
+      createdAt: e.createdAt,
+      updatedAt: e.updatedAt,
+    })
+  );
+
+  console.log("\n[10] Seeding course attendances...");
+  await clearCollection("courseAttendances");
+  await writeInBatches(
+    "courseAttendances",
+    mockCourseAttendances,
+    (a) => a.id,
+    (a) => ({
+      classId: a.classId,
+      sessionId: a.sessionId,
+      userId: a.userId,
+      status: a.status,
+      scannedAt: a.scannedAt,
+      scannedBy: a.scannedBy,
+      createdAt: a.createdAt,
+      updatedAt: a.updatedAt,
+    })
+  );
+}
+
 // ===== 執行 =====
 async function main() {
   console.log("=== Firebase Emulator Seed ===");
@@ -250,6 +320,9 @@ async function main() {
 
   console.log("\n[bonus] Seeding courses...");
   await seedCourses();
+
+  console.log("\n[bonus] Seeding physical course classes...");
+  await seedCourseClasses();
 
   console.log("\n=== Done! ===");
   console.log("\nEmulator 帳號列表：");
