@@ -29,59 +29,6 @@ interface GroupMember {
 }
 
 /**
- * 將 OrganizationStructure 轉換為 PrimeVue TreeNode[] 格式。
- */
-function buildTreeNodes(
-  zones: ZoneWithGroups[],
-  memberCounts: Record<string, number>,
-): TreeNode[] {
-  return zones.map((zone) => ({
-    key: zone.id,
-    label: zone.name,
-    data: {
-      type: "zone",
-      id: zone.id,
-      name: zone.name,
-      leaders: zone.leaders || [],
-      leaderName:
-        zone.leaders?.map((l) => l.name).join("、") ||
-        zone.leaderName ||
-        "未指派", // backend mapping
-      memberCount: zone.groups.reduce(
-        (sum, g) => sum + (memberCounts[g.id] || 0),
-        0,
-      ),
-      groupCount: zone.groups.length,
-      status: zone.status,
-    },
-    type: "zone",
-    droppable: false,
-    draggable: false,
-    children: zone.groups.map((group) => ({
-      key: group.id,
-      label: group.name,
-      data: {
-        type: "group",
-        id: group.id,
-        name: group.name,
-        zoneId: zone.id,
-        zoneName: zone.name,
-        leaders: group.leaders || [],
-        leaderName:
-          group.leaders?.map((l) => l.name).join("、") ||
-          group.leaderName ||
-          "未指派",
-        memberCount: memberCounts[group.id] || 0,
-        status: group.status,
-      },
-      type: "group",
-      droppable: true,
-      draggable: false,
-    })),
-  }));
-}
-
-/**
  * 為待分配池建立 PrimeVue TreeNode[]（將清單轉換為可拖動的小節點）。
  */
 function buildPendingTreeNodes(members: PendingMember[]): TreeNode[] {
@@ -129,7 +76,7 @@ function buildGroupMemberTreeNodes(members: GroupMember[]): TreeNode[] {
 }
 
 export function useOrganizationManagement() {
-  const treeNodes = ref<TreeNode[]>([]);
+
   const pendingTreeNodes = ref<TreeNode[]>([]);
   const pendingMembers = ref<PendingMember[]>([]);
   const selectedGroupMembers = ref<GroupMember[]>([]);
@@ -421,12 +368,12 @@ export function useOrganizationManagement() {
   }
 
   return {
-    treeNodes,
-    pendingTreeNodes,
+
+
     pendingMembers,
-    selectedGroupMembers,
+
     selectedGroup,
-    expandedKeys,
+
     isLoadingTree,
     isLoadingPending,
     isLoadingMembers,
@@ -437,7 +384,7 @@ export function useOrganizationManagement() {
     loadGroupMembers,
     assignMember,
     initialize,
-    groupMemberTreeNodes,
+
     isSavingZone,
     saveZone,
     deleteZone,

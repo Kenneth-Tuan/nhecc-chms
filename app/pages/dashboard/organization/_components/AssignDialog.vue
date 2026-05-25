@@ -1,49 +1,47 @@
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
-import type { TreeNode } from "primevue/treenode";
+import { ref, computed } from "vue";
+import type { ZoneWithGroups } from "~/types/organization";
+
+// 使用 defineModel 來進行雙向綁定
+const visible = defineModel<boolean>("visible", { required: true });
 
 const props = defineProps<{
-  visible: boolean;
   assignTarget: { uuid: string; fullName: string } | null;
-  treeNodes: TreeNode[];
+  zones: ZoneWithGroups[];
   isAssigning: boolean;
 }>();
 
 const emit = defineEmits<{
-  (e: "update:visible", val: boolean): void;
   (e: "confirm", targetId: string, groupId: string): void;
 }>();
 
 const assignSelectedZone = ref<string | null>(null);
 const assignSelectedGroup = ref<string | null>(null);
 
-// Reset selections when dialog opens
-watch(
-  () => props.visible,
-  (newVal) => {
-    if (newVal) {
-      assignSelectedZone.value = null;
-      assignSelectedGroup.value = null;
-    }
-  }
-);
-
+// 轉化 availableZones 格式
 const availableZones = computed(() =>
-  props.treeNodes.map((z) => ({
-    label: z.label,
-    value: z.key as string,
+  props.zones.map((z) => ({
+    label: z.name,
+    value: z.id,
   }))
 );
 
+// 根據所選牧區轉化 availableGroups 格式
 const availableGroups = computed(() => {
   if (!assignSelectedZone.value) return [];
-  const zone = props.treeNodes.find((z) => z.key === assignSelectedZone.value);
-  if (!zone?.children) return [];
-  return zone.children.map((g) => ({
-    label: g.label,
-    value: g.key as string,
+  const zone = props.zones.find((z) => z.id === assignSelectedZone.value);
+  if (!zone?.groups) return [];
+  return zone.groups.map((g) => ({
+    label: g.name,
+    value: g.id,
   }));
 });
+
+// 當 dialog 關閉時重置選擇狀態
+function onHide() {
+  assignSelectedZone.value = null;
+  assignSelectedGroup.value = null;
+}
 
 function confirmAssign() {
   if (!props.assignTarget || !assignSelectedGroup.value) return;
@@ -51,18 +49,18 @@ function confirmAssign() {
 }
 
 function handleClose() {
-  emit("update:visible", false);
+  visible.value = false;
 }
 </script>
 
 <template>
   <Dialog
-    :visible="visible"
-    @update:visible="$emit('update:visible', $event)"
+    v-model:visible="visible"
     :modal="true"
     :closable="true"
     :style="{ width: '450px', maxWidth: '95vw' }"
     header="分配會友"
+    @hide="onHide"
   >
     <div v-if="assignTarget" class="space-y-4">
       <!-- Member Info -->

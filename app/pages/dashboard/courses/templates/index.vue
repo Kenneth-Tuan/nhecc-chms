@@ -47,9 +47,8 @@ async function toggleStatus(template: CourseTemplateListItem): Promise<void> {
     toast.add({
       severity: "success",
       summary: "成功",
-      detail: `已${newStatus === "ACTIVE" ? "啟用" : "停用"}「${
-        template.name
-      }」`,
+      detail: `已${newStatus === "ACTIVE" ? "啟用" : "停用"}「${template.name
+        }」`,
       life: 3000,
     });
     fetchTemplates();
@@ -102,10 +101,7 @@ onMounted(() => {
 <template>
   <BasePageContainer>
     <!-- Header: 確保標題與新增模板按鈕正確呈現 -->
-    <BasePageHeader
-      title="課程模板管理"
-      :description="`目前共建立 ${templates.length} 個課程模板`"
-    >
+    <BasePageHeader title="課程模板管理" :description="`目前共建立 ${templates.length} 個課程模板`">
       <template #actions>
         <NuxtLink to="/dashboard/courses/templates/create">
           <Button label="新增模板" icon="pi pi-plus" class="shadow-md" />
@@ -116,46 +112,23 @@ onMounted(() => {
     <!-- Filters: 統一篩選區域佈局 -->
     <BaseFilterBar :columns="4">
       <div class="flex flex-col gap-1">
-        <label class="text-base font-semibold text-slate-500 ml-1"
-          >狀態篩選</label
-        >
-        <Select
-          v-model="statusFilter"
-          :options="statusOptions"
-          option-label="label"
-          option-value="value"
-          fluid
-          @update:model-value="fetchTemplates"
-        />
+        <label class="text-base font-semibold text-slate-500 ml-1">狀態篩選</label>
+        <Select v-model="statusFilter" :options="statusOptions" option-label="label" option-value="value" fluid
+          @update:model-value="fetchTemplates" />
       </div>
     </BaseFilterBar>
 
     <!-- Error -->
     <Message v-if="error" severity="error" :closable="false" class="mb-4">
       <span class="text-base">{{ error }}</span>
-      <Button
-        label="重試"
-        size="small"
-        text
-        class="ml-2 text-base"
-        @click="fetchTemplates"
-      />
+      <Button label="重試" size="small" text class="ml-2 text-base" @click="fetchTemplates" />
     </Message>
 
     <!-- Table: 卡片樣式包裹 -->
-    <div
-      class="bg-surface-0 dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-surface-700 shadow-sm overflow-hidden"
-    >
-      <TemplateTable
-        :templates="templates"
-        :is-loading="isLoading"
-        :get-format-label="getFormatLabel"
-        :get-frequency-label="getFrequencyLabel"
-        @edit="editTemplate"
-        @view-classes="viewClasses"
-        @create-class="createClass"
-        @toggle-status="toggleStatus"
-      />
+    <div class="bg-surface-0 dark:bg-surface-900 rounded-xl shadow-sm overflow-hidden">
+      <TemplateTable :templates="templates" :is-loading="isLoading" :get-format-label="getFormatLabel"
+        :get-frequency-label="getFrequencyLabel" @edit="editTemplate" @view-classes="viewClasses"
+        @create-class="createClass" @toggle-status="toggleStatus" />
     </div>
   </BasePageContainer>
 </template>

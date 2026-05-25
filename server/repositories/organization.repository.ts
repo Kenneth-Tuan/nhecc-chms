@@ -260,7 +260,7 @@ export class OrganizationRepository {
     const snapshot = await this.db
       .collection("members")
       .where("status", "==", "Active")
-      .where("groupId", "==", null)
+      .where("zoneId", "==", null)
       .get();
 
     return snapshot.docs.map((doc: any) => {
