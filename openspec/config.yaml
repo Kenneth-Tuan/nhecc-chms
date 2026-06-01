@@ -1,0 +1,34 @@
+schema: spec-driven
+specsPath: openspec/specs
+context: |
+  專案技術棧與架構規範：
+  - 框架：Nuxt 4 / Vue 3.5+ (Composition API, <script setup>)
+  - 前端 UI：PrimeVue (Aura Theme with Tailwind CSS presets) + UnoCSS (unocss)
+  - 後端：Nitro (Server Routes)
+  - 資料庫與認證：Firebase (Admin SDK 用於後端，Client SDK 用於前端，使用 Realtime DB)
+  - 狀態管理：Pinia
+  - 語言：TypeScript (Strict mode)
+
+  前端與 UI 規範：
+  - 字體大小以 16px 為基礎（考量大齡使用者需求）
+  - 嚴禁使用 watch 或 watchEffect 等語法糖，以維持資料狀態可追蹤性
+  - 優先使用 PrimeVue 元件（如 <Button>, <DataTable>, <Tree>），避免自訂 HTML/CSS
+  - 主色調為皇家藍 (#2563eb)，Focus Rings 必須為 2px 粗且明顯，使用 PrimeIcons (pi pi-xyz)
+
+  後端架構 (Service Layer Pattern)：
+  - server/api 路由處理器「只」處理 Request/Response 解析與錯誤處理，不得寫入業務邏輯
+  - 所有核心業務邏輯必須封裝於 server/utils 或 server/services 中
+  - 統一使用 createError({ statusCode, message }) 拋出後端錯誤
+
+  權限與安全 (RBAC)：
+  - 存取憑證 (Access Token) 存於 HttpOnly, Secure Cookies
+  - 權限驗證分為 Scope-Based (GLOBAL, MY_ZONE, MY_GROUP, ASSIGNED, SELF) 與 Function-Based (如 MEMBER_EDIT)，後端必須執行 Scope 驗證
+
+rules:
+  proposal:
+    - 必須明確列出 Affected specs 與 Affected code
+    - 涉及 API 或權限變更時，必須說明對應的 RBAC (Scope/Function) 驗證機制
+  specs:
+    - 需求描述使用 RFC 2119 規範（SHALL / MUST / SHOULD）
+    - 每個 Requirement 必須包含至少一個 Scenario (用 #### Scenario: 開頭)
+    - Scenario 必須採用 Given/When/Then 或 When/Then 的條列格式
