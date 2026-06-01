@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { NavMenuItem } from "~/types/navigation";
+import AppSidebarFooter from "./AppSidebarFooter.vue";
+import AppNavMenuList from "./AppNavMenuList.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -8,7 +10,7 @@ const props = withDefaults(
   }>(),
   {
     subtitle: undefined,
-  }
+  },
 );
 
 const route = useRoute();
@@ -16,7 +18,7 @@ const route = useRoute();
 const appSubtitle = computed(
   () =>
     props.subtitle ??
-    (route.path.startsWith("/dashboard") ? "內行管理系統" : "內行人學院")
+    (route.path.startsWith("/dashboard") ? "內行管理系統" : "內行人學院"),
 );
 </script>
 
@@ -41,7 +43,9 @@ const appSubtitle = computed(
         >
           NHECC ChMS
         </h1>
-        <p class="text-xs text-slate-500 dark:text-surface-400">{{ appSubtitle }}</p>
+        <p class="text-xs text-slate-500 dark:text-surface-400">
+          {{ appSubtitle }}
+        </p>
       </div>
     </div>
 
