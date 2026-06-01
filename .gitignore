@@ -6,6 +6,12 @@
 .cache
 dist
 
+# Firebase
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+firebase-export-*/
+
 # Firebase Emulator 資料快照（本地狀態，不提交）
 .firebase-data
 
@@ -26,3 +32,9 @@ logs
 .env.*
 !.env.example
 !.env.emulator
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/

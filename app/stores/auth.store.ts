@@ -61,6 +61,13 @@ export const useAuthStore = defineStore("auth", () => {
 
   function $reset(): void {
     userContext.value = null;
+    // 保留 isInitialized = true，避免 middleware 重新觸發 loadContext
+    // 只有在需要強制重新初始化時，才另外呼叫 forceReinitialize()
+    isLoading.value = false;
+  }
+
+  function forceReinitialize(): void {
+    userContext.value = null;
     isInitialized.value = false;
     isLoading.value = false;
   }
@@ -75,5 +82,6 @@ export const useAuthStore = defineStore("auth", () => {
     isAdmin,
     loadContext,
     $reset,
+    forceReinitialize,
   };
 });

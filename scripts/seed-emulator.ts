@@ -323,6 +323,54 @@ async function seedCourseClasses() {
   );
 }
 
+const mockInvitations = [
+  {
+    token: "test-valid-invite-token",
+    roleIds: ["general"],
+    used: false,
+    usedBy: null,
+    expiresAt: "2030-01-01T00:00:00.000Z",
+    createdAt: "2026-01-01T00:00:00.000Z",
+    createdBy: "admin-uid",
+  },
+  {
+    token: "test-expired-invite-token",
+    roleIds: ["general"],
+    used: false,
+    usedBy: null,
+    expiresAt: "2020-01-01T00:00:00.000Z",
+    createdAt: "2020-01-01T00:00:00.000Z",
+    createdBy: "admin-uid",
+  },
+  {
+    token: "test-used-invite-token",
+    roleIds: ["general"],
+    used: true,
+    usedBy: "some-user-uid",
+    expiresAt: "2030-01-01T00:00:00.000Z",
+    createdAt: "2026-01-01T00:00:00.000Z",
+    createdBy: "admin-uid",
+  },
+];
+
+async function seedInvitations() {
+  console.log("\n[12] Seeding invitations...");
+  await clearCollection("invitations");
+  await writeInBatches(
+    "invitations",
+    mockInvitations,
+    (i) => i.token,
+    (i) => ({
+      roleIds: i.roleIds,
+      used: i.used,
+      usedBy: i.usedBy,
+      expiresAt: i.expiresAt,
+      createdAt: i.createdAt,
+      createdBy: i.createdBy,
+    })
+  );
+}
+
 // ===== 執行 =====
 async function main() {
   console.log("=== Firebase Emulator Seed ===");
@@ -339,6 +387,8 @@ async function main() {
 
   console.log("\n[bonus] Seeding physical course classes...");
   await seedCourseClasses();
+
+  await seedInvitations();
 
   console.log("\n=== Done! ===");
   console.log("\nEmulator 帳號列表：");

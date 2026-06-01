@@ -11,15 +11,16 @@ import { useAuthStore } from "~/stores/auth.store";
 const firebaseAuth = useFirebaseAuth();
 const toast = useToast();
 const route = useRoute();
+const router = useRouter();
 
-function redirectAfterLogin(authStore: ReturnType<typeof useAuthStore>) {
-  const redirectTo = route.query.redirect as string | undefined
+async function redirectAfterLogin(authStore: ReturnType<typeof useAuthStore>) {
+  const redirectTo = route.query.redirect as string | undefined;
   if (redirectTo) {
-    navigateTo(redirectTo)
+    await router.replace(redirectTo);
   } else if (authStore.isAdmin) {
-    navigateTo("/dashboard")
+    await router.replace("/dashboard");
   } else {
-    navigateTo("/")
+    await router.replace("/");
   }
 }
 
@@ -39,19 +40,23 @@ const handleLogin = async () => {
   try {
     await firebaseAuth.loginWithEmail(
       formData.value.account,
-      formData.value.password
+      formData.value.password,
     );
     const authStore = useAuthStore();
-    redirectAfterLogin(authStore);
+    // Load auth context to populate store before navigation
+    await authStore.loadContext();
+    // 等待 Pinia store 更新後再導向
+    await nextTick();
+    await redirectAfterLogin(authStore);
   } catch (e: any) {
     const msg =
       e.code === "auth/invalid-credential"
         ? "帳號或密碼錯誤"
         : e.code === "auth/user-not-found"
-        ? "找不到此帳號"
-        : e.code === "auth/wrong-password"
-        ? "密碼錯誤"
-        : "登入失敗，請稍後再試";
+          ? "找不到此帳號"
+          : e.code === "auth/wrong-password"
+            ? "密碼錯誤"
+            : "登入失敗，請稍後再試";
     toast.add({
       severity: "error",
       summary: "登入失敗",
@@ -84,8 +89,10 @@ const handleSocialLogin = async (provider: "google" | "line") => {
         redirectAfterLogin(authStore);
       }
     } else {
-      const redirect = route.query.redirect as string | undefined
-      navigateTo(redirect ? `/liff?redirect=${encodeURIComponent(redirect)}` : "/liff");
+      const redirect = route.query.redirect as string | undefined;
+      navigateTo(
+        redirect ? `/liff?redirect=${encodeURIComponent(redirect)}` : "/liff",
+      );
     }
   } catch (e: any) {
     toast.add({

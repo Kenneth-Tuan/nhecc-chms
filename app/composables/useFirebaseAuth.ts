@@ -179,10 +179,7 @@ export function useFirebaseAuth() {
       await authStore.loadContext();
     } catch (e: any) {
       error.value =
-        e?.data?.message ||
-        e?.data?.statusMessage ||
-        e?.message ||
-        "切換失敗";
+        e?.data?.message || e?.data?.statusMessage || e?.message || "切換失敗";
       throw e;
     } finally {
       loading.value = false;
@@ -195,7 +192,7 @@ export function useFirebaseAuth() {
     try {
       await signOut(auth);
       await $fetch("/api/auth/logout", { method: "POST" });
-      authStore.$reset();
+      authStore.forceReinitialize(); // 強制重置，讓 middleware 下次重新驗證
     } finally {
       loading.value = false;
     }
