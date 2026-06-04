@@ -148,6 +148,15 @@ export function buildAbility(userContext: UserContext): AppAbility {
     }
   }
 
+  // 刪除 (Delete)
+  if (userContext.permissions["courseClass:delete"]) {
+    if (userContext.scope === "Global") {
+      can("delete", "CourseClass");
+    } else {
+      can("delete", "CourseClass", { teacherIds: { $in: [userContext.userId] } } as any);
+    }
+  }
+
   // Z 軸：欄位層級的解鎖權限 (Reveal authority)
   if (userContext.revealAuthority.mobile) can("reveal", "Member", "mobile");
   if (userContext.revealAuthority.email) can("reveal", "Member", "email");

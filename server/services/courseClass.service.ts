@@ -593,8 +593,32 @@ export class CourseClassService {
     });
   }
 
-  async deleteClass(classId: string): Promise<void> {
+  async deleteClass(classId: string, ability: AppAbility): Promise<void> {
     const classRepo = new CourseClassRepository();
+    const targetClass = await classRepo.findById(classId);
+
+    if (!targetClass) {
+      throw createError({ statusCode: 404, message: "找不到指定的班級" });
+    }
+
+    this.assertClassAccess(
+      "ADMIN_DELETE",
+      targetClass,
+      "您無權刪除此班級",
+      ability
+    );
+
+    if (
+      targetClass.status !== "SETUP" ||
+      (targetClass.enrollmentCount && targetClass.enrollmentCount > 0) ||
+      (targetClass.studentIds && targetClass.studentIds.length > 0)
+    ) {
+      throw createError({
+        statusCode: 409,
+        message: "無法刪除已開始或已有學生報名的班級",
+      });
+    }
+
     await classRepo.delete(classId);
   }
 }

@@ -101,5 +101,27 @@ export const mockCourseClasses: CourseClass[] = [
     studentIds: ['member-li-group', 'member-001'],
     createdAt: '2024-08-01T08:00:00.000Z',
     updatedAt: '2024-11-30T08:00:00.000Z'
+  },
+  {
+    id: 'class-test-delete',
+    templateId: 'tpl-s101',
+    name: '測試刪除專用班級',
+    teachers: [],
+    teacherIds: [],
+    status: 'SETUP',
+    startDate: '2025-07-01',
+    endDate: '2025-07-31',
+    scheduleDescription: '測試用',
+    sessions: [],
+    currentSessionId: null,
+    location: '測試教室',
+    description: '這個班級用來測試刪除功能',
+    attachments: [],
+    maxCapacity: 10,
+    enrollmentCount: 0,
+    isPublished: false,
+    studentIds: [],
+    createdAt: '2025-06-01T08:00:00.000Z',
+    updatedAt: '2025-06-01T08:00:00.000Z'
   }
 ];

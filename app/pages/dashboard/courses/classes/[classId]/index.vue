@@ -22,9 +22,11 @@ const {
   updateClass,
   startCourse,
   concludeCourse,
+  deleteCourseClass,
   isCreating,
   isStarting,
   isConcluding,
+  isDeleting,
 } = useCourseClass();
 const currentClass = ref<
   (CourseClass & { templateName: string; templateCode: string }) | null
@@ -36,6 +38,14 @@ const showEditDialog = ref(false);
 const canManageCourseClass = computed(() => {
   if (!currentClass.value) return false;
   return auth.can("manage", {
+    ...currentClass.value,
+    __type: "CourseClass",
+  } as any);
+});
+
+const canDeleteCourseClass = computed(() => {
+  if (!currentClass.value) return false;
+  return auth.can("delete", {
     ...currentClass.value,
     __type: "CourseClass",
   } as any);
@@ -209,6 +219,42 @@ function confirmConcludeCourse() {
     accept: handleConcludeCourse,
   });
 }
+
+async function handleDeleteCourseClass() {
+  if (!currentClass.value || !canDeleteCourseClass.value) return;
+
+  try {
+    await deleteCourseClass(classId.value);
+    toast.add({
+      severity: "success",
+      summary: "刪除成功",
+      detail: "班級已成功刪除",
+      life: 3000,
+    });
+    router.push("/dashboard/courses/classes");
+  } catch (error: any) {
+    toast.add({
+      severity: "error",
+      summary: "刪除失敗",
+      detail: error.data?.message || error.message || "無法刪除班級",
+      life: 5000,
+    });
+  }
+}
+
+function confirmDeleteCourseClass() {
+  if (!currentClass.value) return;
+
+  confirm.require({
+    message: `確定要刪除「${currentClass.value.name}」嗎？此操作無法復原。`,
+    header: "刪除班級確認",
+    icon: "pi pi-exclamation-triangle",
+    acceptClass: "p-button-danger",
+    acceptLabel: "確認刪除",
+    rejectLabel: "取消",
+    accept: handleDeleteCourseClass,
+  });
+}
 </script>
 
 <template>
@@ -282,6 +328,16 @@ function confirmConcludeCourse() {
             outlined
             class="text-slate-600 dark:text-surface-400 border-slate-300 dark:border-surface-700 text-base px-6"
             @click="showEditDialog = true"
+          />
+          <Button
+            v-if="canDeleteCourseClass && currentClass.status === 'SETUP' && (!currentClass.enrollmentCount || currentClass.enrollmentCount === 0)"
+            label="刪除班級"
+            icon="pi pi-trash"
+            severity="danger"
+            outlined
+            :loading="isDeleting"
+            class="text-base px-6"
+            @click="confirmDeleteCourseClass"
           />
           <Button
             v-if="currentClass.status === 'SETUP'"

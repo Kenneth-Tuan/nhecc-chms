@@ -12,7 +12,8 @@ export type CourseClassAccessContext =
   | "PUBLIC_ENROLL"
   | "ADMIN_VIEW"
   | "ADMIN_UPDATE"
-  | "ADMIN_MANAGE";
+  | "ADMIN_MANAGE"
+  | "ADMIN_DELETE";
 
 function mapContextToAction(context: CourseClassAccessContext): AppAction | null {
   switch (context) {
@@ -22,6 +23,8 @@ function mapContextToAction(context: CourseClassAccessContext): AppAction | null
       return "update";
     case "ADMIN_MANAGE":
       return "manage";
+    case "ADMIN_DELETE":
+      return "delete";
     default:
       return null;
   }

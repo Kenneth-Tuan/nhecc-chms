@@ -3,6 +3,7 @@ import type { CourseClass, CreateCourseClassPayload } from '~/types/course-class
 
 export const useCourseClass = () => {
   const isCreating = ref(false)
+  const isDeleting = ref(false)
   const isLoading = ref(false)
   const isStarting = ref(false)
   const isConcluding = ref(false)
@@ -83,8 +84,20 @@ export const useCourseClass = () => {
     }
   }
 
+  const deleteCourseClass = async (id: string) => {
+    isDeleting.value = true
+    try {
+      return await $fetch<{ success: boolean }>(`/api/courses/classes/${id}`, {
+        method: 'DELETE'
+      })
+    } finally {
+      isDeleting.value = false
+    }
+  }
+
   return {
     isCreating,
+    isDeleting,
     isLoading,
     isStarting,
     isConcluding,
@@ -95,6 +108,7 @@ export const useCourseClass = () => {
     createClass,
     updateClass,
     startCourse,
-    concludeCourse
+    concludeCourse,
+    deleteCourseClass
   }
 }
