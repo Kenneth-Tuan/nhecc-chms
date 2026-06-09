@@ -18,6 +18,10 @@ const props = defineProps<{
   canManage?: boolean;
 }>();
 
+const emit = defineEmits<{
+  (e: "assign-click"): void;
+}>();
+
 function getEnrollmentStatusLabel(status: CourseEnrollmentStatus): string {
   switch (status) {
     case "PENDING_WAITLIST":
@@ -70,6 +74,7 @@ function getEnrollmentStatusSeverity(status: CourseEnrollmentStatus): TagSeverit
         icon="pi pi-user-plus"
         outlined
         class="text-base px-6 text-slate-600 dark:text-surface-400 border-slate-300 dark:border-surface-700"
+        @click="emit('assign-click')"
       />
     </div>
 

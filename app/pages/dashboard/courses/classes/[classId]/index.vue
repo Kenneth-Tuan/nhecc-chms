@@ -4,6 +4,7 @@ import ClassStudentList from "./_components/ClassStudentList.vue";
 import ClassForm from "../_components/ClassForm.vue";
 import BasePageContainer from "~/pages/dashboard/_components/BasePageContainer.vue";
 import BasePageHeader from "~/pages/dashboard/_components/BasePageHeader.vue";
+import AssignStudentsDialog from "./_components/AssignStudentsDialog.vue";
 
 definePageMeta({
   layout: "dashboard",
@@ -34,6 +35,7 @@ const currentClass = ref<
 const students = ref<any[]>([]);
 const isLoading = ref(false);
 const showEditDialog = ref(false);
+const showAssignDialog = ref(false);
 
 const canManageCourseClass = computed(() => {
   if (!currentClass.value) return false;
@@ -76,6 +78,25 @@ onMounted(async () => {
     isLoading.value = false;
   }
 });
+
+async function handleStudentAssigned() {
+  try {
+    const [classData, studentData] = await Promise.all([
+      fetchClassById(classId.value),
+      fetchClassStudents(classId.value),
+    ]);
+    currentClass.value = classData;
+    students.value = studentData;
+  } catch (error: any) {
+    console.error("Refresh class details failed:", error);
+    toast.add({
+      severity: "error",
+      summary: "重新載入失敗",
+      detail: error.message || "無法更新學生名單",
+      life: 3000,
+    });
+  }
+}
 
 function goBack() {
   if (currentClass.value) {
@@ -281,6 +302,13 @@ function confirmDeleteCourseClass() {
       </div>
     </Dialog>
 
+    <AssignStudentsDialog
+      v-if="canAssignStudents"
+      v-model:visible="showAssignDialog"
+      :classId="classId"
+      @assigned="handleStudentAssigned"
+    />
+
     <!-- Header: 統一導航與基本資訊 -->
     <BasePageHeader
       v-if="currentClass"
@@ -367,6 +395,7 @@ function confirmDeleteCourseClass() {
             :classId="currentClass.id"
             :students="students"
             :can-manage="canAssignStudents"
+            @assign-click="showAssignDialog = true"
           />
           <CourseClassAttendancePanel
             :class-id="currentClass.id"

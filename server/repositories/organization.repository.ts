@@ -10,6 +10,7 @@ import type {
   ZoneWithGroups,
 } from "~/types/organization";
 import type { Member } from "~/types/member";
+import { Filter } from "firebase-admin/firestore";
 import { getAdminFirestore } from "../utils/firebase-admin";
 
 export class OrganizationRepository {
@@ -260,7 +261,12 @@ export class OrganizationRepository {
     const snapshot = await this.db
       .collection("members")
       .where("status", "==", "Active")
-      .where("zoneId", "==", null)
+      .where(
+        Filter.or(
+          Filter.where("zoneId", "==", null),
+          Filter.where("groupId", "==", null),
+        ),
+      )
       .get();
 
     return snapshot.docs.map((doc: any) => {
@@ -361,7 +367,7 @@ export class OrganizationRepository {
    */
   async unassignMember(
     memberId: string,
-    clearZone: boolean = false
+    clearZone: boolean = false,
   ): Promise<{ success: boolean; message: string }> {
     const memberRef = this.db.collection("members").doc(memberId);
     const memberDoc = await memberRef.get();

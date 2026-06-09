@@ -26,9 +26,26 @@ export const useCourseEnrollment = () => {
     });
   };
 
+  const fetchAssignableMembers = async (classId: string) => {
+    const res = await $fetch<{ data: { userId: string; fullName: string; mobile: string }[] }>(
+      `/api/courses/classes/${classId}/assignable-members`,
+      { method: "GET" }
+    );
+    return res.data;
+  };
+
+  const adminAssignStudents = async (classId: string, userIds: string[]) => {
+    return $fetch(`/api/courses/classes/${classId}/assign-members`, {
+      method: "POST",
+      body: { userIds },
+    });
+  };
+
   return {
     isJoining,
     joinWaitlist,
     assignStudents,
+    fetchAssignableMembers,
+    adminAssignStudents,
   };
 };

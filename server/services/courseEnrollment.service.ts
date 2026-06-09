@@ -8,6 +8,14 @@ import type { CourseClass } from "~/types/course-class";
 import type { CourseEnrollment } from "~/types/course-enrollment";
 import { assertCourseClassAccess } from "../utils/courseClass.policy";
 import { getAdminFirestore } from "../utils/firebase-admin";
+import type { AppAbility } from "~/utils/casl/ability";
+
+export interface AssignableMember {
+  userId: string;
+  fullName: string;
+  mobile: string;
+  prerequisiteError?: string;
+}
 
 export interface UserEnrollmentStatus {
   completedCodes: string[];
@@ -51,7 +59,7 @@ export class CourseEnrollmentService {
    */
   async joinWaitlist(
     userId: string,
-    templateId: string
+    templateId: string,
   ): Promise<CourseEnrollment> {
     const templateRepo = new CourseTemplateRepository();
 
@@ -83,7 +91,7 @@ export class CourseEnrollmentService {
     assertCourseClassAccess(
       "PUBLIC_ENROLL",
       targetClass,
-      "此課程尚未發佈，無法報名"
+      "此課程尚未發佈，無法報名",
     );
 
     if (targetClass.teacherIds?.includes(userId)) {
@@ -103,13 +111,17 @@ export class CourseEnrollmentService {
 
     await this.assertPrerequisites(userId, targetClass.templateId);
 
-    await this.enrollToClassTransaction(userId, classId, targetClass.templateId);
+    await this.enrollToClassTransaction(
+      userId,
+      classId,
+      targetClass.templateId,
+    );
   }
 
   private async enrollToClassTransaction(
     userId: string,
     classId: string,
-    expectedTemplateId: string
+    expectedTemplateId: string,
   ): Promise<void> {
     const db = getAdminFirestore();
     const classRef = db.collection("courseClasses").doc(classId);
@@ -138,7 +150,7 @@ export class CourseEnrollmentService {
       assertCourseClassAccess(
         "PUBLIC_ENROLL",
         targetClass,
-        "此課程尚未發佈，無法報名"
+        "此課程尚未發佈，無法報名",
       );
 
       if (targetClass.teacherIds?.includes(userId)) {
@@ -155,7 +167,7 @@ export class CourseEnrollmentService {
         .where("templateId", "==", targetClass.templateId)
         .limit(1);
       const existingEnrollmentQuerySnap = await transaction.get(
-        existingEnrollmentQuery
+        existingEnrollmentQuery,
       );
 
       if (existingEnrollmentSnap.exists || !existingEnrollmentQuerySnap.empty) {
@@ -199,12 +211,12 @@ export class CourseEnrollmentService {
    */
   async assignStudentsToClass(
     classId: string,
-    enrollmentIds: string[]
+    enrollmentIds: string[],
   ): Promise<void> {
     const db = getAdminFirestore();
     const classRef = db.collection("courseClasses").doc(classId);
     const enrollmentRefs = enrollmentIds.map((id) =>
-      db.collection("courseEnrollments").doc(id)
+      db.collection("courseEnrollments").doc(id),
     );
 
     await db.runTransaction(async (transaction) => {
@@ -219,7 +231,7 @@ export class CourseEnrollmentService {
       } as CourseClass;
 
       const enrollmentSnaps = await Promise.all(
-        enrollmentRefs.map((ref) => transaction.get(ref))
+        enrollmentRefs.map((ref) => transaction.get(ref)),
       );
       const assignableEnrollments = enrollmentSnaps.flatMap((snap, index) => {
         if (!snap.exists) return [];
@@ -278,9 +290,240 @@ export class CourseEnrollmentService {
     });
   }
 
+  /**
+   * 獲取此班級的可指派會員列表 (Active 狀態且未報名此模板課程者)
+   */
+  async getAssignableMembers(
+    classId: string,
+    ability: AppAbility,
+  ): Promise<AssignableMember[]> {
+    const classRepo = new CourseClassRepository();
+    const targetClass = await classRepo.findById(classId);
+    if (!targetClass) {
+      throw createError({ statusCode: 404, message: "找不到此班級" });
+    }
+
+    assertCourseClassAccess(
+      "ADMIN_MANAGE",
+      targetClass,
+      "權限不足，無法指派學生",
+      ability,
+    );
+
+    const enrollmentRepo = new CourseEnrollmentRepository();
+    const enrollments = await enrollmentRepo.findByTemplateId(
+      targetClass.templateId,
+    );
+    const enrolledUserIds = new Set(enrollments.map((e) => e.userId));
+
+    const memberRepo = new MemberRepository();
+    const activeMembers = await memberRepo.findAll({ status: "Active" });
+
+    const teachers = new Set(targetClass.teacherIds || []);
+    const assignable = activeMembers.filter(
+      (m) => !enrolledUserIds.has(m.uuid) && !teachers.has(m.uuid),
+    );
+
+    const assignableMembersList: AssignableMember[] = assignable.map((m) => ({
+      userId: m.uuid,
+      fullName: m.fullName,
+      mobile: m.mobile || "",
+    }));
+
+    const templateRepo = new CourseTemplateRepository();
+    const targetTemplate = await templateRepo.findById(targetClass.templateId);
+
+    if (
+      targetTemplate &&
+      targetTemplate.prerequisites &&
+      targetTemplate.prerequisites.length > 0
+    ) {
+      const allTemplates = await templateRepo.findAll();
+      const templateMap = new Map(allTemplates.map((t) => [t.id, t.code]));
+      const prereqCourseCodes = targetTemplate.prerequisites
+        .filter((p: any) => p.type === "COURSE")
+        .map((p: any) => p.value);
+
+      const prereqTemplateIds = allTemplates
+        .filter((t) => prereqCourseCodes.includes(t.code))
+        .map((t) => t.id);
+
+      const db = getAdminFirestore();
+      const completedEnrollmentsByUserId = new Map<string, string[]>();
+
+      if (prereqTemplateIds.length > 0) {
+        for (let i = 0; i < prereqTemplateIds.length; i += 10) {
+          const chunk = prereqTemplateIds.slice(i, i + 10);
+          const snap = await db
+            .collection("courseEnrollments")
+            .where("templateId", "in", chunk)
+            .where("status", "==", "COMPLETED")
+            .get();
+
+          for (const doc of snap.docs) {
+            const data = doc.data();
+            const code = templateMap.get(data.templateId);
+            if (code) {
+              const codes = completedEnrollmentsByUserId.get(data.userId) || [];
+              codes.push(code);
+              completedEnrollmentsByUserId.set(data.userId, codes);
+            }
+          }
+        }
+      }
+
+      for (const m of assignableMembersList) {
+        const member = assignable.find((a) => a.uuid === m.userId);
+        if (!member) continue;
+
+        const memberCodes = completedEnrollmentsByUserId.get(member.uuid) || [];
+        const memberStatus = {
+          isBaptised: member.baptismStatus || false,
+          isNewcomer: !member.zoneId,
+        };
+
+        const failed: string[] = [];
+        for (const prereq of targetTemplate.prerequisites) {
+          if (prereq.type === "COURSE") {
+            if (!memberCodes.includes(prereq.value)) {
+              failed.push(prereq.value);
+            }
+          } else if (prereq.type === "STATUS") {
+            if (prereq.value === "BAPTISED" && !memberStatus.isBaptised) {
+              failed.push("需已受洗");
+            }
+            if (prereq.value === "IS_NEWCOMER" && !memberStatus.isNewcomer) {
+              failed.push("需為新進教友");
+            }
+          }
+        }
+
+        if (failed.length > 0) {
+          m.prerequisiteError = `不符合先修條件： ${failed.join("、")}`;
+        }
+      }
+    }
+
+    return assignableMembersList;
+  }
+
+  /**
+   * 管理員直接批量指派學生到班級中
+   */
+  async adminAssignStudents(
+    classId: string,
+    userIds: string[],
+    ability: AppAbility,
+  ): Promise<void> {
+    if (!userIds || userIds.length === 0) {
+      return;
+    }
+
+    const classRepo = new CourseClassRepository();
+    const targetClass = await classRepo.findById(classId);
+    if (!targetClass) {
+      throw createError({ statusCode: 404, message: "找不到此班級" });
+    }
+
+    assertCourseClassAccess(
+      "ADMIN_MANAGE",
+      targetClass,
+      "權限不足，無法指派學生",
+      ability,
+    );
+
+    const teachers = new Set(targetClass.teacherIds || []);
+    for (const userId of userIds) {
+      if (teachers.has(userId)) {
+        throw createError({
+          statusCode: 403,
+          message: "授課老師不可被指派為自己課程的學員",
+        });
+      }
+    }
+
+    const db = getAdminFirestore();
+    const classRef = db.collection("courseClasses").doc(classId);
+
+    await db.runTransaction(async (transaction) => {
+      const classSnap = await transaction.get(classRef);
+      if (!classSnap.exists) {
+        throw createError({ statusCode: 404, message: "找不到此班級" });
+      }
+
+      const freshClass = {
+        ...classSnap.data(),
+        id: classSnap.id,
+      } as CourseClass;
+
+      const studentIds = new Set(freshClass.studentIds || []);
+      const uniqueNewUserIds = userIds.filter((id) => !studentIds.has(id));
+
+      if (studentIds.size + uniqueNewUserIds.length > freshClass.maxCapacity) {
+        throw createError({
+          statusCode: 400,
+          message: "指派後會超過班級人數上限",
+        });
+      }
+
+      const now = new Date().toISOString();
+      const enrollmentRefsAndData = [];
+
+      for (const userId of uniqueNewUserIds) {
+        const enrollmentId = this.buildEnrollmentId(
+          userId,
+          freshClass.templateId,
+        );
+        const enrollmentRef = db
+          .collection("courseEnrollments")
+          .doc(enrollmentId);
+
+        const enrollmentSnap = await transaction.get(enrollmentRef);
+
+        const query = db
+          .collection("courseEnrollments")
+          .where("userId", "==", userId)
+          .where("templateId", "==", freshClass.templateId)
+          .limit(1);
+        const querySnap = await transaction.get(query);
+
+        if (enrollmentSnap.exists || !querySnap.empty) {
+          throw createError({
+            statusCode: 400,
+            message: "有學員已經報名或在該課程的等候名單中",
+          });
+        }
+
+        studentIds.add(userId);
+        enrollmentRefsAndData.push({
+          ref: enrollmentRef,
+          data: {
+            userId,
+            templateId: freshClass.templateId,
+            classId: freshClass.id,
+            status: "ASSIGNED",
+            credits: 0,
+            createdAt: now,
+            updatedAt: now,
+          },
+        });
+      }
+
+      for (const item of enrollmentRefsAndData) {
+        transaction.create(item.ref, item.data);
+      }
+
+      transaction.update(classRef, {
+        studentIds: [...studentIds],
+        enrollmentCount: studentIds.size,
+        updatedAt: now,
+      });
+    });
+  }
+
   private async assertPrerequisites(
     userId: string,
-    templateId: string
+    templateId: string,
   ): Promise<void> {
     const templateService = new CourseTemplateService();
     const userStatus = await this.getUserEnrollmentStatus(userId);
@@ -291,7 +534,7 @@ export class CourseEnrollmentService {
         {
           isBaptised: userStatus.isBaptised,
           isNewcomer: userStatus.isNewcomer,
-        }
+        },
       );
 
     if (!passed) {
@@ -303,7 +546,7 @@ export class CourseEnrollmentService {
   }
 
   private async createEnrollmentTransaction(
-    payload: Omit<CourseEnrollment, "id" | "createdAt" | "updatedAt">
+    payload: Omit<CourseEnrollment, "id" | "createdAt" | "updatedAt">,
   ): Promise<CourseEnrollment> {
     const db = getAdminFirestore();
     const enrollmentRef = db
@@ -318,7 +561,7 @@ export class CourseEnrollmentService {
         .where("templateId", "==", payload.templateId)
         .limit(1);
       const existingEnrollmentQuerySnap = await transaction.get(
-        existingEnrollmentQuery
+        existingEnrollmentQuery,
       );
 
       if (existingEnrollmentSnap.exists || !existingEnrollmentQuerySnap.empty) {
