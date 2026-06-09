@@ -521,6 +521,71 @@ export class CourseEnrollmentService {
     });
   }
 
+  /**
+   * 管理員將學生從指定實體班級移除，並刪除對應的報名紀錄
+   */
+  async removeStudentFromClass(
+    classId: string,
+    userId: string,
+    ability: AppAbility,
+  ): Promise<void> {
+    const classRepo = new CourseClassRepository();
+    const targetClass = await classRepo.findById(classId);
+    if (!targetClass) {
+      throw createError({ statusCode: 404, message: "找不到此班級" });
+    }
+
+    assertCourseClassAccess(
+      "ADMIN_MANAGE",
+      targetClass,
+      "權限不足，無法移出學生",
+      ability,
+    );
+
+    const db = getAdminFirestore();
+    const classRef = db.collection("courseClasses").doc(classId);
+    const enrollmentId = this.buildEnrollmentId(userId, targetClass.templateId);
+    const enrollmentRef = db.collection("courseEnrollments").doc(enrollmentId);
+
+    await db.runTransaction(async (transaction) => {
+      const classSnap = await transaction.get(classRef);
+      if (!classSnap.exists) {
+        throw createError({ statusCode: 404, message: "找不到此班級" });
+      }
+
+      const freshClass = {
+        ...classSnap.data(),
+        id: classSnap.id,
+      } as CourseClass;
+
+      const studentIds = new Set(freshClass.studentIds || []);
+      if (!studentIds.has(userId)) {
+        throw createError({
+          statusCode: 400,
+          message: "學員不在該班級中",
+        });
+      }
+
+      const enrollmentSnap = await transaction.get(enrollmentRef);
+      if (!enrollmentSnap.exists) {
+        throw createError({
+          statusCode: 404,
+          message: "找不到此報名紀錄",
+        });
+      }
+
+      studentIds.delete(userId);
+      const now = new Date().toISOString();
+
+      transaction.delete(enrollmentRef);
+      transaction.update(classRef, {
+        studentIds: [...studentIds],
+        enrollmentCount: studentIds.size,
+        updatedAt: now,
+      });
+    });
+  }
+
   private async assertPrerequisites(
     userId: string,
     templateId: string,

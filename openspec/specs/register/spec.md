@@ -3,9 +3,7 @@
 ## Purpose
 
 提供系統使用者帳號建立與個人資料完善功能，包含公開自主註冊（雙步驟 Stepper 流程，支援傳統 Email 與社群帳號）及受邀註冊驗證流程。
-
 ## Requirements
-
 ### Requirement: Public Self-Registration (Step 1 - Account Creation)
 
 系統 SHALL 提供使用者填寫基本帳號資訊以建立帳號，並區分傳統註冊與社群註冊流程。
@@ -85,3 +83,22 @@
 - AND 取得回傳之 `customToken` 並呼叫 Firebase Auth `signInWithCustomToken` 進行驗證
 - AND 發送 POST `/api/auth/session` 以 `idToken` 寫入 Cookie Session
 - AND 同步 `authStore` 後跳轉至首頁或後台
+
+### Requirement: 管理員可將學生從實體班級移除
+The system SHALL allow users with `ADMIN_MANAGE` permission on a `CourseClass` to remove an enrolled or assigned student from that class.
+Upon removal, the student's enrollment record SHALL be deleted, and the class's `enrollmentCount` and `studentIds` list SHALL be updated accordingly in a single atomic transaction.
+
+#### Scenario: 管理員成功移除學生
+- **WHEN** the administrator initiates a request to remove a student (`userId`) from a class (`classId`)
+- **THEN** the system SHALL delete the corresponding `courseEnrollment` document
+- **THEN** the system SHALL remove the `userId` from the `CourseClass`'s `studentIds` list and decrement `enrollmentCount` by 1
+- **THEN** the system SHALL return a success response
+
+#### Scenario: 權限不足時拒絕移除
+- **WHEN** a user without `ADMIN_MANAGE` permission attempts to remove a student from a class
+- **THEN** the system SHALL return a 403 Forbidden error
+
+#### Scenario: 學生不存在於班級中
+- **WHEN** the administrator attempts to remove a student who is not currently enrolled in the specified class
+- **THEN** the system SHALL return a 400 Bad Request error or 404 Not Found error indicating the enrollment does not exist
+

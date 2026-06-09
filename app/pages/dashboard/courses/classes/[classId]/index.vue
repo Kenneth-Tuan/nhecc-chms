@@ -396,6 +396,7 @@ function confirmDeleteCourseClass() {
             :students="students"
             :can-manage="canAssignStudents"
             @assign-click="showAssignDialog = true"
+            @refresh="handleStudentAssigned"
           />
           <CourseClassAttendancePanel
             :class-id="currentClass.id"

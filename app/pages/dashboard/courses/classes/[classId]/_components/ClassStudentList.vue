@@ -20,7 +20,14 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "assign-click"): void;
+  (e: "refresh"): void;
 }>();
+
+const confirm = useConfirm();
+const toast = useToast();
+const { removeStudentFromClass } = useCourseEnrollment();
+
+const isRemoving = ref(false);
 
 function getEnrollmentStatusLabel(status: CourseEnrollmentStatus): string {
   switch (status) {
@@ -53,6 +60,41 @@ function getEnrollmentStatusSeverity(status: CourseEnrollmentStatus): TagSeverit
       return "danger";
     default:
       return status satisfies never;
+  }
+}
+
+function confirmRemove(student: ClassStudentListItem) {
+  confirm.require({
+    message: `確定要將「${student.name}」從此班級移除嗎？此操作將會刪除其報名紀錄。`,
+    header: "移除學生確認",
+    icon: "pi pi-exclamation-triangle",
+    acceptClass: "p-button-danger",
+    acceptLabel: "確認移除",
+    rejectLabel: "取消",
+    accept: () => handleRemove(student),
+  });
+}
+
+async function handleRemove(student: ClassStudentListItem) {
+  isRemoving.value = true;
+  try {
+    await removeStudentFromClass(props.classId, student.userId);
+    toast.add({
+      severity: "success",
+      summary: "移除成功",
+      detail: `已將 ${student.name} 從班級移除`,
+      life: 3000,
+    });
+    emit("refresh");
+  } catch (error: any) {
+    toast.add({
+      severity: "error",
+      summary: "移除失敗",
+      detail: error.data?.message || "無法移除學生",
+      life: 5000,
+    });
+  } finally {
+    isRemoving.value = false;
   }
 }
 </script>
@@ -102,7 +144,7 @@ function getEnrollmentStatusSeverity(status: CourseEnrollmentStatus): TagSeverit
         </template>
       </Column>
       <Column v-if="canManage" header="操作">
-        <template #body>
+        <template #body="{ data }">
           <Button
             icon="pi pi-times"
             text
@@ -110,6 +152,8 @@ function getEnrollmentStatusSeverity(status: CourseEnrollmentStatus): TagSeverit
             rounded
             class="p-2"
             aria-label="移除"
+            :loading="isRemoving"
+            @click="confirmRemove(data)"
           />
         </template>
       </Column>

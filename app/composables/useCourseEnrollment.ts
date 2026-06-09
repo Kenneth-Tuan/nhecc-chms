@@ -41,11 +41,18 @@ export const useCourseEnrollment = () => {
     });
   };
 
+  const removeStudentFromClass = async (classId: string, userId: string) => {
+    return $fetch(`/api/courses/classes/${classId}/students/${userId}`, {
+      method: "DELETE",
+    });
+  };
+
   return {
     isJoining,
     joinWaitlist,
     assignStudents,
     fetchAssignableMembers,
     adminAssignStudents,
+    removeStudentFromClass,
   };
 };
